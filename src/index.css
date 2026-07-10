@@ -1,0 +1,41 @@
+@import "tailwindcss";
+
+@theme {
+  --color-primary: var(--primary);
+  --color-secondary: var(--secondary);
+  --color-accent: var(--accent);
+  --color-background: var(--background);
+  --color-surface: var(--surface);
+  --color-text-main: var(--text-main);
+  --color-border-main: var(--border-main);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-error: var(--error);
+  --font-sans: "Plus Jakarta Sans", system-ui, sans-serif;
+}
+
+@layer base {
+  :root {
+    --primary: #4F46E5;
+    --secondary: #0EA5E9;
+    --accent: #10B981;
+    --background: #F8FAFC;
+    --surface: #FFFFFF;
+    --text-main: #1E293B;
+    --border-main: #E2E8F0;
+    --success: #22C55E;
+    --warning: #F59E0B;
+    --error: #EF4444;
+  }
+
+  .dark {
+    --background: #020617;
+    --surface: #0F172A;
+    --border-main: #1E293B;
+    --text-main: #F8FAFC;
+  }
+}
+
+body {
+  @apply bg-background text-text-main font-sans antialiased transition-colors duration-300;
+}
