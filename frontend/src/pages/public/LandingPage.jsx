@@ -1,9 +1,16 @@
-import { Button } from '../../components/ui/Button';
-import { Card, CardContent } from '../../components/ui/Card';
-import { Badge } from '../../components/ui/Badge';
-import { motion } from 'framer-motion';
-import { ArrowRight, Wifi, Coffee, Book, Monitor, CheckCircle2 } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { Button } from "../../components/ui/Button";
+import { Card, CardContent } from "../../components/ui/Card";
+import { Badge } from "../../components/ui/Badge";
+import { motion } from "framer-motion";
+import {
+  ArrowRight,
+  Wifi,
+  Coffee,
+  Book,
+  Monitor,
+  CheckCircle2,
+} from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 export default function LandingPage() {
   const navigate = useNavigate();
@@ -14,7 +21,7 @@ export default function LandingPage() {
       <section className="relative overflow-hidden pt-24 pb-32">
         {/* Background gradient effects */}
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[500px] bg-primary/20 blur-[120px] rounded-full pointer-events-none opacity-50 dark:opacity-20" />
-        
+
         <div className="container mx-auto px-4 relative z-10">
           <div className="max-w-4xl mx-auto text-center">
             <motion.div
@@ -26,19 +33,30 @@ export default function LandingPage() {
                 Revolutionizing Work & Study Spaces
               </Badge>
               <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight mb-8">
-                Your Premium <br/>
+                Your Premium <br />
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary">
                   Workspace & Library
                 </span>
               </h1>
               <p className="text-lg md:text-xl text-text-main/70 mb-10 max-w-2xl mx-auto leading-relaxed">
-                Experience the perfect blend of silent focused study zones and dynamic collaborative coworking spaces. Designed for productivity, built for you.
+                Experience the perfect blend of silent focused study zones and
+                dynamic collaborative coworking spaces. Designed for
+                productivity, built for you.
               </p>
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-                <Button size="lg" className="w-full sm:w-auto text-lg px-8 rounded-full" onClick={() => navigate('/book')}>
+                <Button
+                  size="lg"
+                  className="w-full sm:w-auto text-lg px-8 rounded-full"
+                  onClick={() => navigate("/book")}
+                >
                   Book a Seat <ArrowRight className="ml-2 w-5 h-5" />
                 </Button>
-                <Button variant="outline" size="lg" className="w-full sm:w-auto text-lg px-8 rounded-full bg-surface" onClick={() => navigate('/pricing')}>
+                <Button
+                  variant="outline"
+                  size="lg"
+                  className="w-full sm:w-auto text-lg px-8 rounded-full bg-surface"
+                  onClick={() => navigate("/pricing")}
+                >
                   Explore Plans
                 </Button>
               </div>
@@ -51,77 +69,120 @@ export default function LandingPage() {
       <section className="py-24 bg-surface">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold mb-4">Everything you need to succeed</h2>
-            <p className="text-text-main/70 max-w-xl mx-auto">Choose the environment that matches your current goal. Whether it's deep focus or team collaboration, we have you covered.</p>
+            <h2 className="text-3xl font-bold mb-4">
+              Everything you need to succeed
+            </h2>
+            <p className="text-text-main/70 max-w-xl mx-auto">
+              Choose the environment that matches your current goal. Whether
+              it's deep focus or team collaboration, we have you covered.
+            </p>
           </div>
 
           <div className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
             <Card className="overflow-hidden group hover:shadow-xl hover:shadow-primary/5 transition-all duration-300 border-border-main/50">
               <div className="h-48 bg-primary/10 relative overflow-hidden flex items-center justify-center">
-                 {/* Placeholder for image */}
-                 <Book className="w-20 h-20 text-primary opacity-50 group-hover:scale-110 transition-transform duration-500" />
-                 <div className="absolute inset-0 bg-gradient-to-t from-surface to-transparent" />
+                {/* Placeholder for image */}
+                <Book className="w-20 h-20 text-primary opacity-50 group-hover:scale-110 transition-transform duration-500" />
+                <div className="absolute inset-0 bg-gradient-to-t from-surface to-transparent" />
               </div>
               <CardContent className="pt-6 relative">
-                <Badge variant="outline" className="mb-4">For Students & Readers</Badge>
+                <Badge variant="outline" className="mb-4">
+                  For Students & Readers
+                </Badge>
                 <h3 className="text-2xl font-bold mb-2">Premium Library</h3>
                 <p className="text-text-main/70 mb-6 line-clamp-2">
-                  Pin-drop silence, ergonomic chairs, personal reading lights, and high-speed WiFi. The ultimate environment for deep focus.
+                  Pin-drop silence, ergonomic chairs, personal reading lights,
+                  and high-speed WiFi. The ultimate environment for deep focus.
                 </p>
                 <ul className="space-y-3 mb-8">
-                  {['Dedicated silent zones', 'Ergonomic seating', 'Locker facilities', 'High-speed internet'].map((feature, i) => (
+                  {[
+                    "Dedicated silent zones",
+                    "Ergonomic seating",
+                    "Locker facilities",
+                    "High-speed internet",
+                  ].map((feature, i) => (
                     <li key={i} className="flex items-center text-sm">
                       <CheckCircle2 className="w-4 h-4 text-success mr-3" />
                       {feature}
                     </li>
                   ))}
                 </ul>
-                <Button variant="outline" className="w-full" onClick={() => navigate('/pricing?plan=library')}>Explore Library</Button>
+                <Button
+                  variant="outline"
+                  className="w-full"
+                  onClick={() => navigate("/library")}
+                >
+                  Explore Library
+                </Button>
               </CardContent>
             </Card>
 
             <Card className="overflow-hidden group hover:shadow-xl hover:shadow-secondary/5 transition-all duration-300 border-border-main/50">
               <div className="h-48 bg-secondary/10 relative overflow-hidden flex items-center justify-center">
-                 {/* Placeholder for image */}
-                 <Monitor className="w-20 h-20 text-secondary opacity-50 group-hover:scale-110 transition-transform duration-500" />
-                 <div className="absolute inset-0 bg-gradient-to-t from-surface to-transparent" />
+                {/* Placeholder for image */}
+                <Monitor className="w-20 h-20 text-secondary opacity-50 group-hover:scale-110 transition-transform duration-500" />
+                <div className="absolute inset-0 bg-gradient-to-t from-surface to-transparent" />
               </div>
               <CardContent className="pt-6 relative">
-                <Badge variant="outline" className="mb-4">For Professionals & Startups</Badge>
+                <Badge variant="outline" className="mb-4">
+                  For Professionals & Startups
+                </Badge>
                 <h3 className="text-2xl font-bold mb-2">Coworking Space</h3>
                 <p className="text-text-main/70 mb-6 line-clamp-2">
-                  Dynamic open desks, private cabins, and state-of-the-art meeting rooms designed to foster creativity and networking.
+                  Dynamic open desks, private cabins, and state-of-the-art
+                  meeting rooms designed to foster creativity and networking.
                 </p>
                 <ul className="space-y-3 mb-8">
-                  {['Hot desks & private cabins', 'Conference rooms', 'Unlimited beverages', '24/7 Access'].map((feature, i) => (
+                  {[
+                    "Hot desks & private cabins",
+                    "Conference rooms",
+                    "Unlimited beverages",
+                    "24/7 Access",
+                  ].map((feature, i) => (
                     <li key={i} className="flex items-center text-sm">
                       <CheckCircle2 className="w-4 h-4 text-success mr-3" />
                       {feature}
                     </li>
                   ))}
                 </ul>
-                <Button variant="outline" className="w-full" onClick={() => navigate('/pricing?plan=coworking')}>Explore Coworking</Button>
+                <Button
+                  variant="outline"
+                  className="w-full"
+                  onClick={() => navigate("/coworking")}
+                >
+                  Explore Coworking
+                </Button>
               </CardContent>
             </Card>
           </div>
         </div>
       </section>
-      
+
       {/* Why Choose Us */}
       <section className="py-24">
         <div className="container mx-auto px-4 max-w-6xl">
           <div className="grid md:grid-cols-2 gap-16 items-center">
             <div>
-              <h2 className="text-4xl font-bold mb-6">Designed around your productivity</h2>
+              <h2 className="text-4xl font-bold mb-6">
+                Designed around your productivity
+              </h2>
               <p className="text-text-main/70 mb-8 text-lg">
-                We've obsessed over every detail so you don't have to. From the lighting temperature to the ergonomic chairs, everything is optimized for your performance.
+                We've obsessed over every detail so you don't have to. From the
+                lighting temperature to the ergonomic chairs, everything is
+                optimized for your performance.
               </p>
               <div className="grid grid-cols-2 gap-6">
                 {[
-                  { icon: <Wifi className="w-5 h-5"/>, label: "Gigabit WiFi" },
-                  { icon: <Coffee className="w-5 h-5"/>, label: "Premium Cafe" },
-                  { icon: <Book className="w-5 h-5"/>, label: "Silent Zones" },
-                  { icon: <Monitor className="w-5 h-5"/>, label: "Meeting Rooms" },
+                  { icon: <Wifi className="w-5 h-5" />, label: "Gigabit WiFi" },
+                  {
+                    icon: <Coffee className="w-5 h-5" />,
+                    label: "Premium Cafe",
+                  },
+                  { icon: <Book className="w-5 h-5" />, label: "Silent Zones" },
+                  {
+                    icon: <Monitor className="w-5 h-5" />,
+                    label: "Meeting Rooms",
+                  },
                 ].map((item, i) => (
                   <div key={i} className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
@@ -147,13 +208,16 @@ export default function LandingPage() {
                     <Badge variant="success">Active</Badge>
                   </div>
                   <div className="space-y-4">
-                    {[1, 2, 3].map(i => (
-                      <div key={i} className="w-full h-12 rounded-xl bg-background border border-border-main/50 flex items-center px-4 gap-4">
-                         <div className="w-8 h-8 rounded-lg bg-primary/10" />
-                         <div className="flex-1">
-                           <div className="w-1/2 h-2 bg-border-main rounded-full mb-1.5" />
-                           <div className="w-1/3 h-1.5 bg-border-main/50 rounded-full" />
-                         </div>
+                    {[1, 2, 3].map((i) => (
+                      <div
+                        key={i}
+                        className="w-full h-12 rounded-xl bg-background border border-border-main/50 flex items-center px-4 gap-4"
+                      >
+                        <div className="w-8 h-8 rounded-lg bg-primary/10" />
+                        <div className="flex-1">
+                          <div className="w-1/2 h-2 bg-border-main rounded-full mb-1.5" />
+                          <div className="w-1/3 h-1.5 bg-border-main/50 rounded-full" />
+                        </div>
                       </div>
                     ))}
                   </div>
