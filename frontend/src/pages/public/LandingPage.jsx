@@ -78,42 +78,45 @@ export default function LandingPage() {
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
+          <div className="grid md:grid-cols-3 gap-8 max-w-7xl mx-auto">
             <Card className="overflow-hidden group hover:shadow-xl hover:shadow-primary/5 transition-all duration-300 border-border-main/50">
               <div className="h-48 bg-primary/10 relative overflow-hidden flex items-center justify-center">
                 {/* Placeholder for image */}
                 <Book className="w-20 h-20 text-primary opacity-50 group-hover:scale-110 transition-transform duration-500" />
                 <div className="absolute inset-0 bg-gradient-to-t from-surface to-transparent" />
               </div>
-              <CardContent className="pt-6 relative">
-                <Badge variant="outline" className="mb-4">
-                  For Students & Readers
-                </Badge>
-                <h3 className="text-2xl font-bold mb-2">Premium Library</h3>
-                <p className="text-text-main/70 mb-6 line-clamp-2">
-                  Pin-drop silence, ergonomic chairs, personal reading lights,
-                  and high-speed WiFi. The ultimate environment for deep focus.
-                </p>
-                <ul className="space-y-3 mb-8">
-                  {[
-                    "Dedicated silent zones",
-                    "Ergonomic seating",
-                    "Locker facilities",
-                    "High-speed internet",
-                  ].map((feature, i) => (
-                    <li key={i} className="flex items-center text-sm">
-                      <CheckCircle2 className="w-4 h-4 text-success mr-3" />
-                      {feature}
-                    </li>
-                  ))}
-                </ul>
-                <Button
-                  variant="outline"
-                  className="w-full"
-                  onClick={() => navigate("/library")}
-                >
-                  Explore Library
-                </Button>
+              <CardContent className="pt-6 relative flex flex-col h-[350px]">
+                <div>
+                  <Badge variant="outline" className="mb-4">
+                    For Students & Readers
+                  </Badge>
+                  <h3 className="text-2xl font-bold mb-2">Premium Library</h3>
+                  <p className="text-text-main/70 mb-6 line-clamp-2">
+                    Pin-drop silence, ergonomic chairs, personal reading lights,
+                    and high-speed WiFi. The ultimate environment for deep focus.
+                  </p>
+                  <ul className="space-y-3 mb-8">
+                    {[
+                      "Dedicated silent zones",
+                      "Ergonomic seating",
+                      "Locker facilities",
+                    ].map((feature, i) => (
+                      <li key={i} className="flex items-center text-sm">
+                        <CheckCircle2 className="w-4 h-4 text-success mr-3 flex-shrink-0" />
+                        {feature}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+                <div className="mt-auto">
+                  <Button
+                    variant="outline"
+                    className="w-full"
+                    onClick={() => navigate("/library")}
+                  >
+                    Explore Library
+                  </Button>
+                </div>
               </CardContent>
             </Card>
 
@@ -123,35 +126,83 @@ export default function LandingPage() {
                 <Monitor className="w-20 h-20 text-secondary opacity-50 group-hover:scale-110 transition-transform duration-500" />
                 <div className="absolute inset-0 bg-gradient-to-t from-surface to-transparent" />
               </div>
-              <CardContent className="pt-6 relative">
-                <Badge variant="outline" className="mb-4">
-                  For Professionals & Startups
-                </Badge>
-                <h3 className="text-2xl font-bold mb-2">Coworking Space</h3>
-                <p className="text-text-main/70 mb-6 line-clamp-2">
-                  Dynamic open desks, private cabins, and state-of-the-art
-                  meeting rooms designed to foster creativity and networking.
-                </p>
-                <ul className="space-y-3 mb-8">
-                  {[
-                    "Hot desks & private cabins",
-                    "Conference rooms",
-                    "Unlimited beverages",
-                    "24/7 Access",
-                  ].map((feature, i) => (
-                    <li key={i} className="flex items-center text-sm">
-                      <CheckCircle2 className="w-4 h-4 text-success mr-3" />
-                      {feature}
-                    </li>
-                  ))}
-                </ul>
-                <Button
-                  variant="outline"
-                  className="w-full"
-                  onClick={() => navigate("/coworking")}
-                >
-                  Explore Coworking
-                </Button>
+              <CardContent className="pt-6 relative flex flex-col h-[350px]">
+                <div>
+                  <Badge variant="outline" className="mb-4">
+                    For Professionals
+                  </Badge>
+                  <h3 className="text-2xl font-bold mb-2">Coworking Space</h3>
+                  <p className="text-text-main/70 mb-6 line-clamp-2">
+                    Dynamic open desks, private cabins, and state-of-the-art
+                    meeting rooms designed to foster creativity and networking.
+                  </p>
+                  <ul className="space-y-3 mb-8">
+                    {[
+                      "Hot desks & private cabins",
+                      "Conference rooms",
+                      "24/7 Access",
+                    ].map((feature, i) => (
+                      <li key={i} className="flex items-center text-sm">
+                        <CheckCircle2 className="w-4 h-4 text-success mr-3 flex-shrink-0" />
+                        {feature}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+                <div className="mt-auto">
+                  <Button
+                    variant="outline"
+                    className="w-full"
+                    onClick={() => navigate("/coworking")}
+                  >
+                    Explore Coworking
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="overflow-hidden group hover:shadow-xl hover:shadow-success/5 transition-all duration-300 border-border-main/50">
+              <div className="h-48 bg-success/10 relative overflow-hidden flex items-center justify-center">
+                {/* Placeholder for image */}
+                <svg className="w-20 h-20 text-success opacity-50 group-hover:scale-110 transition-transform duration-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/>
+                  <path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/>
+                  <path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"/>
+                  <path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"/>
+                </svg>
+                <div className="absolute inset-0 bg-gradient-to-t from-surface to-transparent" />
+              </div>
+              <CardContent className="pt-6 relative flex flex-col h-[350px]">
+                <div>
+                  <Badge variant="outline" className="mb-4">
+                    For Growing Teams
+                  </Badge>
+                  <h3 className="text-2xl font-bold mb-2">Startup Suites</h3>
+                  <p className="text-text-main/70 mb-6 line-clamp-2">
+                    Move-in ready headquarters with enterprise-grade infrastructure. Scale your team without worrying about the lease.
+                  </p>
+                  <ul className="space-y-3 mb-8">
+                    {[
+                      "Dedicated team suites",
+                      "Private meeting pods",
+                      "Enterprise IT infrastructure",
+                    ].map((feature, i) => (
+                      <li key={i} className="flex items-center text-sm">
+                        <CheckCircle2 className="w-4 h-4 text-success mr-3 flex-shrink-0" />
+                        {feature}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+                <div className="mt-auto">
+                  <Button
+                    variant="outline"
+                    className="w-full"
+                    onClick={() => navigate("/startup")}
+                  >
+                    Explore Startups
+                  </Button>
+                </div>
               </CardContent>
             </Card>
           </div>

@@ -6,6 +6,7 @@ import SeatSelectionMap from "./pages/public/SeatSelectionMap";
 import PricingPage from "./pages/public/PricingPage";
 import AuthLayout from "./layouts/AuthLayout";
 import LoginPage from "./pages/auth/LoginPage";
+import SignupPage from "./pages/auth/SignupPage";
 import UserDashboardLayout from "./layouts/UserDashboardLayout";
 import OverviewPage from "./pages/dashboard/OverviewPage";
 import AdminDashboardLayout from "./layouts/AdminDashboardLayout";
@@ -34,6 +35,7 @@ function App() {
           {/* Auth Routes */}
           <Route path="/auth" element={<AuthLayout />}>
             <Route path="login" element={<LoginPage />} />
+            <Route path="signup" element={<SignupPage />} />
           </Route>
 
           {/* Dashboard Routes */}
