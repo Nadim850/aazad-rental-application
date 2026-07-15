@@ -4,6 +4,8 @@ import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
 import { Badge } from '../../components/ui/Badge';
 
+import { apiFetch } from '../../lib/api';
+
 export default function AdminPlansPage() {
   const [plans, setPlans] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -14,7 +16,7 @@ export default function AdminPlansPage() {
   const fetchPlans = async () => {
     try {
       const token = localStorage.getItem('access');
-      const res = await fetch('http://localhost:8000/api/bookings/admin-plans/', {
+      const res = await apiFetch('http://localhost:8000/api/bookings/admin-plans/', {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       if (res.ok) {
@@ -35,7 +37,7 @@ export default function AdminPlansPage() {
   const handleSavePrice = async (id) => {
     try {
       const token = localStorage.getItem('access');
-      const res = await fetch(`http://localhost:8000/api/bookings/admin-plans/${id}/`, {
+      const res = await apiFetch(`http://localhost:8000/api/bookings/admin-plans/${id}/`, {
         method: 'PATCH',
         headers: { 
           'Authorization': `Bearer ${token}`,

@@ -4,6 +4,7 @@ import { BookOpen, LayoutDashboard, QrCode, CreditCard, Calendar, Settings, Bell
 import { useState, useEffect } from 'react';
 import { cn } from '../lib/utils';
 import { Button } from '../components/ui/Button';
+import { apiFetch } from '../lib/api';
 
 export default function UserDashboardLayout() {
   const { theme, toggleTheme } = useTheme();
@@ -28,8 +29,8 @@ export default function UserDashboardLayout() {
         };
 
         const [userRes, dashboardRes] = await Promise.all([
-          fetch('http://localhost:8000/api/accounts/me/', { headers }),
-          fetch('http://localhost:8000/api/bookings/my-dashboard/', { headers })
+          apiFetch('http://localhost:8000/api/accounts/me/', { headers }),
+          apiFetch('http://localhost:8000/api/bookings/my-dashboard/', { headers })
         ]);
 
         if (userRes.ok && dashboardRes.ok) {

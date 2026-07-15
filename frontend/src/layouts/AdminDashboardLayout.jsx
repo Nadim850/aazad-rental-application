@@ -19,6 +19,8 @@ import {
 import { cn } from "../lib/utils";
 import { Button } from "../components/ui/Button";
 
+import { apiFetch } from "../lib/api";
+
 export default function AdminDashboardLayout() {
   const { theme, toggleTheme } = useTheme();
   const navigate = useNavigate();
@@ -30,7 +32,7 @@ export default function AdminDashboardLayout() {
       navigate('/auth/login');
       return;
     }
-    fetch('http://localhost:8000/api/accounts/me/', {
+    apiFetch('http://localhost:8000/api/accounts/me/', {
       headers: { 'Authorization': `Bearer ${token}` }
     })
     .then(res => res.ok ? res.json() : null)

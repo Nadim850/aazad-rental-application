@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '../../components/ui/Card';
 import { Badge } from '../../components/ui/Badge';
 
+import { apiFetch } from '../../lib/api';
+
 export default function AdminWorkspacesPage() {
   const [workspaces, setWorkspaces] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -9,7 +11,7 @@ export default function AdminWorkspacesPage() {
   const fetchWorkspaces = async () => {
     try {
       const token = localStorage.getItem('access');
-      const res = await fetch('http://localhost:8000/api/bookings/admin-workspaces/', {
+      const res = await apiFetch('http://localhost:8000/api/bookings/admin-workspaces/', {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       if (res.ok) {
@@ -30,7 +32,7 @@ export default function AdminWorkspacesPage() {
   const toggleAvailability = async (id, currentStatus) => {
     try {
       const token = localStorage.getItem('access');
-      const res = await fetch(`http://localhost:8000/api/bookings/admin-workspaces/${id}/`, {
+      const res = await apiFetch(`http://localhost:8000/api/bookings/admin-workspaces/${id}/`, {
         method: 'PATCH',
         headers: { 
           'Authorization': `Bearer ${token}`,

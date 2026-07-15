@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '../../components/ui/Card';
 import { Badge } from '../../components/ui/Badge';
+import { apiFetch } from '../../lib/api';
 
 export default function AdminUsersPage() {
   const [users, setUsers] = useState([]);
@@ -10,7 +11,7 @@ export default function AdminUsersPage() {
     const fetchUsers = async () => {
       try {
         const token = localStorage.getItem('access');
-        const res = await fetch('http://localhost:8000/api/accounts/users/', {
+        const res = await apiFetch('http://localhost:8000/api/accounts/users/', {
           headers: { 'Authorization': `Bearer ${token}` }
         });
         if (res.ok) {

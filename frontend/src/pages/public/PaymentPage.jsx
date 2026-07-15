@@ -7,6 +7,8 @@ import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '../../comp
 import { Input } from '../../components/ui/Input';
 import { Badge } from '../../components/ui/Badge';
 
+import { apiFetch } from '../../lib/api';
+
 export default function PaymentPage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -52,7 +54,7 @@ export default function PaymentPage() {
         return;
       }
       
-      const response = await fetch('http://localhost:8000/api/bookings/book/', {
+      const response = await apiFetch('http://localhost:8000/api/bookings/book/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -5,6 +5,7 @@ import { Input } from '../../components/ui/Input';
 import { Mail, Lock } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useGoogleLogin } from '@react-oauth/google';
+import { apiFetch } from '../../lib/api';
 
 export default function LoginPage() {
   const navigate = useNavigate();
@@ -42,7 +43,7 @@ export default function LoginPage() {
         localStorage.setItem('refresh', data.refresh);
         
         // Fetch user data to check if admin
-        const meRes = await fetch('http://localhost:8000/api/accounts/me/', {
+        const meRes = await apiFetch('http://localhost:8000/api/accounts/me/', {
           headers: { 'Authorization': `Bearer ${data.access}` }
         });
         
@@ -85,7 +86,7 @@ export default function LoginPage() {
         localStorage.setItem('refresh', data.refresh);
         
         // Fetch user data to check if admin
-        const meRes = await fetch('http://localhost:8000/api/accounts/me/', {
+        const meRes = await apiFetch('http://localhost:8000/api/accounts/me/', {
           headers: { 'Authorization': `Bearer ${data.access}` }
         });
         

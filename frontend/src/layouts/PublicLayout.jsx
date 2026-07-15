@@ -4,6 +4,8 @@ import { useTheme } from "../contexts/ThemeContext";
 import { Moon, Sun, BookOpen } from "lucide-react";
 import { Button } from "../components/ui/Button";
 
+import { apiFetch } from "../lib/api";
+
 export default function PublicLayout() {
   const { theme, toggleTheme } = useTheme();
   const navigate = useNavigate();
@@ -19,7 +21,7 @@ export default function PublicLayout() {
     setIsDropdownOpen(false); // Close dropdown on navigation
     
     if (token) {
-      fetch('http://localhost:8000/api/accounts/me/', {
+      apiFetch('http://localhost:8000/api/accounts/me/', {
         headers: { 'Authorization': `Bearer ${token}` }
       })
       .then(res => {
