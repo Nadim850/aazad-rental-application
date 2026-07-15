@@ -11,10 +11,15 @@ import UserDashboardLayout from "./layouts/UserDashboardLayout";
 import OverviewPage from "./pages/dashboard/OverviewPage";
 import AdminDashboardLayout from "./layouts/AdminDashboardLayout";
 import AdminAnalyticsPage from "./pages/admin/AdminAnalyticsPage";
+import AdminUsersPage from "./pages/admin/AdminUsersPage";
+import AdminWorkspacesPage from "./pages/admin/AdminWorkspacesPage";
+import AdminPlansPage from "./pages/admin/AdminPlansPage";
 import LibraryServices from "./pages/public/LibraryServices";
 import CoworkingServices from "./pages/public/CoworkingServices";
 import StartupServices from "./pages/public/StartupServices";
 import PaymentPage from "./pages/public/PaymentPage";
+
+import UserSettingsPage from "./pages/dashboard/UserSettingsPage";
 
 function App() {
   return (
@@ -41,11 +46,14 @@ function App() {
           {/* Dashboard Routes */}
           <Route path="/dashboard" element={<UserDashboardLayout />}>
             <Route index element={<OverviewPage />} />
+            <Route path="settings" element={<UserSettingsPage />} />
           </Route>
 
           {/* Admin Routes */}
           <Route path="/admin" element={<AdminDashboardLayout />}>
-            <Route index element={<AdminAnalyticsPage />} />
+            <Route index element={<AdminPlansPage />} />
+            <Route path="users" element={<AdminUsersPage />} />
+            <Route path="workspaces" element={<AdminWorkspacesPage />} />
           </Route>
         </Routes>
       </BrowserRouter>

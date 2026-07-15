@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { CreditCard, CheckCircle2, ShieldCheck, Tag, ArrowLeft } from 'lucide-react';
@@ -12,20 +12,70 @@ export default function PaymentPage() {
   const [searchParams] = useSearchParams();
   const [isProcessing, setIsProcessing] = useState(false);
   const [paymentStatus, setPaymentStatus] = useState('pending'); // pending, success
+  const [error, setError] = useState('');
 
   const planType = searchParams.get('plan') || 'Premium Plan';
   const seatId = searchParams.get('seat') || 'L-12';
-  const price = 1999;
-  const gst = price * 0.18;
-  const total = price + gst;
+  const months = parseInt(searchParams.get('months') || '1', 10);
+  
+  const [basePrice, setBasePrice] = useState(1999);
+  
+  useEffect(() => {
+    const fetchPlans = async () => {
+      try {
+        const res = await fetch('http://localhost:8000/api/bookings/public-plans/');
+        if (res.ok) {
+          const data = await res.json();
+          const selectedPlan = data.find(p => p.name === planType);
+          if (selectedPlan) {
+            setBasePrice(parseFloat(selectedPlan.monthly_price));
+          }
+        }
+      } catch (err) {
+        console.error("Failed to fetch plans for payment", err);
+      }
+    };
+    fetchPlans();
+  }, [planType]);
 
-  const handlePayment = () => {
+  const price = basePrice * months;
+  const total = price;
+
+  const handlePayment = async () => {
     setIsProcessing(true);
-    // Simulate Razorpay / Payment Gateway delay
-    setTimeout(() => {
+    setError('');
+    
+    try {
+      const token = localStorage.getItem('access');
+      if (!token) {
+        navigate('/auth/login');
+        return;
+      }
+      
+      const response = await fetch('http://localhost:8000/api/bookings/book/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          seat_id: seatId,
+          plan_type: planType,
+          months: months
+        })
+      });
+      
+      if (response.ok) {
+        setPaymentStatus('success');
+      } else {
+        const data = await response.json();
+        setError(data.error || 'Failed to process booking');
+      }
+    } catch (err) {
+      setError('Network error occurred during payment');
+    } finally {
       setIsProcessing(false);
-      setPaymentStatus('success');
-    }, 2000);
+    }
   };
 
   if (paymentStatus === 'success') {
@@ -80,7 +130,7 @@ export default function PaymentPage() {
                 <div className="flex justify-between items-start mb-6">
                   <div>
                     <h3 className="font-bold text-lg">{planType}</h3>
-                    <p className="text-sm text-text-main/70">Seat: {seatId}</p>
+                    <p className="text-sm text-text-main/70">Seat: {seatId} &bull; {months} {months === 1 ? 'Month' : 'Months'}</p>
                   </div>
                   <span className="font-semibold">₹{price.toFixed(2)}</span>
                 </div>
@@ -90,11 +140,8 @@ export default function PaymentPage() {
                     <span>Subtotal</span>
                     <span>₹{price.toFixed(2)}</span>
                   </div>
-                  <div className="flex justify-between text-text-main/70">
-                    <span>GST (18%)</span>
-                    <span>₹{gst.toFixed(2)}</span>
-                  </div>
-                  <div className="pt-3 border-t border-border-main/50 flex justify-between font-bold text-lg">
+                  <div className="border-t border-border-main my-4" />
+                  <div className="flex justify-between items-center text-lg font-bold text-text-main">
                     <span>Total Due</span>
                     <span>₹{total.toFixed(2)}</span>
                   </div>
@@ -111,6 +158,11 @@ export default function PaymentPage() {
           {/* Payment Method */}
           <div className="space-y-6">
             <h2 className="text-2xl font-bold">Payment Details</h2>
+            {error && (
+              <div className="p-3 bg-red-500/10 border border-red-500/50 rounded text-red-500 text-sm">
+                {error}
+              </div>
+            )}
             <Card>
               <CardHeader>
                 <div className="flex items-center justify-between">

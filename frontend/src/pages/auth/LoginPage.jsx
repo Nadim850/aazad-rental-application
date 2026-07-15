@@ -40,7 +40,26 @@ export default function LoginPage() {
         const data = await response.json();
         localStorage.setItem('access', data.access);
         localStorage.setItem('refresh', data.refresh);
-        navigate('/dashboard');
+        
+        // Fetch user data to check if admin
+        const meRes = await fetch('http://localhost:8000/api/accounts/me/', {
+          headers: { 'Authorization': `Bearer ${data.access}` }
+        });
+        
+        let isAdmin = false;
+        if (meRes.ok) {
+          const user = await meRes.json();
+          isAdmin = user.is_staff || user.is_superuser;
+        }
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const redirectUrl = urlParams.get('redirect');
+        
+        if (isAdmin && !redirectUrl) {
+          navigate('/admin');
+        } else {
+          navigate(redirectUrl ? redirectUrl : '/dashboard');
+        }
       } else {
         setError('Invalid credentials');
       }
@@ -64,7 +83,26 @@ export default function LoginPage() {
         const data = await response.json();
         localStorage.setItem('access', data.access);
         localStorage.setItem('refresh', data.refresh);
-        navigate('/dashboard');
+        
+        // Fetch user data to check if admin
+        const meRes = await fetch('http://localhost:8000/api/accounts/me/', {
+          headers: { 'Authorization': `Bearer ${data.access}` }
+        });
+        
+        let isAdmin = false;
+        if (meRes.ok) {
+          const user = await meRes.json();
+          isAdmin = user.is_staff || user.is_superuser;
+        }
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const redirectUrl = urlParams.get('redirect');
+        
+        if (isAdmin && !redirectUrl) {
+          navigate('/admin');
+        } else {
+          navigate(redirectUrl ? redirectUrl : '/dashboard');
+        }
       } else {
         const data = await response.json();
         setError(data.error || 'Social login failed');

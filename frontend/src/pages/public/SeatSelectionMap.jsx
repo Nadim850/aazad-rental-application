@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Button } from "../../components/ui/Button";
@@ -8,41 +8,51 @@ import { cn } from "../../lib/utils";
 
 export default function SeatSelectionMap() {
   const [selectedSeat, setSelectedSeat] = useState(null);
+  const [seats, setSeats] = useState([]);
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const filterType = searchParams.get('type');
 
-  // Generate mock seats for Library Zone
-  const librarySeats = Array.from({ length: 24 }).map((_, i) => ({
-    id: `L-${i + 1}`,
+  useEffect(() => {
+    const fetchSeats = async () => {
+      try {
+        const res = await fetch("http://localhost:8000/api/bookings/public-workspaces/");
+        if (res.ok) {
+          const data = await res.json();
+          setSeats(data);
+        }
+      } catch (err) {
+        console.error("Failed to fetch seats", err);
+      }
+    };
+    fetchSeats();
+  }, []);
+
+  // Separate and map seats with coordinates
+  const librarySeats = seats.filter(s => s.name.startsWith('L-')).map((seat, i) => ({
+    id: seat.name,
     type: "library",
-    status:
-      Math.random() > 0.7
-        ? "occupied"
-        : Math.random() > 0.8
-          ? "reserved"
-          : "available",
+    status: seat.is_available ? "available" : "occupied",
     x: 40 + (i % 6) * 60,
     y: 80 + Math.floor(i / 6) * 75,
   }));
 
-  // Generate mock seats for Coworking Zone
-  const dedicatedDesks = Array.from({ length: 6 }).map((_, i) => ({
-    id: `D-${i + 1}`,
+  const dedicatedDesks = seats.filter(s => s.name.startsWith('D-')).map((seat, i) => ({
+    id: seat.name,
     type: "coworking",
     subType: "dedicated-desk",
-    status: Math.random() > 0.6 ? "occupied" : "available",
-    x: 480 + (i % 2) * 120, // 480, 600
-    y: 80 + Math.floor(i / 2) * 100, // 80, 180, 280
+    status: seat.is_available ? "available" : "occupied",
+    x: 480 + (i % 2) * 120,
+    y: 80 + Math.floor(i / 2) * 100,
   }));
 
-  const privateCabins = Array.from({ length: 3 }).map((_, i) => ({
-    id: `C-${i + 1}`,
+  const privateCabins = seats.filter(s => s.name.startsWith('P-') || s.name.startsWith('C-')).map((seat, i) => ({
+    id: seat.name,
     type: "coworking",
     subType: "private-cabin",
-    status: Math.random() > 0.7 ? "occupied" : "available",
+    status: seat.is_available ? "available" : "occupied",
     x: 865,
-    y: 80 + i * 100, // 80, 180, 280
+    y: 80 + i * 100,
   }));
 
   const coworkingSeats = [...dedicatedDesks, ...privateCabins];
@@ -50,6 +60,11 @@ export default function SeatSelectionMap() {
   const allSeats = [...librarySeats, ...coworkingSeats].filter(seat => 
     filterType ? seat.type === filterType : true
   );
+
+  const maxLibraryHeight = Math.max(360, 40 + Math.ceil(librarySeats.length / 6) * 75);
+  const maxDedicatedHeight = Math.max(360, 40 + Math.ceil(dedicatedDesks.length / 2) * 100);
+  const maxCabinHeight = Math.max(360, 40 + privateCabins.length * 100);
+  const maxTotalHeight = Math.max(maxLibraryHeight, maxDedicatedHeight, maxCabinHeight) + 40;
 
   const handleSeatClick = (seat) => {
     if (seat.status === "available") {
@@ -115,8 +130,8 @@ export default function SeatSelectionMap() {
         <div className="relative bg-surface rounded-3xl border border-border-main shadow-sm p-8 overflow-x-auto min-w-full flex justify-center">
           <svg 
             width={(!filterType || filterType === 'all') ? "800" : "100%"} 
-            height="400" 
-            viewBox={filterType === 'library' ? "0 0 440 400" : filterType === 'coworking' ? "430 0 620 400" : "0 0 1100 400"}
+            height={maxTotalHeight} 
+            viewBox={filterType === 'library' ? `0 0 440 ${maxTotalHeight}` : filterType === 'coworking' ? `430 0 620 ${maxTotalHeight}` : `0 0 1100 ${maxTotalHeight}`}
             className="select-none max-w-4xl"
           >
             {/* Zones */}
@@ -126,7 +141,7 @@ export default function SeatSelectionMap() {
                   x="20"
                   y="20"
                   width="400"
-                  height="360"
+                  height={maxLibraryHeight}
                   rx="16"
                   fill="var(--color-primary)"
                   fillOpacity="0.03"
@@ -153,7 +168,7 @@ export default function SeatSelectionMap() {
                   x="450"
                   y="20"
                   width="300"
-                  height="360"
+                  height={maxDedicatedHeight}
                   rx="16"
                   fill="var(--color-secondary)"
                   fillOpacity="0.03"
@@ -171,7 +186,7 @@ export default function SeatSelectionMap() {
                   x="780"
                   y="20"
                   width="250"
-                  height="360"
+                  height={maxCabinHeight}
                   rx="16"
                   fill="var(--color-secondary)"
                   fillOpacity="0.03"

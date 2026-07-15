@@ -43,7 +43,13 @@ export default function SignupPage() {
       });
       
       if (response.ok) {
-        navigate('/auth/login');
+        const urlParams = new URLSearchParams(window.location.search);
+        const redirectUrl = urlParams.get('redirect');
+        if (redirectUrl) {
+          navigate(`/auth/login?redirect=${encodeURIComponent(redirectUrl)}`);
+        } else {
+          navigate('/auth/login');
+        }
       } else {
         const data = await response.json();
         const errorMsg = data.detail || (data.email ? 'Email: ' + data.email[0] : 'Registration failed.');
