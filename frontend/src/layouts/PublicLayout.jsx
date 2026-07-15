@@ -16,36 +16,36 @@ export default function PublicLayout() {
 
   // Check auth state whenever location changes
   useEffect(() => {
-    const token = localStorage.getItem('access');
+    const token = localStorage.getItem("access");
     setIsLoggedIn(!!token);
     setIsDropdownOpen(false); // Close dropdown on navigation
-    
+
     if (token) {
-      apiFetch('http://localhost:8000/api/accounts/me/', {
-        headers: { 'Authorization': `Bearer ${token}` }
+      apiFetch("http://localhost:8000/api/accounts/me/", {
+        headers: { Authorization: `Bearer ${token}` },
       })
-      .then(res => {
-        if (res.ok) return res.json();
-        throw new Error('Not authenticated');
-      })
-      .then(data => setUser(data))
-      .catch(() => {
-        // Handle expired token or error
-        localStorage.removeItem('access');
-        localStorage.removeItem('refresh');
-        setIsLoggedIn(false);
-        setUser(null);
-      });
+        .then((res) => {
+          if (res.ok) return res.json();
+          throw new Error("Not authenticated");
+        })
+        .then((data) => setUser(data))
+        .catch(() => {
+          // Handle expired token or error
+          localStorage.removeItem("access");
+          localStorage.removeItem("refresh");
+          setIsLoggedIn(false);
+          setUser(null);
+        });
     } else {
       setUser(null);
     }
   }, [location]);
 
   const handleLogout = () => {
-    localStorage.removeItem('access');
-    localStorage.removeItem('refresh');
+    localStorage.removeItem("access");
+    localStorage.removeItem("refresh");
     setIsLoggedIn(false);
-    navigate('/');
+    navigate("/");
   };
 
   return (
@@ -101,7 +101,7 @@ export default function PublicLayout() {
             >
               {theme === "dark" ? <Sun size={20} /> : <Moon size={20} />}
             </button>
-            
+
             <div className="hidden md:flex gap-2 relative">
               {isLoggedIn ? (
                 <div className="relative">
@@ -110,37 +110,43 @@ export default function PublicLayout() {
                     className="flex items-center gap-2 hover:bg-border-main/50 p-1.5 pr-3 rounded-full transition-colors border border-border-main/50"
                   >
                     <div className="w-8 h-8 rounded-full bg-primary/20 text-primary flex items-center justify-center font-bold text-sm">
-                      {user?.first_name?.[0]?.toUpperCase() || user?.email?.[0]?.toUpperCase() || 'U'}
+                      {user?.first_name?.[0]?.toUpperCase() ||
+                        user?.email?.[0]?.toUpperCase() ||
+                        "U"}
                     </div>
                     <div className="flex flex-col items-start text-left">
                       <span className="text-[13px] font-semibold leading-tight max-w-[100px] truncate">
-                        {user?.first_name || 'User'}
+                        {user?.first_name || "User"}
                       </span>
                       <span className="text-[10px] text-text-main/50 font-medium uppercase tracking-wider">
-                        {user?.is_staff ? 'Admin' : 'Member'}
+                        {user?.is_staff ? "Admin" : "Member"}
                       </span>
                     </div>
                   </button>
-                  
+
                   {isDropdownOpen && (
                     <>
-                      <div 
+                      <div
                         className="fixed inset-0 z-40"
                         onClick={() => setIsDropdownOpen(false)}
                       />
                       <div className="absolute right-0 mt-2 w-48 rounded-xl shadow-lg bg-surface border border-border-main overflow-hidden z-50 animate-in fade-in slide-in-from-top-2">
                         <div className="p-3 border-b border-border-main bg-black/5 dark:bg-white/5">
-                          <p className="text-sm font-medium truncate">{user?.email}</p>
+                          <p className="text-sm font-medium truncate">
+                            {user?.email}
+                          </p>
                         </div>
                         <div className="py-1">
                           <button
                             onClick={() => {
                               setIsDropdownOpen(false);
-                              navigate(user?.is_staff ? '/admin' : '/dashboard');
+                              navigate(
+                                user?.is_staff ? "/admin" : "/dashboard",
+                              );
                             }}
                             className="block w-full text-left px-4 py-2 text-sm text-text-main hover:bg-border-main/50 transition-colors font-medium"
                           >
-                            {user?.is_staff ? 'Admin Panel' : 'My Dashboard'}
+                            {user?.is_staff ? "Admin Panel" : "My Dashboard"}
                           </button>
                           <button
                             onClick={() => {
@@ -165,10 +171,10 @@ export default function PublicLayout() {
                   >
                     Get Started
                   </Button>
-                  
+
                   {isDropdownOpen && (
                     <>
-                      <div 
+                      <div
                         className="fixed inset-0 z-40"
                         onClick={() => setIsDropdownOpen(false)}
                       />
@@ -177,7 +183,7 @@ export default function PublicLayout() {
                           <button
                             onClick={() => {
                               setIsDropdownOpen(false);
-                              navigate('/auth/login');
+                              navigate("/auth/login");
                             }}
                             className="block w-full text-left px-4 py-2 text-sm text-text-main hover:bg-border-main/50 transition-colors font-medium"
                           >
@@ -186,7 +192,7 @@ export default function PublicLayout() {
                           <button
                             onClick={() => {
                               setIsDropdownOpen(false);
-                              navigate('/auth/signup');
+                              navigate("/auth/signup");
                             }}
                             className="block w-full text-left px-4 py-2 text-sm text-text-main hover:bg-border-main/50 transition-colors font-medium"
                           >
@@ -199,7 +205,6 @@ export default function PublicLayout() {
                 </div>
               )}
             </div>
-
           </div>
         </div>
       </header>
