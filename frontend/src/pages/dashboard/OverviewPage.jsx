@@ -10,7 +10,7 @@ export default function OverviewPage() {
   const navigate = useNavigate();
   const { userData, dashboardData } = useOutletContext();
   
-  const { active_subscription, payment_history, subscription_history } = dashboardData || {};
+  const { active_subscription, upcoming_subscriptions, payment_history, subscription_history } = dashboardData || {};
 
   let daysRemaining = 0;
   let isNearExpire = false;
@@ -91,6 +91,35 @@ export default function OverviewPage() {
               </div>
             )}
 
+            {/* Upcoming Subscriptions */}
+            {upcoming_subscriptions && upcoming_subscriptions.length > 0 && (
+              <div className="mt-8 mb-6">
+                <h3 className="text-lg font-semibold mb-4">Upcoming Subscription(s)</h3>
+                <div className="space-y-4">
+                  {upcoming_subscriptions.map((upcoming) => (
+                    <div key={upcoming.id} className="flex flex-col sm:flex-row gap-4 p-5 rounded-xl border border-primary/20 bg-primary/5">
+                      <div className="w-16 h-16 rounded-xl bg-primary/10 flex items-center justify-center shrink-0 border border-primary/20">
+                        <span className="text-xl font-bold text-primary">{upcoming.workspace.name}</span>
+                      </div>
+                      <div className="flex-1">
+                        <div className="flex items-center justify-between mb-2">
+                          <h4 className="font-medium text-lg">
+                            {upcoming.workspace.workspace_type === 'library' ? 'Silent Reader Plan' : 
+                             upcoming.workspace.workspace_type === 'coworking' ? 'Coworking Desk' : 'Private Suite'}
+                          </h4>
+                          <Badge variant="warning">Upcoming</Badge>
+                        </div>
+                        <div className="text-sm text-text-main/70">
+                          <p>Starts on: <span className="font-medium text-text-main">{new Date(upcoming.start_time).toLocaleDateString()}</span></p>
+                          <p>Expires on: {new Date(upcoming.end_time).toLocaleDateString()}</p>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
             {/* Subscription History */}
             {subscription_history && subscription_history.length > 0 && (
               <div className="mt-8">
@@ -108,7 +137,10 @@ export default function OverviewPage() {
                              history.workspace.workspace_type === 'coworking' ? 'Coworking Desk' : 'Private Suite'}
                           </p>
                           <p className="text-xs text-text-main/60 mt-1">
-                            {new Date(history.start_time).toLocaleDateString()} - {new Date(history.end_time).toLocaleDateString()}
+                            Purchased: {new Date(history.created_at).toLocaleDateString()}
+                          </p>
+                          <p className="text-xs text-text-main/60">
+                            Valid: {new Date(history.start_time).toLocaleDateString()} - {new Date(history.end_time).toLocaleDateString()}
                           </p>
                         </div>
                       </div>

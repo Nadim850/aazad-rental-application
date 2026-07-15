@@ -18,12 +18,20 @@ class DashboardView(APIView):
         all_bookings = Booking.objects.filter(user=request.user).order_by('-created_at')
         
         # Mark expired bookings automatically before returning data
-        # Any 'ACTIVE' booking whose end_time has passed should be 'EXPIRED'
         expired_bookings = all_bookings.filter(status='ACTIVE', end_time__lte=now)
         for b in expired_bookings:
             b.status = 'EXPIRED'
-            b.workspace.is_available = True
-            b.workspace.save()
+            b.save()
+            # Only free the workspace if there are no other active or upcoming bookings for it
+            has_upcoming = Booking.objects.filter(workspace=b.workspace, status__in=['ACTIVE', 'UPCOMING']).exists()
+            if not has_upcoming:
+                b.workspace.is_available = True
+                b.workspace.save()
+
+        # Automatically activate UPCOMING bookings if their start time has arrived
+        upcoming_to_active = all_bookings.filter(status='UPCOMING', start_time__lte=now)
+        for b in upcoming_to_active:
+            b.status = 'ACTIVE'
             b.save()
             
         # Refetch after updates
@@ -32,14 +40,18 @@ class DashboardView(APIView):
         # Active subscription: the latest booking where status='ACTIVE'
         active_booking = all_bookings.filter(status='ACTIVE', end_time__gt=now).first()
         
+        # Upcoming subscriptions
+        upcoming_bookings = all_bookings.filter(status='UPCOMING')
+        
         # History: upgraded, cancelled, or expired bookings
-        history_bookings = all_bookings.exclude(status='ACTIVE')
+        history_bookings = all_bookings.exclude(status__in=['ACTIVE', 'UPCOMING'])
         
         # Invoices: paid bookings
         paid_bookings = all_bookings.filter(is_paid=True)
         
         return Response({
             'active_subscription': BookingSerializer(active_booking).data if active_booking else None,
+            'upcoming_subscriptions': BookingSerializer(upcoming_bookings, many=True).data,
             'subscription_history': BookingSerializer(history_bookings, many=True).data,
             'payment_history': BookingSerializer(paid_bookings, many=True).data
         })
@@ -56,32 +68,31 @@ class BookSeatView(APIView):
             return Response({'error': 'seat_id is required'}, status=status.HTTP_400_BAD_REQUEST)
             
         # 1. Get Workspace
-        # Ensure the seat exists and is available
+        # Ensure the seat exists
         try:
             workspace = Workspace.objects.get(name=seat_id)
         except Workspace.DoesNotExist:
             return Response({'error': f'Seat {seat_id} does not exist.'}, status=status.HTTP_404_NOT_FOUND)
             
         if not workspace.is_available:
-            return Response({'error': f'Seat {seat_id} is currently not available or already booked.'}, status=status.HTTP_400_BAD_REQUEST)
+            # Check if this user is the one currently holding the seat
+            current_holder_booking = Booking.objects.filter(workspace=workspace, status__in=['ACTIVE', 'UPCOMING']).order_by('-end_time').first()
+            if not current_holder_booking or current_holder_booking.user != request.user:
+                return Response({'error': f'Seat {seat_id} is currently not available or already booked.'}, status=status.HTTP_400_BAD_REQUEST)
             
-        # 1.5 Handle Upgrade - if user has an active booking, upgrade it
-        active_bookings = Booking.objects.filter(user=request.user, status='ACTIVE')
-        now = timezone.now()
-        for b in active_bookings:
-            b.status = 'UPGRADED'
-            b.end_time = now
-            b.save()
-            # Free up the old seat
-            b.workspace.is_available = True
-            b.workspace.save()
-
-        # Mark new seat as unavailable
+        # Mark new seat as unavailable immediately
         workspace.is_available = False
         workspace.save()
             
         # 2. Calculate dates
-        start_time = now
+        latest_user_booking = Booking.objects.filter(user=request.user, status__in=['ACTIVE', 'UPCOMING']).order_by('-end_time').first()
+        
+        if latest_user_booking:
+            start_time = latest_user_booking.end_time
+            booking_status = 'UPCOMING'
+        else:
+            start_time = timezone.now()
+            booking_status = 'ACTIVE'
         
         # Add 'months' to current date (approximate as 30 days per month)
         # Using timedelta for simplicity, though dateutil.relativedelta is more accurate for exact calendar months
@@ -94,7 +105,7 @@ class BookSeatView(APIView):
             start_time=start_time,
             end_time=end_time,
             is_paid=True,
-            status='ACTIVE'
+            status=booking_status
         )
         
         return Response({

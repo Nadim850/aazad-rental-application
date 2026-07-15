@@ -26,6 +26,7 @@ class SubscriptionPlan(models.Model):
 class Booking(models.Model):
     STATUS_CHOICES = (
         ('ACTIVE', 'Active'),
+        ('UPCOMING', 'Upcoming'),
         ('UPGRADED', 'Upgraded'),
         ('EXPIRED', 'Expired'),
         ('CANCELLED', 'Cancelled'),
