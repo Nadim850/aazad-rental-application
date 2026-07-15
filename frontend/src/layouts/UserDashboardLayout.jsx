@@ -70,6 +70,8 @@ export default function UserDashboardLayout() {
     { name: 'Settings', to: '/dashboard/settings', icon: Settings },
   ];
 
+  const [showNotifications, setShowNotifications] = useState(false);
+
   if (loading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
@@ -89,7 +91,6 @@ export default function UserDashboardLayout() {
     isNearExpire = daysRemaining <= 7 && daysRemaining > 0;
   }
 
-  const [showNotifications, setShowNotifications] = useState(false);
   const userName = userData?.first_name || userData?.email?.split('@')[0] || 'User';
 
   return (
