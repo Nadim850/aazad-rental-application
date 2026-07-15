@@ -44,7 +44,7 @@ function App() {
           </Route>
 
           {/* Dashboard Routes */}
-          <Route path="/dashboard" element={<UserDashboardLayout />}>
+          <Route path="/dashboard/*" element={<UserDashboardLayout />}>
             <Route index element={<OverviewPage />} />
             <Route path="settings" element={<UserSettingsPage />} />
           </Route>

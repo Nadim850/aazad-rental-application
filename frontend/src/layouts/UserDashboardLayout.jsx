@@ -33,13 +33,27 @@ export default function UserDashboardLayout() {
           apiFetch('http://localhost:8000/api/bookings/my-dashboard/', { headers })
         ]);
 
-        if (userRes.ok && dashboardRes.ok) {
+        if (userRes.ok) {
           const user = await userRes.json();
-          const dashboard = await dashboardRes.json();
           setUserData(user);
-          setDashboardData(dashboard);
+
+          if (dashboardRes.ok) {
+            const dashboard = await dashboardRes.json();
+            setDashboardData(dashboard);
+          } else if (dashboardRes.status === 401) {
+            navigate('/auth/login');
+            return;
+          } else {
+            console.error('Failed to load dashboard details:', dashboardRes.status);
+            setDashboardData({ active_subscription: null, payment_history: [] });
+          }
         } else if (userRes.status === 401) {
           navigate('/auth/login');
+          return;
+        } else {
+          console.error('Failed to verify user session:', userRes.status);
+          navigate('/auth/login');
+          return;
         }
       } catch (error) {
         console.error("Error fetching dashboard data:", error);
