@@ -53,9 +53,16 @@ export default function PricingPage() {
     fetchPlans();
   }, [searchParams]);
 
-  const filteredPlans = plans.filter(
-    plan => activePlanFilter === 'all' || plan.category === activePlanFilter || plan.id === activePlanFilter
-  );
+  const filteredPlans = plans.filter(plan => {
+    if (activePlanFilter === 'all') return true;
+    if (activePlanFilter === 'coworking-dedicated') {
+      return plan.category === 'coworking' && plan.name.toLowerCase().includes('desk');
+    }
+    if (activePlanFilter === 'coworking-private') {
+      return plan.category === 'coworking' && plan.name.toLowerCase().includes('cabin');
+    }
+    return plan.category === activePlanFilter || plan.id === activePlanFilter;
+  });
 
   const getPriceData = (basePrice, months) => {
     const totalWithDiscount = basePrice * months;
@@ -89,7 +96,11 @@ export default function PricingPage() {
             <Badge variant="success" className="px-3 py-1 text-xs md:text-sm mb-3 bg-success/10 text-success border-success/20 shadow-sm">
               <span className="flex items-center gap-1.5">
                 <CheckCircle2 className="w-3.5 h-3.5" /> 
-                Booking Seat {seatParam} &bull; {activePlanFilter.charAt(0).toUpperCase() + activePlanFilter.slice(1)}
+                Booking Seat {seatParam} &bull; {
+                  activePlanFilter === 'coworking-dedicated' ? 'Coworking Desk' : 
+                  activePlanFilter === 'coworking-private' ? 'Private Cabin' : 
+                  activePlanFilter.charAt(0).toUpperCase() + activePlanFilter.slice(1)
+                }
               </span>
             </Badge>
             <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight mb-2">
