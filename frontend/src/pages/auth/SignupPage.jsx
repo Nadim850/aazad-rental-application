@@ -119,10 +119,38 @@ export default function SignupPage() {
         }
       } else {
         const data = await response.json();
-        if (data.email) {
-          setErrors(prev => ({ ...prev, email: 'This email is already registered.' }));
-        } else {
-          setGlobalError(data.detail || 'Registration failed.');
+        const fieldMap = {
+          first_name: 'firstName',
+          last_name: 'lastName',
+          email: 'email',
+          phone_number: 'phoneNumber',
+          password: 'password'
+        };
+
+        const newBackendErrors = {};
+        let hasSpecificError = false;
+        const globalErrors = [];
+
+        Object.keys(data).forEach(key => {
+          const errorText = Array.isArray(data[key]) ? data[key][0] : data[key];
+          if (fieldMap[key]) {
+            newBackendErrors[fieldMap[key]] = errorText;
+            hasSpecificError = true;
+          } else if (key === 'detail' || key === 'non_field_errors') {
+            globalErrors.push(errorText);
+          } else {
+            globalErrors.push(`${key}: ${errorText}`);
+          }
+        });
+
+        if (hasSpecificError) {
+          setErrors(prev => ({ ...prev, ...newBackendErrors }));
+        }
+        
+        if (globalErrors.length > 0) {
+          setGlobalError(globalErrors.join(' '));
+        } else if (!hasSpecificError) {
+          setGlobalError('Registration failed.');
         }
       }
     } catch (err) {
