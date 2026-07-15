@@ -75,7 +75,7 @@ export default function LoginPage() {
         if (isAdmin && !redirectUrl) {
           navigate('/admin');
         } else {
-          navigate(redirectUrl ? redirectUrl : '/dashboard');
+          navigate(redirectUrl ? redirectUrl : '/');
         }
       } else {
         setGlobalError('Invalid email or password.');
@@ -118,7 +118,7 @@ export default function LoginPage() {
         if (isAdmin && !redirectUrl) {
           navigate('/admin');
         } else {
-          navigate(redirectUrl ? redirectUrl : '/dashboard');
+          navigate(redirectUrl ? redirectUrl : '/');
         }
       } else {
         const data = await response.json();

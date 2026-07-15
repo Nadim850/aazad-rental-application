@@ -17,14 +17,30 @@ class DashboardView(APIView):
         # Get all user bookings ordered by newest first
         all_bookings = Booking.objects.filter(user=request.user).order_by('-created_at')
         
-        # Active subscription: the latest booking where end_time > now
-        active_booking = all_bookings.filter(end_time__gt=now).first()
+        # Mark expired bookings automatically before returning data
+        # Any 'ACTIVE' booking whose end_time has passed should be 'EXPIRED'
+        expired_bookings = all_bookings.filter(status='ACTIVE', end_time__lte=now)
+        for b in expired_bookings:
+            b.status = 'EXPIRED'
+            b.workspace.is_available = True
+            b.workspace.save()
+            b.save()
+            
+        # Refetch after updates
+        all_bookings = Booking.objects.filter(user=request.user).order_by('-created_at')
+        
+        # Active subscription: the latest booking where status='ACTIVE'
+        active_booking = all_bookings.filter(status='ACTIVE', end_time__gt=now).first()
+        
+        # History: upgraded, cancelled, or expired bookings
+        history_bookings = all_bookings.exclude(status='ACTIVE')
         
         # Invoices: paid bookings
         paid_bookings = all_bookings.filter(is_paid=True)
         
         return Response({
             'active_subscription': BookingSerializer(active_booking).data if active_booking else None,
+            'subscription_history': BookingSerializer(history_bookings, many=True).data,
             'payment_history': BookingSerializer(paid_bookings, many=True).data
         })
 
@@ -49,12 +65,23 @@ class BookSeatView(APIView):
         if not workspace.is_available:
             return Response({'error': f'Seat {seat_id} is currently not available or already booked.'}, status=status.HTTP_400_BAD_REQUEST)
             
-        # Mark as unavailable
+        # 1.5 Handle Upgrade - if user has an active booking, upgrade it
+        active_bookings = Booking.objects.filter(user=request.user, status='ACTIVE')
+        now = timezone.now()
+        for b in active_bookings:
+            b.status = 'UPGRADED'
+            b.end_time = now
+            b.save()
+            # Free up the old seat
+            b.workspace.is_available = True
+            b.workspace.save()
+
+        # Mark new seat as unavailable
         workspace.is_available = False
         workspace.save()
             
         # 2. Calculate dates
-        start_time = timezone.now()
+        start_time = now
         
         # Add 'months' to current date (approximate as 30 days per month)
         # Using timedelta for simplicity, though dateutil.relativedelta is more accurate for exact calendar months
@@ -66,7 +93,8 @@ class BookSeatView(APIView):
             workspace=workspace,
             start_time=start_time,
             end_time=end_time,
-            is_paid=True
+            is_paid=True,
+            status='ACTIVE'
         )
         
         return Response({

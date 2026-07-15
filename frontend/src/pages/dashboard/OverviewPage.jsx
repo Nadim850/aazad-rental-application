@@ -10,7 +10,7 @@ export default function OverviewPage() {
   const navigate = useNavigate();
   const { userData, dashboardData } = useOutletContext();
   
-  const { active_subscription, payment_history } = dashboardData || {};
+  const { active_subscription, payment_history, subscription_history } = dashboardData || {};
 
   let daysRemaining = 0;
   let isNearExpire = false;
@@ -24,12 +24,19 @@ export default function OverviewPage() {
 
   const userName = userData?.first_name || userData?.email?.split('@')[0] || 'User';
 
+  const getGreeting = () => {
+    const hour = new Date().getHours();
+    if (hour < 12) return 'Good morning';
+    if (hour < 18) return 'Good afternoon';
+    return 'Good evening';
+  };
+
   return (
     <div className="max-w-6xl mx-auto space-y-6">
       {/* Header section */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight mb-1">Good morning, {userName}</h1>
+          <h1 className="text-3xl font-bold tracking-tight mb-1">{getGreeting()}, {userName}</h1>
           <p className="text-text-main/70">Here is what's happening with your workspace today.</p>
         </div>
       </div>
@@ -81,6 +88,36 @@ export default function OverviewPage() {
                 <h3 className="text-lg font-medium text-text-main mb-2">No Active Subscription</h3>
                 <p className="text-text-main/70 mb-6">You don't have an active workspace booking yet.</p>
                 <Button onClick={() => navigate('/book')}>Book a Seat</Button>
+              </div>
+            )}
+
+            {/* Subscription History */}
+            {subscription_history && subscription_history.length > 0 && (
+              <div className="mt-8">
+                <h3 className="text-lg font-semibold mb-4">Subscription History</h3>
+                <div className="space-y-4">
+                  {subscription_history.map((history) => (
+                    <div key={history.id} className="flex items-center justify-between p-4 rounded-xl border border-border-main/50 bg-background/50 opacity-80 hover:opacity-100 transition-opacity">
+                      <div className="flex items-center gap-4">
+                        <div className="w-12 h-12 rounded-lg bg-border-main/20 flex items-center justify-center shrink-0">
+                          <span className="font-semibold text-text-main/80">{history.workspace.name}</span>
+                        </div>
+                        <div>
+                          <p className="font-medium text-sm">
+                            {history.workspace.workspace_type === 'library' ? 'Silent Reader Plan' : 
+                             history.workspace.workspace_type === 'coworking' ? 'Coworking Desk' : 'Private Suite'}
+                          </p>
+                          <p className="text-xs text-text-main/60 mt-1">
+                            {new Date(history.start_time).toLocaleDateString()} - {new Date(history.end_time).toLocaleDateString()}
+                          </p>
+                        </div>
+                      </div>
+                      <Badge variant={history.status === 'UPGRADED' ? 'primary' : 'outline'} className="text-[10px]">
+                        {history.status}
+                      </Badge>
+                    </div>
+                  ))}
+                </div>
               </div>
             )}
           </CardContent>

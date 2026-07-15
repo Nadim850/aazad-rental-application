@@ -24,11 +24,18 @@ class SubscriptionPlan(models.Model):
         return self.name
 
 class Booking(models.Model):
+    STATUS_CHOICES = (
+        ('ACTIVE', 'Active'),
+        ('UPGRADED', 'Upgraded'),
+        ('EXPIRED', 'Expired'),
+        ('CANCELLED', 'Cancelled'),
+    )
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='bookings')
     workspace = models.ForeignKey(Workspace, on_delete=models.CASCADE, related_name='bookings')
     start_time = models.DateTimeField()
     end_time = models.DateTimeField()
     is_paid = models.BooleanField(default=False)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='ACTIVE')
     
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

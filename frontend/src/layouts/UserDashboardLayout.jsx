@@ -4,6 +4,7 @@ import { BookOpen, LayoutDashboard, QrCode, CreditCard, Calendar, Settings, Bell
 import { useState, useEffect } from 'react';
 import { cn } from '../lib/utils';
 import { Button } from '../components/ui/Button';
+import { Badge } from '../components/ui/Badge';
 import { apiFetch } from '../lib/api';
 
 export default function UserDashboardLayout() {
@@ -199,10 +200,55 @@ export default function UserDashboardLayout() {
               )}
             </div>
             
-            <div className="flex items-center gap-2 ml-2 pl-2 border-l border-border-main">
+            <div className="flex items-center gap-2 ml-2 pl-2 border-l border-border-main relative group">
               <span className="text-sm font-medium hidden sm:block">{userName}</span>
-              <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-sm border border-primary/20">
+              <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-sm border border-primary/20 cursor-pointer">
                 {userName.charAt(0).toUpperCase()}
+              </div>
+
+              {/* Profile Hover Card */}
+              <div className="absolute right-0 top-full mt-2 w-64 bg-surface border border-border-main rounded-xl shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                <div className="p-4 border-b border-border-main/50">
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center text-primary font-bold text-xl border border-primary/30 shrink-0">
+                      {userName.charAt(0).toUpperCase()}
+                    </div>
+                    <div className="overflow-hidden">
+                      <p className="font-semibold truncate">{userData?.first_name ? `${userData.first_name} ${userData.last_name || ''}`.trim() : userName}</p>
+                      <p className="text-xs text-text-main/70 truncate">{userData?.email}</p>
+                      {userData?.phone_number && <p className="text-xs text-text-main/70 truncate">{userData.phone_number}</p>}
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="p-3 border-b border-border-main/50 bg-black/5 dark:bg-white/5">
+                  <p className="text-[10px] font-bold text-text-main/50 uppercase tracking-wider mb-1.5">Current Plan</p>
+                  {active_subscription ? (
+                    <div>
+                      <p className="text-sm font-medium">{active_subscription.workspace.name}</p>
+                      <p className="text-xs text-text-main/70 capitalize mb-1">{active_subscription.workspace.workspace_type} Zone</p>
+                      <Badge variant="success" className="text-[10px] px-1.5 py-0">Active</Badge>
+                    </div>
+                  ) : (
+                    <p className="text-xs text-text-main/70">No active plan</p>
+                  )}
+                </div>
+                
+                <div className="p-2 space-y-1">
+                  <Link to="/dashboard/settings" className="flex items-center px-3 py-2 text-sm rounded-lg hover:bg-border-main/50 transition-colors">
+                    <Settings className="w-4 h-4 mr-2 opacity-70" /> Settings
+                  </Link>
+                  <button 
+                    onClick={() => {
+                      localStorage.removeItem('access');
+                      localStorage.removeItem('refresh');
+                      navigate('/auth/login');
+                    }}
+                    className="w-full flex items-center px-3 py-2 text-sm rounded-lg hover:bg-error/10 hover:text-error transition-colors text-left"
+                  >
+                    <BookOpen className="w-4 h-4 mr-2 opacity-70" /> Logout
+                  </button>
+                </div>
               </div>
             </div>
           </div>
