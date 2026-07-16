@@ -39,7 +39,7 @@ export default function SeatSelectionMap() {
 
   const dedicatedDesks = seats.filter(s => s.name.startsWith('D-')).map((seat, i) => ({
     id: seat.name,
-    type: "coworking",
+    type: "dedicated",
     subType: "dedicated-desk",
     status: seat.is_available ? "available" : "occupied",
     x: 480 + (i % 2) * 120,
@@ -48,16 +48,16 @@ export default function SeatSelectionMap() {
 
   const privateCabins = seats.filter(s => s.name.startsWith('P-') || s.name.startsWith('C-')).map((seat, i) => ({
     id: seat.name,
-    type: "coworking",
+    type: "dedicated",
     subType: "private-cabin",
     status: seat.is_available ? "available" : "occupied",
     x: 865,
     y: 80 + i * 100,
   }));
 
-  const coworkingSeats = [...dedicatedDesks, ...privateCabins];
+  const dedicatedSeats = [...dedicatedDesks, ...privateCabins];
 
-  const allSeats = [...librarySeats, ...coworkingSeats].filter(seat => 
+  const allSeats = [...librarySeats, ...dedicatedSeats].filter(seat => 
     filterType ? seat.type === filterType : true
   );
 
@@ -107,7 +107,7 @@ export default function SeatSelectionMap() {
           </div>
           </div>
           <div>
-            {filterType === 'coworking' ? (
+            {filterType === 'dedicated' ? (
               <div className="flex gap-2">
                 <Badge variant="success" className="text-xs md:text-sm px-2 py-1 shadow-sm border-success/20">
                   {dedicatedDesks.filter(s => s.status === 'available').length} Desks Available
@@ -131,7 +131,7 @@ export default function SeatSelectionMap() {
           <svg 
             width={(!filterType || filterType === 'all') ? "800" : "100%"} 
             height={maxTotalHeight} 
-            viewBox={filterType === 'library' ? `0 0 440 ${maxTotalHeight}` : filterType === 'coworking' ? `430 0 620 ${maxTotalHeight}` : `0 0 1100 ${maxTotalHeight}`}
+            viewBox={filterType === 'library' ? `0 0 440 ${maxTotalHeight}` : filterType === 'dedicated' ? `430 0 620 ${maxTotalHeight}` : `0 0 1100 ${maxTotalHeight}`}
             className="select-none max-w-4xl"
           >
             {/* Zones */}
@@ -161,7 +161,7 @@ export default function SeatSelectionMap() {
               </>
             )}
 
-            {(!filterType || filterType === 'coworking') && (
+            {(!filterType || filterType === 'dedicated') && (
               <>
                 {/* Dedicated Desks Zone */}
                 <rect
@@ -283,8 +283,8 @@ export default function SeatSelectionMap() {
                 const seatType = selectedSeat?.startsWith('L') 
                   ? 'library' 
                   : selectedSeat?.startsWith('D') 
-                    ? 'coworking-dedicated' 
-                    : 'coworking-private';
+                    ? 'dedicated-desk' 
+                    : 'dedicated-private';
                 navigate(`/pricing?plan=${seatType}&seat=${selectedSeat}`);
               }}
             >

@@ -65,7 +65,7 @@ export default function OverviewPage() {
                   <div className="flex items-center justify-between mb-2">
                     <h3 className="font-semibold text-xl">
                       {active_subscription.workspace.workspace_type === 'library' ? 'Silent Reader Plan' : 
-                       active_subscription.workspace.workspace_type === 'coworking' ? 'Coworking Desk' : 'Private Suite'}
+                       active_subscription.workspace.workspace_type === 'dedicated' ? 'Dedicated Desk' : 'Private Suite'}
                     </h3>
                     <div className="flex gap-2">
                       <Badge variant="outline" className="bg-background capitalize">{active_subscription.workspace.workspace_type} Zone</Badge>
@@ -105,7 +105,7 @@ export default function OverviewPage() {
                         <div className="flex items-center justify-between mb-2">
                           <h4 className="font-medium text-lg">
                             {upcoming.workspace.workspace_type === 'library' ? 'Silent Reader Plan' : 
-                             upcoming.workspace.workspace_type === 'coworking' ? 'Coworking Desk' : 'Private Suite'}
+                             upcoming.workspace.workspace_type === 'dedicated' ? 'Dedicated Desk' : 'Private Suite'}
                           </h4>
                           <Badge variant="warning">Upcoming</Badge>
                         </div>
@@ -134,7 +134,7 @@ export default function OverviewPage() {
                         <div>
                           <p className="font-medium text-sm">
                             {history.workspace.workspace_type === 'library' ? 'Silent Reader Plan' : 
-                             history.workspace.workspace_type === 'coworking' ? 'Coworking Desk' : 'Private Suite'}
+                             history.workspace.workspace_type === 'dedicated' ? 'Dedicated Desk' : 'Private Suite'}
                           </p>
                           <p className="text-xs text-text-main/60 mt-1">
                             Purchased: {new Date(history.created_at).toLocaleDateString()}
@@ -165,18 +165,22 @@ export default function OverviewPage() {
             <div className="space-y-4">
               {payment_history && payment_history.length > 0 ? (
                 payment_history.slice(0, 5).map((invoice) => (
-                  <div key={invoice.id} className="flex items-center justify-between p-3 rounded-lg hover:bg-surface border border-transparent hover:border-border-main transition-colors cursor-pointer">
+                  <div 
+                    key={invoice.id} 
+                    onClick={() => navigate(`/receipt/${invoice.id}`)}
+                    className="flex items-center justify-between p-3 rounded-lg hover:bg-surface border border-transparent hover:border-border-main transition-colors cursor-pointer"
+                  >
                     <div className="flex items-center gap-3">
                       <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary">
                         <FileText size={14} />
                       </div>
                       <div>
                         <p className="font-medium text-sm">INV-{1000 + invoice.id}</p>
-                        <p className="text-xs text-text-main/50">{new Date(invoice.start_time).toLocaleDateString()}</p>
+                        <p className="text-xs text-text-main/50">{new Date(invoice.created_at).toLocaleDateString()}</p>
                       </div>
                     </div>
                     <div className="text-right">
-                      <p className="font-medium text-sm">₹{(invoice.workspace.price_per_hour * 8 * 30).toFixed(0)}</p>
+                      <p className="font-medium text-sm">₹{parseFloat(invoice.amount_paid || (invoice.workspace.price_per_hour * 8 * 30)).toFixed(0)}</p>
                       <Badge variant="success" className="text-[10px] px-1.5 py-0 mt-1">Paid</Badge>
                     </div>
                   </div>

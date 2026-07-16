@@ -40,8 +40,8 @@ export default function LandingPage() {
               </h1>
               <p className="text-lg md:text-xl text-text-main/70 mb-10 max-w-2xl mx-auto leading-relaxed">
                 Experience the perfect blend of silent focused study zones and
-                dynamic collaborative coworking spaces. Designed for
-                productivity, built for you.
+                dynamic collaborative dedicated spaces. Designed for
+                freelancers, entrepreneurs, and ambitious teams.
               </p>
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
                 <Button
@@ -131,7 +131,7 @@ export default function LandingPage() {
                   <Badge variant="outline" className="mb-4">
                     For Professionals
                   </Badge>
-                  <h3 className="text-2xl font-bold mb-2">Coworking Space</h3>
+                  <h3 className="text-2xl font-bold mb-2">Dedicated Spaces</h3>
                   <p className="text-text-main/70 mb-6 line-clamp-2">
                     Dynamic open desks, private cabins, and state-of-the-art
                     meeting rooms designed to foster creativity and networking.
@@ -153,9 +153,9 @@ export default function LandingPage() {
                   <Button
                     variant="outline"
                     className="w-full"
-                    onClick={() => navigate("/coworking")}
+                    onClick={() => navigate("/dedicated")}
                   >
-                    Explore Coworking
+                    Explore Dedicated Spaces
                   </Button>
                 </div>
               </CardContent>

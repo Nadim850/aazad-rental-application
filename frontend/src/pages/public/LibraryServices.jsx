@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '../../components/ui/Button';
 import { Card, CardContent } from '../../components/ui/Card';
@@ -6,6 +6,10 @@ import { Badge } from '../../components/ui/Badge';
 import { BookOpen, Wifi, Coffee, MapPin, ChevronRight, CheckCircle2 } from 'lucide-react';
 
 export default function LibraryServices() {
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
   return (
     <div className="flex flex-col min-h-screen">
       {/* Hero Section */}

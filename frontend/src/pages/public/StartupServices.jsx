@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '../../components/ui/Button';
 import { Card, CardContent } from '../../components/ui/Card';
@@ -6,6 +6,10 @@ import { Badge } from '../../components/ui/Badge';
 import { Users, Presentation, Server, ShieldCheck, ChevronRight, CheckCircle2 } from 'lucide-react';
 
 export default function StartupServices() {
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
   return (
     <div className="flex flex-col min-h-screen">
       {/* Hero Section */}
@@ -55,7 +59,7 @@ export default function StartupServices() {
               <div className="w-12 h-12 bg-success/10 rounded-xl flex items-center justify-center mb-6">
                 <Presentation className="w-6 h-6 text-success" />
               </div>
-              <h2 className="text-3xl font-bold text-text-main mb-4">Boardrooms & Conference Rooms</h2>
+              <h2 className="text-3xl font-bold text-text-main mb-4">Conference Rooms</h2>
               <p className="text-text-main/70 mb-8 text-lg">
                 State-of-the-art meeting spaces designed for high-stakes pitches, collaborative workshops, and executive board meetings.
               </p>
@@ -67,33 +71,6 @@ export default function StartupServices() {
                   <CheckCircle2 className="w-5 h-5 text-success" /> High-fidelity conference audio & camera setup
                 </li>
               </ul>
-            </div>
-          </div>
-
-          <div className="grid md:grid-cols-2 gap-16 items-center">
-            <div>
-              <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center mb-6">
-                <Users className="w-6 h-6 text-primary" />
-              </div>
-              <h2 className="text-3xl font-bold text-text-main mb-4">Dedicated Team Suites</h2>
-              <p className="text-text-main/70 mb-8 text-lg">
-                Move-in ready office suites configured for teams of 10 to 50. Maintain your company culture in a private, branded environment.
-              </p>
-              <ul className="space-y-4">
-                <li className="flex items-center gap-3 text-text-main/80">
-                  <CheckCircle2 className="w-5 h-5 text-primary" /> Private internal meeting pods
-                </li>
-                <li className="flex items-center gap-3 text-text-main/80">
-                  <CheckCircle2 className="w-5 h-5 text-primary" /> Custom branding & layout
-                </li>
-              </ul>
-            </div>
-            <div className="relative rounded-3xl overflow-hidden shadow-lg border border-border-main aspect-[4/3]">
-              <img 
-                src="https://images.unsplash.com/photo-1556761175-5973dc0f32b7?auto=format&fit=crop&q=80&w=1200" 
-                alt="Team Suite" 
-                className="w-full h-full object-cover"
-              />
             </div>
           </div>
 

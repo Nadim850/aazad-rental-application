@@ -22,7 +22,7 @@ export default function PricingPage() {
     window.scrollTo(0, 0);
     
     const plan = searchParams.get('plan');
-    if (plan === 'library' || plan === 'coworking' || plan === 'startup' || plan === 'coworking-dedicated' || plan === 'coworking-private') {
+    if (plan === 'library' || plan === 'dedicated' || plan === 'startup' || plan === 'dedicated-desk' || plan === 'dedicated-private') {
       setActivePlanFilter(plan);
     } else {
       setActivePlanFilter('all');
@@ -40,7 +40,7 @@ export default function PricingPage() {
             monthlyPrice: parseFloat(plan.monthly_price),
             description: plan.description,
             features: plan.features,
-            popular: plan.name.includes('Coworking') || plan.name.includes('Enterprise')
+            popular: plan.name.includes('Dedicated') || plan.name.includes('Enterprise')
           }));
           setPlans(formattedPlans);
         }
@@ -55,11 +55,14 @@ export default function PricingPage() {
 
   const filteredPlans = plans.filter(plan => {
     if (activePlanFilter === 'all') return true;
-    if (activePlanFilter === 'coworking-dedicated') {
-      return plan.category === 'coworking' && plan.name.toLowerCase().includes('desk');
+    if (activePlanFilter === 'dedicated') {
+      return plan.category === 'dedicated' || plan.category === 'cabin';
     }
-    if (activePlanFilter === 'coworking-private') {
-      return plan.category === 'coworking' && plan.name.toLowerCase().includes('cabin');
+    if (activePlanFilter === 'dedicated-desk') {
+      return plan.category === 'dedicated';
+    }
+    if (activePlanFilter === 'dedicated-private') {
+      return plan.category === 'cabin';
     }
     return plan.category === activePlanFilter || plan.id === activePlanFilter;
   });
@@ -97,8 +100,8 @@ export default function PricingPage() {
               <span className="flex items-center gap-1.5">
                 <CheckCircle2 className="w-3.5 h-3.5" /> 
                 Booking Seat {seatParam} &bull; {
-                  activePlanFilter === 'coworking-dedicated' ? 'Coworking Desk' : 
-                  activePlanFilter === 'coworking-private' ? 'Private Cabin' : 
+                  activePlanFilter === 'dedicated-desk' ? 'Dedicated Desk' : 
+                  activePlanFilter === 'dedicated-private' ? 'Private Cabin' : 
                   activePlanFilter.charAt(0).toUpperCase() + activePlanFilter.slice(1)
                 }
               </span>
@@ -146,10 +149,10 @@ export default function PricingPage() {
                 Library Only
               </button>
               <button 
-                className={`px-4 py-2 rounded-lg transition-colors ${activePlanFilter === 'coworking' ? 'bg-surface shadow-sm' : 'hover:bg-surface/50 text-text-main/70'}`}
-                onClick={() => setActivePlanFilter('coworking')}
+                className={`px-4 py-2 rounded-lg transition-colors ${activePlanFilter === 'dedicated' ? 'bg-surface shadow-sm' : 'hover:bg-surface/50 text-text-main/70'}`}
+                onClick={() => setActivePlanFilter('dedicated')}
               >
-                Coworking Only
+                Dedicated Spaces
               </button>
               <button 
                 className={`px-4 py-2 rounded-lg transition-colors ${activePlanFilter === 'startup' ? 'bg-surface shadow-sm' : 'hover:bg-surface/50 text-text-main/70'}`}

@@ -20,11 +20,13 @@ import { cn } from "../lib/utils";
 import { Button } from "../components/ui/Button";
 
 import { apiFetch } from "../lib/api";
+import { SearchProvider, useSearch } from "../contexts/SearchContext";
 
-export default function AdminDashboardLayout() {
+function AdminDashboardLayoutContent() {
   const { theme, toggleTheme } = useTheme();
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
+  const { searchQuery, setSearchQuery } = useSearch();
 
   useEffect(() => {
     const token = localStorage.getItem('access');
@@ -56,8 +58,8 @@ export default function AdminDashboardLayout() {
   };
 
   const navigation = [
-    { name: "Plans", to: "/admin", icon: Tags },
     { name: "Users", to: "/admin/users", icon: Users },
+    { name: "Plans", to: "/admin/plans", icon: Tags },
     { name: "Workspaces", to: "/admin/workspaces", icon: Box },
   ];
 
@@ -66,16 +68,15 @@ export default function AdminDashboardLayout() {
       {/* Sidebar */}
       <aside className="w-64 border-r border-border-main flex flex-col bg-surface">
         {/* Workspace selector */}
-        <Link to="/" className="h-14 flex items-center px-4 border-b border-border-main hover:bg-black/5 dark:hover:bg-white/5 cursor-pointer transition-colors">
+        <div className="h-14 flex items-center px-4 border-b border-border-main bg-black/5 dark:bg-white/5 transition-colors">
           <div className="w-6 h-6 rounded bg-primary flex items-center justify-center text-xs font-bold text-white mr-3">
             A
           </div>
           <div className="flex-1 overflow-hidden">
             <h2 className="text-sm font-medium truncate">Aazad Rental</h2>
-            <p className="text-[11px] text-text-main/50">Return to Home</p>
+            <p className="text-[11px] text-text-main/50">Admin Dashboard</p>
           </div>
-          <ChevronsUpDown size={14} className="text-text-main/50" />
-        </Link>
+        </div>
 
         {/* Create new action */}
         <div className="px-3 py-4">
@@ -106,13 +107,17 @@ export default function AdminDashboardLayout() {
                 )
               }
             >
-              <item.icon
-                size={16}
-                className={cn("opacity-70", {
-                  "text-primary opacity-100": item.name === "Plans",
-                })}
-              />
-              {item.name}
+              {({ isActive }) => (
+                <>
+                  <item.icon
+                    size={16}
+                    className={cn("opacity-70", {
+                      "text-primary opacity-100": isActive,
+                    })}
+                  />
+                  {item.name}
+                </>
+              )}
             </NavLink>
           ))}
         </div>
@@ -141,9 +146,15 @@ export default function AdminDashboardLayout() {
         {/* Command bar / Top Nav */}
         <header className="h-14 border-b border-border-main flex items-center px-6 justify-between shrink-0">
           {/* Search */}
-          <div className="flex items-center gap-2 text-text-main/50 max-w-sm w-full bg-black/5 dark:bg-white/[0.03] hover:bg-black/10 dark:hover:bg-white/[0.06] border border-border-main rounded-md px-3 py-1.5 cursor-text transition-colors">
+          <div className="flex items-center gap-2 text-text-main/50 max-w-sm w-full bg-black/5 dark:bg-white/[0.03] hover:bg-black/10 dark:hover:bg-white/[0.06] border border-border-main rounded-md px-3 py-1.5 focus-within:ring-1 focus-within:ring-primary/50 transition-colors">
             <Search size={14} />
-            <span className="text-[13px] flex-1">Search...</span>
+            <input 
+              type="text" 
+              placeholder="Search users, plans, workspaces..." 
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="text-[13px] flex-1 bg-transparent border-none outline-none text-text-main placeholder:text-text-main/50"
+            />
             <div className="flex items-center gap-1 text-[10px] font-medium tracking-widest bg-black/10 dark:bg-white/10 px-1.5 py-0.5 rounded">
               <Command size={10} /> K
             </div>
@@ -170,5 +181,13 @@ export default function AdminDashboardLayout() {
         </main>
       </div>
     </div>
+  );
+}
+
+export default function AdminDashboardLayout() {
+  return (
+    <SearchProvider>
+      <AdminDashboardLayoutContent />
+    </SearchProvider>
   );
 }

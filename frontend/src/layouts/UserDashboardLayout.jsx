@@ -6,6 +6,7 @@ import { cn } from '../lib/utils';
 import { Button } from '../components/ui/Button';
 import { Badge } from '../components/ui/Badge';
 import { apiFetch } from '../lib/api';
+import NotificationBell from '../components/layout/NotificationBell';
 
 export default function UserDashboardLayout() {
   const { theme, toggleTheme } = useTheme();
@@ -166,38 +167,7 @@ export default function UserDashboardLayout() {
               {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
             </button>
             <div className="relative">
-              <button 
-                className="p-2 rounded-full hover:bg-border-main/50 transition-colors relative"
-                onClick={() => setShowNotifications(!showNotifications)}
-              >
-                <Bell size={20} />
-                {isNearExpire && (
-                  <span className="absolute top-1.5 right-1.5 w-2.5 h-2.5 rounded-full bg-error border border-surface animate-pulse" />
-                )}
-              </button>
-
-              {showNotifications && (
-                <>
-                  <div className="fixed inset-0 z-40" onClick={() => setShowNotifications(false)} />
-                  <div className="absolute right-0 mt-2 w-72 bg-surface border border-border-main rounded-xl shadow-lg z-50 animate-in fade-in slide-in-from-top-2 overflow-hidden">
-                    <div className="p-3 border-b border-border-main bg-black/5 dark:bg-white/5 font-semibold text-sm">
-                      Notifications
-                    </div>
-                    <div className="max-h-64 overflow-y-auto">
-                      {isNearExpire ? (
-                        <div className="p-4 border-b border-border-main/50 hover:bg-black/5 dark:hover:bg-white/5 transition-colors cursor-pointer" onClick={() => navigate('/pricing')}>
-                          <p className="text-sm font-medium text-error mb-1">Plan Expiring Soon!</p>
-                          <p className="text-xs text-text-main/70">Your workspace plan expires in {daysRemaining} days. Click here to renew and keep your seat.</p>
-                        </div>
-                      ) : (
-                        <div className="p-4 text-center text-text-main/50 text-sm">
-                          No new notifications.
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </>
-              )}
+              <NotificationBell />
             </div>
             
             <div className="flex items-center gap-2 ml-2 pl-2 border-l border-border-main relative group">

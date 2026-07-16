@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "../../components/ui/Button";
 import { Card, CardContent } from "../../components/ui/Card";
@@ -12,7 +12,11 @@ import {
   CheckCircle2,
 } from "lucide-react";
 
-export default function CoworkingServices() {
+export default function DedicatedServices() {
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
   return (
     <div className="flex flex-col min-h-screen">
       {/* Hero Section */}
@@ -28,12 +32,12 @@ export default function CoworkingServices() {
             <span className="text-secondary">collaboration</span> and growth.
           </h1>
           <p className="text-lg md:text-xl text-text-main/70 mb-10 leading-relaxed max-w-2xl mx-auto">
-            Whether you're a solo freelancer or a growing startup, our coworking
+            Whether you're a solo freelancer or a growing startup, our dedicated
             spaces provide the infrastructure, community, and flexibility you
             need to scale.
           </p>
           <div className="flex flex-col sm:flex-row justify-center gap-4">
-            <Link to="/book?type=coworking">
+            <Link to="/book?type=dedicated">
               <Button
                 size="lg"
                 variant="secondary"
@@ -42,7 +46,7 @@ export default function CoworkingServices() {
                 Book a Desk <ChevronRight className="ml-2 w-5 h-5" />
               </Button>
             </Link>
-            <Link to="/pricing?plan=coworking">
+            <Link to="/pricing?plan=dedicated">
               <Button
                 size="lg"
                 variant="outline"
@@ -137,7 +141,7 @@ export default function CoworkingServices() {
             month-to-month plans available.
           </p>
           <div className="flex flex-col sm:flex-row justify-center gap-4">
-            <Link to="/pricing?plan=coworking">
+            <Link to="/pricing?plan=dedicated">
               <Button
                 size="lg"
                 className="h-14 px-8 text-lg rounded-2xl shadow-lg hover:-translate-y-1"

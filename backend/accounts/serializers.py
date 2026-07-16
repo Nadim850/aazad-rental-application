@@ -1,11 +1,11 @@
 from rest_framework import serializers
-from .models import User
+from .models import User, Notification
 from django.contrib.auth.password_validation import validate_password
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ('id', 'email', 'phone_number', 'first_name', 'last_name', 'password', 'is_staff', 'is_superuser')
+        fields = ('id', 'email', 'phone_number', 'first_name', 'last_name', 'password', 'is_staff', 'is_superuser', 'receive_email_notifications', 'receive_inapp_notifications')
         extra_kwargs = {
             'password': {'write_only': True},
             'first_name': {'required': False},
@@ -26,3 +26,9 @@ class UserSerializer(serializers.ModelSerializer):
             last_name=validated_data.get('last_name', '')
         )
         return user
+
+class NotificationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Notification
+        fields = ['id', 'title', 'message', 'notification_type', 'is_read', 'action_url', 'created_at']
+        read_only_fields = ['id', 'title', 'message', 'notification_type', 'action_url', 'created_at']

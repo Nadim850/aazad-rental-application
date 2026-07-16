@@ -3,6 +3,7 @@ import { Outlet, useNavigate, Link, useLocation } from "react-router-dom";
 import { useTheme } from "../contexts/ThemeContext";
 import { Moon, Sun, BookOpen } from "lucide-react";
 import { Button } from "../components/ui/Button";
+import NotificationBell from "../components/layout/NotificationBell";
 
 import { apiFetch } from "../lib/api";
 
@@ -75,10 +76,10 @@ export default function PublicLayout() {
               Library
             </Link>
             <Link
-              to="/coworking"
+              to="/dedicated"
               className="text-text-main/70 hover:text-primary transition-colors"
             >
-              Coworking
+              Dedicated Spaces
             </Link>
             <Link
               to="/startup"
@@ -92,6 +93,12 @@ export default function PublicLayout() {
             >
               Pricing
             </Link>
+            <Link
+              to="/contact"
+              className="text-text-main/70 hover:text-primary transition-colors"
+            >
+              Contact
+            </Link>
           </nav>
 
           <div className="flex items-center gap-4">
@@ -104,9 +111,11 @@ export default function PublicLayout() {
 
             <div className="hidden md:flex gap-2 relative">
               {isLoggedIn ? (
-                <div className="relative">
-                  <button
-                    onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                <div className="flex items-center gap-2 relative">
+                  <NotificationBell />
+                  <div className="relative">
+                    <button
+                      onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                     className="flex items-center gap-2 hover:bg-border-main/50 p-1.5 pr-3 rounded-full transition-colors border border-border-main/50"
                   >
                     <div className="w-8 h-8 rounded-full bg-primary/20 text-primary flex items-center justify-center font-bold text-sm">
@@ -117,9 +126,6 @@ export default function PublicLayout() {
                     <div className="flex flex-col items-start text-left">
                       <span className="text-[13px] font-semibold leading-tight max-w-[100px] truncate">
                         {user?.first_name || "User"}
-                      </span>
-                      <span className="text-[10px] text-text-main/50 font-medium uppercase tracking-wider">
-                        {user?.is_staff ? "Admin" : "Member"}
                       </span>
                     </div>
                   </button>
@@ -161,6 +167,7 @@ export default function PublicLayout() {
                       </div>
                     </>
                   )}
+                  </div>
                 </div>
               ) : (
                 <div className="relative">

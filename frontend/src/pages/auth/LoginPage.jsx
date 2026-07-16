@@ -72,7 +72,7 @@ export default function LoginPage() {
         const urlParams = new URLSearchParams(window.location.search);
         const redirectUrl = urlParams.get('redirect');
         
-        if (isAdmin && !redirectUrl) {
+        if (isAdmin) {
           navigate('/admin');
         } else {
           navigate(redirectUrl ? redirectUrl : '/');
@@ -115,7 +115,7 @@ export default function LoginPage() {
         const urlParams = new URLSearchParams(window.location.search);
         const redirectUrl = urlParams.get('redirect');
         
-        if (isAdmin && !redirectUrl) {
+        if (isAdmin) {
           navigate('/admin');
         } else {
           navigate(redirectUrl ? redirectUrl : '/');
