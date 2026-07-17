@@ -8,7 +8,7 @@ import { Input } from '../../components/ui/Input';
 
 import { apiFetch } from '../../lib/api';
 
-export default function AdminWorkspacesPage() {
+export default function AdminWorkspacesPage({ category = 'library' }) {
   const [workspaces, setWorkspaces] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const { searchQuery } = useSearch();
@@ -23,7 +23,7 @@ export default function AdminWorkspacesPage() {
   const [isAdding, setIsAdding] = useState(false);
   const [newWorkspace, setNewWorkspace] = useState({
     name: '',
-    workspace_type: 'dedicated',
+    workspace_type: category === 'library' ? 'library' : 'dedicated',
     price_per_hour: ''
   });
   const [addError, setAddError] = useState(null);
@@ -47,7 +47,12 @@ export default function AdminWorkspacesPage() {
 
   useEffect(() => {
     fetchWorkspaces();
-  }, []);
+    setNewWorkspace({
+      name: '',
+      workspace_type: category === 'library' ? 'library' : 'dedicated',
+      price_per_hour: ''
+    });
+  }, [category]);
 
   const toggleAvailability = async (id, currentStatus) => {
     try {
@@ -95,7 +100,7 @@ export default function AdminWorkspacesPage() {
       });
 
       if (res.ok) {
-        setNewWorkspace({ name: '', workspace_type: 'dedicated', price_per_hour: '' });
+        setNewWorkspace({ name: '', workspace_type: category === 'library' ? 'library' : 'dedicated', price_per_hour: '' });
         setIsAdding(false);
         fetchWorkspaces();
       } else {
@@ -107,8 +112,11 @@ export default function AdminWorkspacesPage() {
     }
   };
 
-  // Filter workspaces based on search query
+  // Filter workspaces based on search query AND category
   const filteredWorkspaces = workspaces.filter(ws => {
+    const matchesCategory = category === 'library' ? ws.workspace_type === 'library' : ws.workspace_type !== 'library';
+    if (!matchesCategory) return false;
+
     const q = (searchQuery || '').toLowerCase();
     return ws.name.toLowerCase().includes(q) || 
            ws.workspace_type.toLowerCase().includes(q);
@@ -121,8 +129,9 @@ export default function AdminWorkspacesPage() {
     return acc;
   }, {});
 
-  const typeDisplayNames = {
-    library: "Library",
+  const typeDisplayNames = category === 'library' ? {
+    library: "Library Zone"
+  } : {
     dedicated: "Dedicated Desk",
     startup: "Startup Space",
     cabin: "Private Cabin"
@@ -134,8 +143,14 @@ export default function AdminWorkspacesPage() {
     <div className="space-y-6">
       <div className="flex justify-between items-end">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Workspaces & Seats</h1>
-          <p className="text-sm text-text-main/50">Manage availability of desks, library seats, and cabins.</p>
+          <h1 className="text-2xl font-bold tracking-tight">
+            {category === 'library' ? 'Library Management' : 'Coworking Management'}
+          </h1>
+          <p className="text-sm text-text-main/50">
+            {category === 'library' 
+              ? 'Manage availability of library seats and zones.' 
+              : 'Manage availability of dedicated desks, cabins, and startup spaces.'}
+          </p>
         </div>
         <Button onClick={() => setIsAdding(!isAdding)} variant={isAdding ? "outline" : "primary"}>
           {isAdding ? 'Cancel' : <><Plus size={16} className="mr-2" /> Add New Seat</>}
@@ -167,10 +182,15 @@ export default function AdminWorkspacesPage() {
                 value={newWorkspace.workspace_type}
                 onChange={e => setNewWorkspace({...newWorkspace, workspace_type: e.target.value})}
               >
-                <option value="library" className="bg-background text-text-main">Library</option>
-                <option value="dedicated" className="bg-background text-text-main">Dedicated Desk</option>
-                <option value="startup" className="bg-background text-text-main">Startup Space</option>
-                <option value="cabin" className="bg-background text-text-main">Private Cabin</option>
+                {category === 'library' ? (
+                  <option value="library" className="bg-background text-text-main">Library</option>
+                ) : (
+                  <>
+                    <option value="dedicated" className="bg-background text-text-main">Dedicated Desk</option>
+                    <option value="startup" className="bg-background text-text-main">Startup Space</option>
+                    <option value="cabin" className="bg-background text-text-main">Private Cabin</option>
+                  </>
+                )}
               </select>
             </div>
             <div className="flex-1 w-full">

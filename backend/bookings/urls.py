@@ -1,10 +1,11 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from .views import DashboardView, BookSeatView, AdminWorkspaceViewSet, AdminPlanViewSet, PublicPlanListView, PublicWorkspaceListView, AdminDetailedUserListView, AdminUserDetailView, ContactMessageCreateView, CreateRazorpayOrderView, VerifyRazorpayPaymentView, BookingDetailView
+from .views import DashboardView, BookSeatView, AdminWorkspaceViewSet, AdminPlanViewSet, PublicPlanListView, PublicWorkspaceListView, AdminDetailedUserListView, AdminUserDetailView, ContactMessageCreateView, CreateRazorpayOrderView, VerifyRazorpayPaymentView, BookingDetailView, AdminContactMessageViewSet
 
 router = DefaultRouter()
 router.register(r'admin-workspaces', AdminWorkspaceViewSet, basename='admin-workspace')
 router.register(r'admin-plans', AdminPlanViewSet, basename='admin-plan')
+router.register(r'admin-contact', AdminContactMessageViewSet, basename='admin-contact')
 
 urlpatterns = [
     path('', include(router.urls)),

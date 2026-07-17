@@ -8,13 +8,12 @@ import {
   Box,
   Search,
   Bell,
-  Plus,
-  ChevronsUpDown,
   Command,
   Sun,
   Moon,
   Tags,
-  LogOut
+  LogOut,
+  MessageSquare
 } from "lucide-react";
 import { cn } from "../lib/utils";
 import { Button } from "../components/ui/Button";
@@ -57,10 +56,29 @@ function AdminDashboardLayoutContent() {
     navigate('/');
   };
 
-  const navigation = [
-    { name: "Users", to: "/admin/users", icon: Users },
-    { name: "Plans", to: "/admin/plans", icon: Tags },
-    { name: "Workspaces", to: "/admin/workspaces", icon: Box },
+  const navigationGroups = [
+    {
+      title: "Library Management",
+      links: [
+        { name: "Users", to: "/admin/library/users", icon: Users },
+        { name: "Plans", to: "/admin/library/plans", icon: Tags },
+        { name: "Workspaces", to: "/admin/library/workspaces", icon: Box },
+      ]
+    },
+    {
+      title: "Coworking Management",
+      links: [
+        { name: "Users", to: "/admin/coworking/users", icon: Users },
+        { name: "Plans", to: "/admin/coworking/plans", icon: Tags },
+        { name: "Workspaces", to: "/admin/coworking/workspaces", icon: Box },
+      ]
+    },
+    {
+      title: "System",
+      links: [
+        { name: "Contact Queries", to: "/admin/contact-queries", icon: MessageSquare },
+      ]
+    }
   ];
 
   return (
@@ -78,47 +96,45 @@ function AdminDashboardLayoutContent() {
           </div>
         </div>
 
-        {/* Create new action */}
-        <div className="px-3 py-4">
-          <Button
-            variant="primary"
-            size="sm"
-            className="w-full justify-between px-3 h-9 bg-primary/90 hover:bg-primary text-sm shadow-[0_0_15px_rgba(79,70,229,0.3)]"
-          >
-            <span className="flex items-center">
-              <Plus size={16} className="mr-2" /> New Issue
-            </span>
-          </Button>
-        </div>
+
 
         {/* Navigation */}
-        <div className="px-3 space-y-0.5 flex-1 overflow-y-auto">
-          {navigation.map((item) => (
-            <NavLink
-              key={item.name}
-              to={item.to}
-              end={item.to === "/admin"}
-              className={({ isActive }) =>
-                cn(
-                  "flex items-center gap-3 px-3 py-1.5 rounded-md text-[13px] font-medium transition-colors",
-                  isActive
-                    ? "bg-black/10 dark:bg-white/10 text-text-main"
-                    : "text-text-main/60 hover:bg-black/5 dark:hover:bg-white/5 hover:text-text-main",
-                )
-              }
-            >
-              {({ isActive }) => (
-                <>
-                  <item.icon
-                    size={16}
-                    className={cn("opacity-70", {
-                      "text-primary opacity-100": isActive,
-                    })}
-                  />
-                  {item.name}
-                </>
-              )}
-            </NavLink>
+        <div className="px-3 space-y-6 flex-1 overflow-y-auto mt-2">
+          {navigationGroups.map((group) => (
+            <div key={group.title}>
+              <h3 className="px-3 text-[10px] font-bold uppercase tracking-wider text-text-main/40 mb-2">
+                {group.title}
+              </h3>
+              <div className="space-y-0.5">
+                {group.links.map((item) => (
+                  <NavLink
+                    key={item.name}
+                    to={item.to}
+                    end={item.to === "/admin"}
+                    className={({ isActive }) =>
+                      cn(
+                        "flex items-center gap-3 px-3 py-1.5 rounded-md text-[13px] font-medium transition-colors",
+                        isActive
+                          ? "bg-black/10 dark:bg-white/10 text-text-main"
+                          : "text-text-main/60 hover:bg-black/5 dark:hover:bg-white/5 hover:text-text-main",
+                      )
+                    }
+                  >
+                    {({ isActive }) => (
+                      <>
+                        <item.icon
+                          size={16}
+                          className={cn("opacity-70", {
+                            "text-primary opacity-100": isActive,
+                          })}
+                        />
+                        {item.name}
+                      </>
+                    )}
+                  </NavLink>
+                ))}
+              </div>
+            </div>
           ))}
         </div>
 

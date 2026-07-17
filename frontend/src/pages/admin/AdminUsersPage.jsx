@@ -7,7 +7,7 @@ import { Button } from '../../components/ui/Button';
 
 import { apiFetch } from '../../lib/api';
 
-export default function AdminUsersPage() {
+export default function AdminUsersPage({ category = 'library' }) {
   const [users, setUsers] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const { searchQuery } = useSearch();
@@ -81,11 +81,28 @@ export default function AdminUsersPage() {
     const activeSeat = (u.active_subscription?.workspace?.name || '').toLowerCase();
     const upcomingSeats = (u.upcoming_subscriptions || []).map(sub => (sub.workspace?.name || '').toLowerCase()).join(' ');
 
-    return fullName.includes(q) || 
+    const matchesSearch = fullName.includes(q) || 
            email.includes(q) || 
            phone.includes(q) || 
            activeSeat.includes(q) ||
            upcomingSeats.includes(q);
+
+    // Filter by category
+    const activeSub = u.active_subscription;
+    const isLibraryUser = activeSub?.workspace?.workspace_type === 'library';
+    const isCoworkingUser = activeSub && activeSub?.workspace?.workspace_type !== 'library';
+    
+    // An inactive user could be shown in both, or we can just show them if they have upcoming subs matching, 
+    // or maybe just keep them visible in the "Inactive" section regardless, but to be strictly separated:
+    // We will show them if they have any upcoming matching the category, OR if they have no subs at all.
+    let matchesCategory = false;
+    if (category === 'library') {
+      matchesCategory = isLibraryUser || (!activeSub && (u.upcoming_subscriptions || []).some(sub => sub.workspace?.workspace_type === 'library')) || (!activeSub && (!u.upcoming_subscriptions || u.upcoming_subscriptions.length === 0));
+    } else {
+      matchesCategory = isCoworkingUser || (!activeSub && (u.upcoming_subscriptions || []).some(sub => sub.workspace?.workspace_type !== 'library')) || (!activeSub && (!u.upcoming_subscriptions || u.upcoming_subscriptions.length === 0));
+    }
+
+    return matchesSearch && matchesCategory;
   });
 
   const activeSubscribers = filteredUsers.filter(u => u.active_subscription);
@@ -197,8 +214,12 @@ export default function AdminUsersPage() {
   return (
     <div className="space-y-8 pb-12">
       <div>
-        <h1 className="text-3xl font-extrabold tracking-tight mb-2">Users Management</h1>
-        <p className="text-text-main/60">Manage all registered users, organized by their subscription status.</p>
+        <h1 className="text-3xl font-extrabold tracking-tight mb-2">
+          {category === 'library' ? 'Library Users' : 'Coworking Users'}
+        </h1>
+        <p className="text-text-main/60">
+          Manage users {category === 'library' ? 'with library subscriptions.' : 'with dedicated, startup, or cabin subscriptions.'}
+        </p>
       </div>
 
       {isLoading ? (

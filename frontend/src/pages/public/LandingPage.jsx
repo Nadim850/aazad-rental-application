@@ -131,7 +131,7 @@ export default function LandingPage() {
                   <Badge variant="outline" className="mb-4">
                     For Professionals
                   </Badge>
-                  <h3 className="text-2xl font-bold mb-2">Dedicated Spaces</h3>
+                  <h3 className="text-2xl font-bold mb-2">Coworking Spaces</h3>
                   <p className="text-text-main/70 mb-6 line-clamp-2">
                     Dynamic open desks, private cabins, and state-of-the-art
                     meeting rooms designed to foster creativity and networking.
@@ -153,9 +153,9 @@ export default function LandingPage() {
                   <Button
                     variant="outline"
                     className="w-full"
-                    onClick={() => navigate("/dedicated")}
+                    onClick={() => navigate("/coworking")}
                   >
-                    Explore Dedicated Spaces
+                    Explore Coworking Spaces
                   </Button>
                 </div>
               </CardContent>

@@ -28,12 +28,12 @@ export default function StartupServices() {
               Custom-built suites, high-tech conference rooms, and enterprise-grade infrastructure. Scale your team without worrying about the lease.
             </p>
             <div className="flex flex-col sm:flex-row justify-center gap-4">
-              <Link to="/pricing?plan=startup">
+              <Link to="/contact">
                 <Button size="lg" className="w-full sm:w-auto h-14 px-8 rounded-2xl shadow-lg hover:-translate-y-1 bg-success hover:bg-success/90 text-white border-none">
                   Request a Tour <ChevronRight className="ml-2 w-5 h-5" />
                 </Button>
               </Link>
-              <Link to="/pricing?plan=startup">
+              <Link to="/pricing/startup">
                 <Button size="lg" variant="outline" className="w-full sm:w-auto h-14 px-8 rounded-2xl shadow-sm hover:-translate-y-1">
                   View Enterprise Plans
                 </Button>
@@ -107,24 +107,6 @@ export default function StartupServices() {
           </div>
          </div>
       </section>
-      
-      {/* CTA */}
-      <section className="py-24 bg-surface border-t border-border-main/50 text-center">
-        <div className="max-w-3xl mx-auto px-4">
-          <h2 className="text-4xl font-bold text-text-main mb-6">Ready to scale your operations?</h2>
-          <p className="text-text-main/70 text-lg mb-10 max-w-xl mx-auto">
-            Speak with our enterprise team to build a custom workspace solution that fits your startup's trajectory.
-          </p>
-          <div className="flex justify-center">
-            <Link to="/pricing?plan=startup">
-              <Button size="lg" className="h-14 px-8 text-lg rounded-2xl shadow-lg hover:-translate-y-1">
-                Contact Sales
-              </Button>
-            </Link>
-          </div>
-        </div>
-      </section>
-
     </div>
   );
 }

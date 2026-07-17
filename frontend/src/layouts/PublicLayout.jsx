@@ -76,10 +76,10 @@ export default function PublicLayout() {
               Library
             </Link>
             <Link
-              to="/dedicated"
+              to="/coworking"
               className="text-text-main/70 hover:text-primary transition-colors"
             >
-              Dedicated Spaces
+              Coworking
             </Link>
             <Link
               to="/startup"

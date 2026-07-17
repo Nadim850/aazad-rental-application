@@ -51,7 +51,14 @@ export default function OverviewPage() {
               <CardTitle>Your Seat & Plan Details</CardTitle>
               <CardDescription>Current allocated seating and subscription info</CardDescription>
             </div>
-            <Button variant="outline" size="sm" onClick={() => navigate('/pricing')}>
+            <Button variant="outline" size="sm" onClick={() => {
+              if (active_subscription) {
+                const wsType = active_subscription.workspace.workspace_type;
+                navigate(`/pricing?seat=${active_subscription.workspace.name}&plan=${wsType}`);
+              } else {
+                navigate('/pricing');
+              }
+            }}>
               <CreditCard className="w-4 h-4 mr-2" /> Renew / Upgrade
             </Button>
           </CardHeader>

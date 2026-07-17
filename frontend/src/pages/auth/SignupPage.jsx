@@ -35,8 +35,8 @@ export default function SignupPage() {
         errorMsg = 'Please enter a valid email address.';
       }
     } else if (id === 'phoneNumber') {
-      if (value && !/^\d{10}$/.test(value)) {
-        errorMsg = 'Phone number must contain exactly 10 digits.';
+      if (value && !/^[6-9]\d{9}$/.test(value)) {
+        errorMsg = 'Phone number must be a valid 10-digit Indian number starting with 6-9.';
       }
     } else if (id === 'password') {
       const pwd = value.trim();

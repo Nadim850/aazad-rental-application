@@ -15,10 +15,14 @@ import AdminUsersPage from "./pages/admin/AdminUsersPage";
 import AdminWorkspacesPage from "./pages/admin/AdminWorkspacesPage";
 import AdminPlansPage from "./pages/admin/AdminPlansPage";
 import LibraryServices from "./pages/public/LibraryServices";
-import DedicatedServices from "./pages/public/DedicatedServices";
+import CoworkingServices from "./pages/public/CoworkingServices";
 import StartupServices from "./pages/public/StartupServices";
+import LibraryFacilityDetails from "./pages/public/LibraryFacilityDetails";
+import CoworkingFacilityDetails from "./pages/public/CoworkingFacilityDetails";
+import StartupFacilityDetails from "./pages/public/StartupFacilityDetails";
 import PaymentPage from "./pages/public/PaymentPage";
 import ReceiptPage from "./pages/public/ReceiptPage";
+import AdminContactQueriesPage from "./pages/admin/AdminContactQueriesPage";
 
 import UserSettingsPage from "./pages/dashboard/UserSettingsPage";
 
@@ -34,8 +38,11 @@ function App() {
             <Route path="/pricing" element={<PricingPage />} />
             <Route path="/contact" element={<ContactPage />} />
             <Route path="/library" element={<LibraryServices />} />
-            <Route path="/dedicated" element={<DedicatedServices />} />
+            <Route path="/coworking" element={<CoworkingServices />} />
             <Route path="/startup" element={<StartupServices />} />
+            <Route path="/pricing/library" element={<LibraryFacilityDetails />} />
+            <Route path="/pricing/coworking" element={<CoworkingFacilityDetails />} />
+            <Route path="/pricing/startup" element={<StartupFacilityDetails />} />
             <Route path="/payment" element={<PaymentPage />} />
             <Route path="/receipt/:id" element={<ReceiptPage />} />
           </Route>
@@ -54,10 +61,20 @@ function App() {
 
           {/* Admin Routes */}
           <Route path="/admin" element={<AdminDashboardLayout />}>
-            <Route index element={<Navigate to="users" replace />} />
-            <Route path="plans" element={<AdminPlansPage />} />
-            <Route path="users" element={<AdminUsersPage />} />
-            <Route path="workspaces" element={<AdminWorkspacesPage />} />
+            <Route index element={<Navigate to="library/users" replace />} />
+            
+            {/* Library Management */}
+            <Route path="library/users" element={<AdminUsersPage category="library" />} />
+            <Route path="library/plans" element={<AdminPlansPage category="library" />} />
+            <Route path="library/workspaces" element={<AdminWorkspacesPage category="library" />} />
+            
+            {/* Coworking Management */}
+            <Route path="coworking/users" element={<AdminUsersPage category="coworking" />} />
+            <Route path="coworking/plans" element={<AdminPlansPage category="coworking" />} />
+            <Route path="coworking/workspaces" element={<AdminWorkspacesPage category="coworking" />} />
+            
+            {/* System */}
+            <Route path="contact-queries" element={<AdminContactQueriesPage />} />
           </Route>
         </Routes>
       </BrowserRouter>

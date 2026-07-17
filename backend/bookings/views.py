@@ -205,6 +205,12 @@ class AdminUserDetailView(APIView):
             return Response(status=status.HTTP_404_NOT_FOUND)
 
 from .serializers import ContactMessageSerializer
+from .models import ContactMessage
+
+class AdminContactMessageViewSet(viewsets.ModelViewSet):
+    queryset = ContactMessage.objects.all().order_by('-created_at')
+    serializer_class = ContactMessageSerializer
+    permission_classes = (IsAdminUser,)
 
 class ContactMessageCreateView(generics.CreateAPIView):
     serializer_class = ContactMessageSerializer
@@ -217,6 +223,16 @@ class ContactMessageCreateView(generics.CreateAPIView):
                 user=self.request.user,
                 title="Contact Inquiry Received",
                 message="We have received your message and will get back to you shortly.",
+                notification_type="contact"
+            )
+        
+        # Notify admins
+        admins = User.objects.filter(is_staff=True)
+        for admin in admins:
+            send_notification(
+                user=admin,
+                title="New Contact Query",
+                message=f"A new query from {message.name} has been received.",
                 notification_type="contact"
             )
 

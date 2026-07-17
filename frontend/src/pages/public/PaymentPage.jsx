@@ -1,10 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { CheckCircle2, ShieldCheck, Tag, ArrowLeft, CreditCard } from 'lucide-react';
+import { CheckCircle2, ShieldCheck, ArrowLeft, CreditCard } from 'lucide-react';
 import { Button } from '../../components/ui/Button';
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '../../components/ui/Card';
-import { Input } from '../../components/ui/Input';
 
 import { apiFetch } from '../../lib/api';
 
@@ -28,7 +27,7 @@ export default function PaymentPage() {
   const [isScriptLoaded, setIsScriptLoaded] = useState(false);
 
   const planType = searchParams.get('plan') || 'Premium Plan';
-  const seatId = searchParams.get('seat') || 'L-12';
+  const [seatId, setSeatId] = useState(searchParams.get('seat') || '');
   const months = parseInt(searchParams.get('months') || '1', 10);
   
   const [basePrice, setBasePrice] = useState(1999);
@@ -46,6 +45,28 @@ export default function PaymentPage() {
           const selectedPlan = data.find(p => p.name === planType);
           if (selectedPlan) {
             setBasePrice(parseFloat(selectedPlan.monthly_price));
+            
+            // If no seat was provided in the URL, auto-select the first available one for this plan type
+            const initialSeatId = searchParams.get('seat');
+            if (!initialSeatId) {
+              try {
+                const wsRes = await fetch('http://localhost:8000/api/bookings/public-workspaces/');
+                if (wsRes.ok) {
+                  const wsData = await wsRes.json();
+                  const availableSeats = wsData
+                    .filter(ws => ws.workspace_type === selectedPlan.workspace_type && ws.is_available)
+                    .sort((a, b) => a.name.localeCompare(b.name));
+                    
+                  if (availableSeats.length > 0) {
+                    setSeatId(availableSeats[0].name);
+                  } else {
+                    setError('No seats available for this plan.');
+                  }
+                }
+              } catch (wsErr) {
+                console.error("Failed to fetch workspaces", wsErr);
+              }
+            }
           }
         }
       } catch (err) {
@@ -53,12 +74,17 @@ export default function PaymentPage() {
       }
     };
     fetchPlans();
-  }, [planType]);
+  }, [planType, searchParams]);
 
   const price = basePrice * months;
   const total = price;
 
   const handlePayment = async () => {
+    if (!seatId) {
+      setError('Please select a seat or wait for one to be auto-assigned.');
+      return;
+    }
+
     if (!isScriptLoaded) {
       setError('Payment gateway is still loading. Please try again in a moment.');
       return;
@@ -214,7 +240,7 @@ export default function PaymentPage() {
                 <div className="flex justify-between items-start mb-6">
                   <div>
                     <h3 className="font-bold text-lg">{planType}</h3>
-                    <p className="text-sm text-text-main/70">Seat: {seatId} &bull; {months} {months === 1 ? 'Month' : 'Months'}</p>
+                    <p className="text-sm text-text-main/70">Seat: {seatId || 'Assigning...'} &bull; {months} {months === 1 ? 'Month' : 'Months'}</p>
                   </div>
                   <span className="font-semibold">₹{price.toFixed(2)}</span>
                 </div>
@@ -232,11 +258,6 @@ export default function PaymentPage() {
                 </div>
               </CardContent>
             </Card>
-
-            <div className="flex gap-2">
-              <Input placeholder="Enter coupon code" leftIcon={<Tag size={16} />} className="flex-1" />
-              <Button variant="outline">Apply</Button>
-            </div>
           </div>
 
           {/* Payment Method */}

@@ -12,7 +12,7 @@ import {
   CheckCircle2,
 } from "lucide-react";
 
-export default function DedicatedServices() {
+export default function CoworkingServices() {
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
