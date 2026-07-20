@@ -3,6 +3,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import AllowAny
 from django.contrib.auth import get_user_model
+from django.utils.crypto import get_random_string
 from rest_framework_simplejwt.tokens import RefreshToken
 import requests
 from google.oauth2 import id_token
@@ -108,7 +109,7 @@ class SocialLoginView(APIView):
                 email=email,
                 first_name=first_name,
                 last_name=last_name,
-                password=User.objects.make_random_password()
+                password=get_random_string(32),
             )
             
         # Issue JWT tokens

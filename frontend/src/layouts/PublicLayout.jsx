@@ -137,11 +137,6 @@ export default function PublicLayout() {
                         onClick={() => setIsDropdownOpen(false)}
                       />
                       <div className="absolute right-0 mt-2 w-48 rounded-xl shadow-lg bg-surface border border-border-main overflow-hidden z-50 animate-in fade-in slide-in-from-top-2">
-                        <div className="p-3 border-b border-border-main bg-black/5 dark:bg-white/5">
-                          <p className="text-sm font-medium truncate">
-                            {user?.email}
-                          </p>
-                        </div>
                         <div className="py-1">
                           <button
                             onClick={() => {

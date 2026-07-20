@@ -13,7 +13,8 @@ import {
   Moon,
   Tags,
   LogOut,
-  MessageSquare
+  MessageSquare,
+  Loader2
 } from "lucide-react";
 import { cn } from "../lib/utils";
 import { Button } from "../components/ui/Button";
@@ -25,6 +26,7 @@ function AdminDashboardLayoutContent() {
   const { theme, toggleTheme } = useTheme();
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
+  const [isVerifying, setIsVerifying] = useState(true);
   const { searchQuery, setSearchQuery } = useSearch();
 
   useEffect(() => {
@@ -42,6 +44,8 @@ function AdminDashboardLayoutContent() {
         setUser(data);
         if (!data.is_staff) {
           navigate('/dashboard'); // Normal users shouldn't be in admin
+        } else {
+          setIsVerifying(false);
         }
       } else {
         navigate('/auth/login');
@@ -49,6 +53,14 @@ function AdminDashboardLayoutContent() {
     })
     .catch(() => navigate('/auth/login'));
   }, [navigate]);
+
+  if (isVerifying) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   const handleLogout = () => {
     localStorage.removeItem('access');
