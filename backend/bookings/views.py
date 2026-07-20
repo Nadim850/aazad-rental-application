@@ -83,9 +83,9 @@ class BookSeatView(APIView):
             return Response({'error': f'Seat {seat_id} does not exist.'}, status=status.HTTP_404_NOT_FOUND)
             
         if not workspace.is_available:
-            # Check if this user is the one currently holding the seat
-            current_holder_booking = Booking.objects.filter(workspace=workspace, status__in=['ACTIVE', 'UPCOMING']).order_by('-end_time').first()
-            if not current_holder_booking or current_holder_booking.user != request.user:
+            # Check if this user holds any active/upcoming booking for this workspace
+            has_booking = Booking.objects.filter(workspace=workspace, status__in=['ACTIVE', 'UPCOMING'], user=request.user).exists()
+            if not has_booking:
                 return Response({'error': f'Seat {seat_id} is currently not available or already booked.'}, status=status.HTTP_400_BAD_REQUEST)
             
         # Mark new seat as unavailable immediately
@@ -93,7 +93,7 @@ class BookSeatView(APIView):
         workspace.save()
             
         # 2. Calculate dates
-        latest_user_booking = Booking.objects.filter(user=request.user, status__in=['ACTIVE', 'UPCOMING']).order_by('-end_time').first()
+        latest_user_booking = Booking.objects.filter(user=request.user, workspace=workspace, status__in=['ACTIVE', 'UPCOMING']).order_by('-end_time').first()
         
         if latest_user_booking:
             start_time = latest_user_booking.end_time
@@ -223,7 +223,8 @@ class ContactMessageCreateView(generics.CreateAPIView):
                 user=self.request.user,
                 title="Contact Inquiry Received",
                 message="We have received your message and will get back to you shortly.",
-                notification_type="contact"
+                notification_type="contact",
+                email_template="generic"
             )
         
         # Notify admins
@@ -233,7 +234,8 @@ class ContactMessageCreateView(generics.CreateAPIView):
                 user=admin,
                 title="New Contact Query",
                 message=f"A new query from {message.name} has been received.",
-                notification_type="contact"
+                notification_type="contact",
+                email_template="generic"
             )
 
 class CreateRazorpayOrderView(APIView):
@@ -253,8 +255,8 @@ class CreateRazorpayOrderView(APIView):
             return Response({'error': f'Seat {seat_id} does not exist.'}, status=status.HTTP_404_NOT_FOUND)
 
         if not workspace.is_available:
-            current_holder_booking = Booking.objects.filter(workspace=workspace, status__in=['ACTIVE', 'UPCOMING']).order_by('-end_time').first()
-            if not current_holder_booking or current_holder_booking.user != request.user:
+            has_booking = Booking.objects.filter(workspace=workspace, status__in=['ACTIVE', 'UPCOMING'], user=request.user).exists()
+            if not has_booking:
                 return Response({'error': f'Seat {seat_id} is currently not available or already booked.'}, status=status.HTTP_400_BAD_REQUEST)
 
         # Get Plan price
@@ -316,7 +318,7 @@ class VerifyRazorpayPaymentView(APIView):
         workspace.save()
 
         # Calculate dates
-        latest_user_booking = Booking.objects.filter(user=request.user, status__in=['ACTIVE', 'UPCOMING']).order_by('-end_time').first()
+        latest_user_booking = Booking.objects.filter(user=request.user, workspace=workspace, status__in=['ACTIVE', 'UPCOMING']).order_by('-end_time').first()
         
         if latest_user_booking:
             start_time = latest_user_booking.end_time
@@ -353,7 +355,8 @@ class VerifyRazorpayPaymentView(APIView):
             title="Payment Successful",
             message=f"Your payment of ₹{amount_paid} for {plan_type} was successful.",
             notification_type="payment",
-            action_url=f"/receipt/{booking.id}"
+            action_url=f"/receipt/{booking.id}",
+            email_template="generic"
         )
 
         return Response({

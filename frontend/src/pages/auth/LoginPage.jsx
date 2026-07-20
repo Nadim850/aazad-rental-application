@@ -16,8 +16,8 @@ export default function LoginPage() {
   const [globalError, setGlobalError] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
 
-  // Replace with your actual GitHub Client ID
-  const GITHUB_CLIENT_ID = "YOUR_GITHUB_CLIENT_ID";
+  // Replace with your actual GitHub Client ID or add it to .env as VITE_GITHUB_CLIENT_ID
+  const GITHUB_CLIENT_ID = import.meta.env.VITE_GITHUB_CLIENT_ID || "";
 
   useEffect(() => {
     // Check for GitHub OAuth callback code in URL
@@ -146,7 +146,11 @@ export default function LoginPage() {
   });
 
   const githubLogin = () => {
-    window.location.assign(`https://github.com/login/oauth/authorize?client_id=${GITHUB_CLIENT_ID}`);
+    if (!GITHUB_CLIENT_ID) {
+      setGlobalError('GitHub login is not configured. Please add VITE_GITHUB_CLIENT_ID to your frontend/.env file.');
+      return;
+    }
+    window.location.assign(`https://github.com/login/oauth/authorize?client_id=${GITHUB_CLIENT_ID}&scope=user:email`);
   };
 
   return (

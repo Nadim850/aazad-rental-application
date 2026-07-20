@@ -11,10 +11,12 @@ from google.auth.transport import requests as google_requests
 
 User = get_user_model()
 
+import os
+
 # Replace with your actual Client IDs in production
-GOOGLE_CLIENT_ID = "YOUR_GOOGLE_CLIENT_ID"
-GITHUB_CLIENT_ID = "YOUR_GITHUB_CLIENT_ID"
-GITHUB_CLIENT_SECRET = "YOUR_GITHUB_CLIENT_SECRET"
+GOOGLE_CLIENT_ID = os.environ.get("GOOGLE_CLIENT_ID", "YOUR_GOOGLE_CLIENT_ID")
+GITHUB_CLIENT_ID = os.environ.get("GITHUB_CLIENT_ID", "YOUR_GITHUB_CLIENT_ID")
+GITHUB_CLIENT_SECRET = os.environ.get("GITHUB_CLIENT_SECRET", "YOUR_GITHUB_CLIENT_SECRET")
 
 def get_tokens_for_user(user):
     refresh = RefreshToken.for_user(user)
@@ -71,6 +73,10 @@ class SocialLoginView(APIView):
                 headers={'Authorization': f'token {access_token}'}
             )
             emails_json = emails_res.json()
+            
+            if not isinstance(emails_json, list):
+                error_msg = emails_json.get("message", "Unknown error") if isinstance(emails_json, dict) else "Unknown error"
+                return Response({'error': f'Failed to fetch emails from GitHub: {error_msg}'}, status=status.HTTP_400_BAD_REQUEST)
             
             primary_email = None
             for email_obj in emails_json:

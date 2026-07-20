@@ -20,7 +20,8 @@ def check_expiring_subscriptions():
                 title="Subscription Expiring Soon",
                 message=f"Your subscription for {booking.workspace.name} expires in 7 days.",
                 notification_type="subscription",
-                action_url="/dashboard"
+                action_url="/dashboard",
+                email_template="generic"
             )
         elif days_left == 3:
             send_notification(
@@ -28,7 +29,8 @@ def check_expiring_subscriptions():
                 title="Subscription Expiring in 3 Days",
                 message=f"Your subscription for {booking.workspace.name} expires in exactly 3 days. Renew now to keep your seat.",
                 notification_type="subscription",
-                action_url="/dashboard"
+                action_url="/dashboard",
+                email_template="generic"
             )
         elif days_left == 1:
             send_notification(
@@ -36,17 +38,25 @@ def check_expiring_subscriptions():
                 title="Subscription Expires Tomorrow",
                 message=f"Your subscription for {booking.workspace.name} expires tomorrow! Renew immediately to avoid losing access.",
                 notification_type="subscription",
-                action_url="/dashboard"
+                action_url="/dashboard",
+                email_template="generic"
             )
         elif days_left <= 0:
             booking.status = 'EXPIRED'
             booking.save()
+            
+            # If this was the last active/upcoming booking, free up the seat
+            if not Booking.objects.filter(workspace=booking.workspace, status__in=['ACTIVE', 'UPCOMING']).exists():
+                booking.workspace.is_available = True
+                booking.workspace.save()
+                
             send_notification(
                 user=booking.user,
                 title="Subscription Expired",
                 message=f"Your subscription for {booking.workspace.name} has expired.",
                 notification_type="subscription",
-                action_url="/dashboard"
+                action_url="/dashboard",
+                email_template="generic"
             )
 
 def start():

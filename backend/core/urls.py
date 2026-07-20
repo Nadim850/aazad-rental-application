@@ -33,4 +33,6 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/accounts/', include('accounts.urls')),
     path('api/bookings/', include('bookings.urls')),
+    path('accounts/', include('allauth.urls')),
 ]
+
