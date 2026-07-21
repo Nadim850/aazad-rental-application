@@ -28,13 +28,57 @@ export default function SeatSelectionMap() {
     fetchSeats();
   }, []);
 
+  // Responsive grid logic
+  const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1200);
+
+  useEffect(() => {
+    const handleResize = () => setWindowWidth(window.innerWidth);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  const containerWidth = Math.min(windowWidth - 64, 1152); 
+
+  let libCols = 3;
+  let dedCols = 2;
+
+  if (filterType === 'library') {
+    libCols = Math.max(3, Math.floor((containerWidth - 60) / 95));
+  } else if (filterType === 'dedicated') {
+    dedCols = Math.max(2, Math.floor((containerWidth - 300) / 120));
+  } else {
+    if (windowWidth >= 1280) {
+      libCols = 5;
+      dedCols = 3;
+    } else if (windowWidth >= 1024) {
+      libCols = 4;
+      dedCols = 2;
+    } else {
+      libCols = 3;
+      dedCols = 2;
+    }
+  }
+
+  const libRectX = 20;
+  const libRectWidth = Math.max(300, (libCols - 1) * 95 + 90);
+  
+  const dedRectX = filterType === 'dedicated' ? 20 : (libRectX + libRectWidth + 30);
+  const dedRectWidth = Math.max(300, dedCols * 120);
+  
+  const cabinRectX = dedRectX + dedRectWidth + 30;
+  const cabinRectWidth = 250;
+
+  const totalMapWidth = filterType === 'library' 
+    ? libRectWidth + 40 
+    : cabinRectX + cabinRectWidth + 20;
+
   // Separate and map seats with coordinates
   const librarySeats = seats.filter(s => s.name.startsWith('L-')).map((seat, i) => ({
     id: seat.name,
     type: "library",
     status: seat.is_available ? "available" : "occupied",
-    x: 40 + (i % 6) * 60,
-    y: 80 + Math.floor(i / 6) * 75,
+    x: libRectX + 20 + (i % libCols) * 95,
+    y: 80 + Math.floor(i / libCols) * 80,
   }));
 
   const dedicatedDesks = seats.filter(s => s.name.startsWith('D-')).map((seat, i) => ({
@@ -42,8 +86,8 @@ export default function SeatSelectionMap() {
     type: "dedicated",
     subType: "dedicated-desk",
     status: seat.is_available ? "available" : "occupied",
-    x: 480 + (i % 2) * 120,
-    y: 80 + Math.floor(i / 2) * 100,
+    x: dedRectX + 30 + (i % dedCols) * 120,
+    y: 80 + Math.floor(i / dedCols) * 100,
   }));
 
   const privateCabins = seats.filter(s => s.name.startsWith('P-') || s.name.startsWith('C-')).map((seat, i) => ({
@@ -51,7 +95,7 @@ export default function SeatSelectionMap() {
     type: "dedicated",
     subType: "private-cabin",
     status: seat.is_available ? "available" : "occupied",
-    x: 865,
+    x: cabinRectX + 85,
     y: 80 + i * 100,
   }));
 
@@ -61,10 +105,13 @@ export default function SeatSelectionMap() {
     filterType ? seat.type === filterType : true
   );
 
-  const maxLibraryHeight = Math.max(360, 40 + Math.ceil(librarySeats.length / 6) * 75);
-  const maxDedicatedHeight = Math.max(360, 40 + Math.ceil(dedicatedDesks.length / 2) * 100);
+  const maxLibraryHeight = Math.max(360, 60 + Math.ceil(librarySeats.length / libCols) * 80);
+  const maxDedicatedHeight = Math.max(360, 40 + Math.ceil(dedicatedDesks.length / dedCols) * 100);
   const maxCabinHeight = Math.max(360, 40 + privateCabins.length * 100);
-  const maxTotalHeight = Math.max(maxLibraryHeight, maxDedicatedHeight, maxCabinHeight) + 40;
+  const maxTotalHeight = Math.max(
+    (!filterType || filterType === 'library') ? maxLibraryHeight : 0,
+    (!filterType || filterType === 'dedicated') ? Math.max(maxDedicatedHeight, maxCabinHeight) : 0
+  ) + 40;
 
   const handleSeatClick = (seat) => {
     if (seat.status === "available") {
@@ -127,20 +174,21 @@ export default function SeatSelectionMap() {
 
       {/* Map Container */}
       <div className="flex-1 overflow-auto p-4 md:p-8 flex justify-center items-start bg-background">
-        <div className="relative bg-surface rounded-3xl border border-border-main shadow-sm p-8 overflow-x-auto min-w-full flex justify-center">
+        <div className="relative bg-surface rounded-3xl border border-border-main shadow-sm p-4 md:p-8 overflow-x-auto overflow-y-hidden min-w-full flex justify-start md:justify-center touch-pan-x">
           <svg 
-            width={(!filterType || filterType === 'all') ? "800" : "100%"} 
+            width="100%"
+            style={{ minWidth: `${totalMapWidth}px` }}
             height={maxTotalHeight} 
-            viewBox={filterType === 'library' ? `0 0 440 ${maxTotalHeight}` : filterType === 'dedicated' ? `430 0 620 ${maxTotalHeight}` : `0 0 1100 ${maxTotalHeight}`}
-            className="select-none max-w-4xl"
+            viewBox={`0 0 ${totalMapWidth} ${maxTotalHeight}`}
+            className="select-none"
           >
             {/* Zones */}
             {(!filterType || filterType === 'library') && (
               <>
                 <rect
-                  x="20"
+                  x={libRectX}
                   y="20"
-                  width="400"
+                  width={libRectWidth}
                   height={maxLibraryHeight}
                   rx="16"
                   fill="var(--color-primary)"
@@ -151,7 +199,7 @@ export default function SeatSelectionMap() {
                   strokeDasharray="8 8"
                 />
                 <text
-                  x="220"
+                  x={libRectX + libRectWidth / 2}
                   y="50"
                   textAnchor="middle"
                   className="fill-primary font-bold text-lg opacity-50"
@@ -165,9 +213,9 @@ export default function SeatSelectionMap() {
               <>
                 {/* Dedicated Desks Zone */}
                 <rect
-                  x="450"
+                  x={dedRectX}
                   y="20"
-                  width="300"
+                  width={dedRectWidth}
                   height={maxDedicatedHeight}
                   rx="16"
                   fill="var(--color-secondary)"
@@ -177,15 +225,15 @@ export default function SeatSelectionMap() {
                   strokeWidth="2"
                   strokeDasharray="8 8"
                 />
-                <text x="600" y="45" textAnchor="middle" className="fill-secondary font-bold text-sm opacity-50">
+                <text x={dedRectX + dedRectWidth / 2} y="45" textAnchor="middle" className="fill-secondary font-bold text-sm opacity-50">
                   Dedicated Desks
                 </text>
 
                 {/* Private Cabins Zone */}
                 <rect
-                  x="780"
+                  x={cabinRectX}
                   y="20"
-                  width="250"
+                  width={cabinRectWidth}
                   height={maxCabinHeight}
                   rx="16"
                   fill="var(--color-secondary)"
@@ -195,7 +243,7 @@ export default function SeatSelectionMap() {
                   strokeWidth="2"
                   strokeDasharray="8 8"
                 />
-                <text x="905" y="45" textAnchor="middle" className="fill-secondary font-bold text-sm opacity-50">
+                <text x={cabinRectX + cabinRectWidth / 2} y="45" textAnchor="middle" className="fill-secondary font-bold text-sm opacity-50">
                   Private Cabins
                 </text>
               </>

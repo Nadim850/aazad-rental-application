@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Outlet, useNavigate, Link, useLocation } from "react-router-dom";
 import { useTheme } from "../contexts/ThemeContext";
-import { Moon, Sun, BookOpen } from "lucide-react";
+import { Moon, Sun, BookOpen, Menu, X } from "lucide-react";
 import { Button } from "../components/ui/Button";
 import NotificationBell from "../components/layout/NotificationBell";
 
@@ -14,12 +14,13 @@ export default function PublicLayout() {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [user, setUser] = useState(null);
-
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   // Check auth state whenever location changes
   useEffect(() => {
     const token = localStorage.getItem("access");
     setIsLoggedIn(!!token);
     setIsDropdownOpen(false); // Close dropdown on navigation
+    setIsMobileMenuOpen(false); // Close mobile menu on navigation
 
     if (token) {
       apiFetch("http://localhost:8000/api/accounts/me/", {
@@ -107,6 +108,14 @@ export default function PublicLayout() {
               className="p-2 rounded-full hover:bg-border-main/50 transition-colors"
             >
               {theme === "dark" ? <Sun size={20} /> : <Moon size={20} />}
+            </button>
+
+            {/* Mobile Menu Toggle */}
+            <button
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              className="md:hidden p-2 rounded-full hover:bg-border-main/50 transition-colors"
+            >
+              {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
             </button>
 
             <div className="hidden md:flex gap-2 relative">
@@ -209,6 +218,45 @@ export default function PublicLayout() {
             </div>
           </div>
         </div>
+
+        {/* Mobile Navigation Menu */}
+        {isMobileMenuOpen && (
+          <div className="md:hidden border-t border-border-main bg-background/95 backdrop-blur-md pb-4 animate-in fade-in slide-in-from-top-2">
+            <nav className="flex flex-col px-4 pt-2">
+              <Link to="/" className="py-3 border-b border-border-main/50 text-text-main font-medium">Services</Link>
+              <Link to="/library" className="py-3 border-b border-border-main/50 text-text-main font-medium">Library</Link>
+              <Link to="/coworking" className="py-3 border-b border-border-main/50 text-text-main font-medium">Coworking</Link>
+              <Link to="/startup" className="py-3 border-b border-border-main/50 text-text-main font-medium">Startup</Link>
+              <Link to="/pricing" className="py-3 border-b border-border-main/50 text-text-main font-medium">Pricing</Link>
+              <Link to="/contact" className="py-3 border-b border-border-main/50 text-text-main font-medium">Contact</Link>
+              
+              <div className="pt-4 flex flex-col gap-3">
+                {isLoggedIn ? (
+                  <>
+                    <div className="flex items-center gap-3 py-2">
+                      <div className="w-10 h-10 rounded-full bg-primary/20 text-primary flex items-center justify-center font-bold">
+                        {user?.first_name?.[0]?.toUpperCase() || user?.email?.[0]?.toUpperCase() || "U"}
+                      </div>
+                      <div>
+                        <div className="font-medium text-text-main">{user?.first_name || "User"}</div>
+                        <div className="text-xs text-text-main/70">{user?.email}</div>
+                      </div>
+                    </div>
+                    <Button variant="outline" className="w-full justify-center" onClick={() => navigate(user?.is_staff ? "/admin" : "/dashboard")}>
+                      {user?.is_staff ? "Admin Panel" : "My Dashboard"}
+                    </Button>
+                    <Button variant="danger" className="w-full justify-center" onClick={handleLogout}>Logout</Button>
+                  </>
+                ) : (
+                  <>
+                    <Button variant="outline" className="w-full justify-center" onClick={() => navigate("/auth/login")}>Log In</Button>
+                    <Button variant="primary" className="w-full justify-center" onClick={() => navigate("/auth/signup")}>Sign Up</Button>
+                  </>
+                )}
+              </div>
+            </nav>
+          </div>
+        )}
       </header>
 
       <main className="flex-1">
