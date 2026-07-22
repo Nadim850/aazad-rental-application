@@ -6,7 +6,10 @@ import { Badge } from "../../components/ui/Badge";
 import { ArrowRight, Info } from "lucide-react";
 import { cn } from "../../lib/utils";
 
+import { Skeleton } from "../../components/ui/Skeleton";
+
 export default function SeatSelectionMap() {
+  const [isLoading, setIsLoading] = useState(true);
   const [selectedSeat, setSelectedSeat] = useState(null);
   const [seats, setSeats] = useState([]);
   const navigate = useNavigate();
@@ -23,6 +26,8 @@ export default function SeatSelectionMap() {
         }
       } catch (err) {
         console.error("Failed to fetch seats", err);
+      } finally {
+        setIsLoading(false);
       }
     };
     fetchSeats();
@@ -174,14 +179,19 @@ export default function SeatSelectionMap() {
 
       {/* Map Container */}
       <div className="flex-1 overflow-auto p-4 md:p-8 flex justify-center items-start bg-background">
-        <div className="relative bg-surface rounded-3xl border border-border-main shadow-sm p-4 md:p-8 overflow-x-auto overflow-y-hidden min-w-full flex justify-start md:justify-center touch-pan-x">
-          <svg 
-            width="100%"
-            style={{ minWidth: `${totalMapWidth}px` }}
-            height={maxTotalHeight} 
-            viewBox={`0 0 ${totalMapWidth} ${maxTotalHeight}`}
-            className="select-none"
-          >
+        {isLoading ? (
+          <div className="w-full max-w-6xl space-y-8">
+            <Skeleton className="w-full h-[600px] rounded-3xl" />
+          </div>
+        ) : (
+          <div className="relative bg-surface rounded-3xl border border-border-main shadow-sm p-4 md:p-8 overflow-x-auto overflow-y-hidden min-w-full flex justify-start md:justify-center touch-pan-x">
+            <svg 
+              width="100%"
+              style={{ minWidth: `${totalMapWidth}px` }}
+              height={maxTotalHeight} 
+              viewBox={`0 0 ${totalMapWidth} ${maxTotalHeight}`}
+              className="select-none"
+            >
             {/* Zones */}
             {(!filterType || filterType === 'library') && (
               <>
@@ -303,6 +313,7 @@ export default function SeatSelectionMap() {
             ))}
           </svg>
         </div>
+        )}
       </div>
 
       {/* Sticky Bottom Action Bar */}

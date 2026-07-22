@@ -7,6 +7,7 @@ import { Button } from '../components/ui/Button';
 import { Badge } from '../components/ui/Badge';
 import { apiFetch } from '../lib/api';
 import NotificationBell from '../components/layout/NotificationBell';
+import { Skeleton } from '../components/ui/Skeleton';
 
 export default function UserDashboardLayout() {
   const { theme, toggleTheme } = useTheme();
@@ -74,13 +75,7 @@ export default function UserDashboardLayout() {
 
   const [showNotifications, setShowNotifications] = useState(false);
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-primary" />
-      </div>
-    );
-  }
+
 
   const { active_subscription } = dashboardData || {};
   let daysRemaining = 0;
@@ -226,7 +221,23 @@ export default function UserDashboardLayout() {
 
         {/* Page Content */}
         <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto">
-          <Outlet context={{ userData, dashboardData }} />
+          {loading ? (
+            <div className="max-w-6xl mx-auto space-y-6">
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
+                <div>
+                  <Skeleton className="h-10 w-64 mb-2" />
+                  <Skeleton className="h-5 w-48" />
+                </div>
+              </div>
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-8">
+                <Skeleton className="h-64 lg:col-span-2 rounded-xl" />
+                <Skeleton className="h-64 rounded-xl" />
+              </div>
+              <Skeleton className="h-48 w-full rounded-xl" />
+            </div>
+          ) : (
+            <Outlet context={{ userData, dashboardData }} />
+          )}
         </main>
       </div>
     </div>
