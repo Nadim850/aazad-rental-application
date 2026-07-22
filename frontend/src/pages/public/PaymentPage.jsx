@@ -6,6 +6,7 @@ import { Button } from '../../components/ui/Button';
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '../../components/ui/Card';
 
 import { apiFetch } from '../../lib/api';
+import { getDurationPrice } from '../../lib/pricingUtils';
 
 const loadRazorpayScript = () => {
   return new Promise((resolve) => {
@@ -31,6 +32,7 @@ export default function PaymentPage() {
   const months = parseInt(searchParams.get('months') || '1', 10);
   
   const [basePrice, setBasePrice] = useState(1999);
+  const [planObj, setPlanObj] = useState(null);
   
   useEffect(() => {
     loadRazorpayScript().then(res => {
@@ -44,6 +46,7 @@ export default function PaymentPage() {
           const data = await res.json();
           const selectedPlan = data.find(p => p.name === planType);
           if (selectedPlan) {
+            setPlanObj(selectedPlan);
             setBasePrice(parseFloat(selectedPlan.monthly_price));
             
             // If no seat was provided in the URL, auto-select the first available one for this plan type
@@ -76,7 +79,7 @@ export default function PaymentPage() {
     fetchPlans();
   }, [planType, searchParams]);
 
-  const price = basePrice * months;
+  const price = getDurationPrice(planObj, months);
   const total = price;
 
   const handlePayment = async () => {

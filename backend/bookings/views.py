@@ -262,7 +262,14 @@ class CreateRazorpayOrderView(APIView):
         # Get Plan price
         try:
             plan = SubscriptionPlan.objects.get(name=plan_type)
-            amount = float(plan.monthly_price) * months
+            if months == 3 and plan.price_3_months:
+                amount = float(plan.price_3_months)
+            elif months == 6 and plan.price_6_months:
+                amount = float(plan.price_6_months)
+            elif months == 12 and plan.price_1_year:
+                amount = float(plan.price_1_year)
+            else:
+                amount = float(plan.monthly_price) * months
         except SubscriptionPlan.DoesNotExist:
             # Fallback
             amount = 1999 * months
@@ -332,7 +339,14 @@ class VerifyRazorpayPaymentView(APIView):
         # Get Plan price for amount_paid
         try:
             plan = SubscriptionPlan.objects.get(name=plan_type)
-            amount_paid = float(plan.monthly_price) * months
+            if months == 3 and plan.price_3_months:
+                amount_paid = float(plan.price_3_months)
+            elif months == 6 and plan.price_6_months:
+                amount_paid = float(plan.price_6_months)
+            elif months == 12 and plan.price_1_year:
+                amount_paid = float(plan.price_1_year)
+            else:
+                amount_paid = float(plan.monthly_price) * months
         except SubscriptionPlan.DoesNotExist:
             amount_paid = 1999 * months
 

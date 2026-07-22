@@ -15,6 +15,9 @@ class SubscriptionPlan(models.Model):
     workspace_type = models.CharField(max_length=100) # e.g. library, coworking, startup
     description = models.TextField(blank=True, null=True)
     monthly_price = models.DecimalField(max_digits=10, decimal_places=2)
+    price_3_months = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    price_6_months = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    price_1_year = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     features = models.JSONField(default=list, blank=True)
     total_seats = models.IntegerField(default=0)
     seat_prefix = models.CharField(max_length=10, default='')

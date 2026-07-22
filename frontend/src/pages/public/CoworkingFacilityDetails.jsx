@@ -6,6 +6,7 @@ import {
 } from 'lucide-react';
 import { Button } from '../../components/ui/Button';
 import { Badge } from '../../components/ui/Badge';
+import { getDurationPrice, getSavingsPercentage } from '../../lib/pricingUtils';
 import { Card, CardHeader, CardTitle, CardContent } from '../../components/ui/Card';
 
 const FACILITIES = {
@@ -286,16 +287,26 @@ export default function CoworkingFacilityDetails() {
                   ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       {filteredPlans.map(plan => {
-                        const basePrice = parseFloat(plan.monthly_price);
-                        const totalPrice = basePrice * duration;
+                        const totalPrice = getDurationPrice(plan, duration);
+                        const savingsPct = getSavingsPercentage(plan, duration);
                         
                         return (
                           <Card key={plan.id} className="relative overflow-hidden flex flex-col h-full hover:border-primary/50 transition-colors">
-                            <CardHeader className="bg-primary/5 pb-4 border-b border-border-main/50">
-                              <CardTitle className="text-lg">{plan.name}</CardTitle>
+                            {savingsPct > 0 && (
+                              <div className="absolute top-4 right-4 z-10">
+                                <Badge variant="success" className="animate-pulse shadow-sm">Save {savingsPct}%</Badge>
+                              </div>
+                            )}
+                            <CardHeader className="bg-primary/5 pb-4 border-b border-border-main/50 relative">
+                              <CardTitle className="text-lg pr-20">{plan.name}</CardTitle>
                               <div className="mt-2">
                                 <span className="text-3xl font-bold">₹{totalPrice.toLocaleString('en-IN')}</span>
                                 <span className="text-sm text-text-main/60 ml-1">/{duration} {duration === 1 ? 'month' : 'months'}</span>
+                                {savingsPct > 0 && (
+                                  <div className="text-xs text-text-main/50 line-through mt-1">
+                                    ₹{(parseFloat(plan.monthly_price) * duration).toLocaleString('en-IN')}
+                                  </div>
+                                )}
                               </div>
                             </CardHeader>
                             <CardContent className="pt-6 flex-1 flex flex-col">

@@ -11,6 +11,9 @@ export default function AdminPlansPage({ category = 'library' }) {
   const [isLoading, setIsLoading] = useState(true);
   const [editingPlan, setEditingPlan] = useState(null);
   const [editPrice, setEditPrice] = useState('');
+  const [editPrice3M, setEditPrice3M] = useState('');
+  const [editPrice6M, setEditPrice6M] = useState('');
+  const [editPrice1Y, setEditPrice1Y] = useState('');
   const [editSeats, setEditSeats] = useState('');
   const [error, setError] = useState(null);
 
@@ -62,6 +65,9 @@ export default function AdminPlansPage({ category = 'library' }) {
         },
         body: JSON.stringify({ 
           monthly_price: editPrice,
+          price_3_months: editPrice3M || null,
+          price_6_months: editPrice6M || null,
+          price_1_year: editPrice1Y || null,
           total_seats: editSeats
         })
       });
@@ -135,6 +141,38 @@ export default function AdminPlansPage({ category = 'library' }) {
                             className="w-20 h-9 bg-black/5 dark:bg-black/20 border-border-main"
                           />
                         </div>
+                        <div className="flex items-center gap-4 flex-wrap mt-2">
+                          <div className="flex flex-col gap-1">
+                            <label className="text-[10px] text-text-main/50 uppercase tracking-wider">3-Mo Price</label>
+                            <Input 
+                              type="number" 
+                              value={editPrice3M || ''} 
+                              onChange={(e) => setEditPrice3M(e.target.value)}
+                              placeholder="Auto"
+                              className="w-24 h-9 bg-black/5 dark:bg-black/20 border-border-main"
+                            />
+                          </div>
+                          <div className="flex flex-col gap-1">
+                            <label className="text-[10px] text-text-main/50 uppercase tracking-wider">6-Mo Price</label>
+                            <Input 
+                              type="number" 
+                              value={editPrice6M || ''} 
+                              onChange={(e) => setEditPrice6M(e.target.value)}
+                              placeholder="Auto"
+                              className="w-24 h-9 bg-black/5 dark:bg-black/20 border-border-main"
+                            />
+                          </div>
+                          <div className="flex flex-col gap-1">
+                            <label className="text-[10px] text-text-main/50 uppercase tracking-wider">1-Yr Price</label>
+                            <Input 
+                              type="number" 
+                              value={editPrice1Y || ''} 
+                              onChange={(e) => setEditPrice1Y(e.target.value)}
+                              placeholder="Auto"
+                              className="w-24 h-9 bg-black/5 dark:bg-black/20 border-border-main"
+                            />
+                          </div>
+                        </div>
                         <div className="flex items-center gap-2 mt-4">
                           <Button size="sm" onClick={() => handleSavePrice(plan.id)}>Save</Button>
                           <Button size="sm" variant="ghost" onClick={() => { setEditingPlan(null); setError(null); }}>Cancel</Button>
@@ -154,6 +192,9 @@ export default function AdminPlansPage({ category = 'library' }) {
                         <Button variant="outline" size="sm" onClick={() => { 
                           setEditingPlan(plan.id); 
                           setEditPrice(plan.monthly_price); 
+                          setEditPrice3M(plan.price_3_months || '');
+                          setEditPrice6M(plan.price_6_months || '');
+                          setEditPrice1Y(plan.price_1_year || '');
                           setEditSeats(plan.total_seats);
                           setError(null);
                         }}>
