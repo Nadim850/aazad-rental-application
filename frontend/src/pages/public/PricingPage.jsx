@@ -276,7 +276,15 @@ export default function PricingPage() {
                         </div>
                       )}
                       <CardHeader className={`${facility.bgAccent} pb-4 border-b border-border-main/50 relative`}>
-                        <CardTitle className="text-lg pr-20">{plan.name}</CardTitle>
+                        <CardTitle className="text-lg pr-20 flex items-center gap-2">
+                          {plan.name}
+                          {plan.total_seats > 0 && (
+                            <Badge variant="outline" className="text-xs bg-surface/50 border-border-main/50 text-text-main/70 flex items-center">
+                              <Users className="w-3 h-3 mr-1" />
+                              {plan.total_seats} {plan.total_seats === 1 ? 'Seat' : 'Seats'}
+                            </Badge>
+                          )}
+                        </CardTitle>
                         <div className="mt-2">
                           <span className="text-3xl font-bold">₹{totalPrice.toLocaleString('en-IN')}</span>
                           <span className="text-sm text-text-main/60 ml-1">/{duration} {duration === 1 ? 'month' : 'months'}</span>
