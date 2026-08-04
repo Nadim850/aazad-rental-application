@@ -22,7 +22,7 @@ export default function StartupServices() {
               For Growing Teams
             </Badge>
             <h1 className="text-4xl md:text-6xl font-extrabold text-text-main tracking-tight mb-6 leading-tight max-w-4xl mx-auto">
-              Headquarters for the next <span className="text-success">generation</span> of startups.
+              Premium <span className="text-success">Conference Rooms</span> for your teams.
             </h1>
             <p className="text-lg md:text-xl text-text-main/70 mb-10 leading-relaxed max-w-2xl mx-auto">
               Custom-built suites, high-tech conference rooms, and enterprise-grade infrastructure. Scale your team without worrying about the lease.

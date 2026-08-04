@@ -174,17 +174,17 @@ export default function LandingPage() {
               </div>
               <CardContent className="pt-6 relative flex flex-col h-[350px]">
                 <div>
-                  <Badge variant="outline" className="mb-4">
-                    For Growing Teams
+                  <Badge variant="outline" className="mb-4 text-success border-success/30">
+                    Teams & Meetings
                   </Badge>
-                  <h3 className="text-2xl font-bold mb-2">Startup Suites</h3>
+                  <h3 className="text-2xl font-bold mb-2">Conference Rooms</h3>
                   <p className="text-text-main/70 mb-6 line-clamp-2">
-                    Move-in ready headquarters with enterprise-grade infrastructure. Scale your team without worrying about the lease.
+                    Premium rooms with enterprise IT, 4K displays, and 6-seat capacity for high-stakes pitches.
                   </p>
                   <ul className="space-y-3 mb-8">
                     {[
-                      "Dedicated team suites",
-                      "Private meeting pods",
+                      "6 Seats Capacity",
+                      "4K presentation displays",
                       "Enterprise IT infrastructure",
                     ].map((feature, i) => (
                       <li key={i} className="flex items-center text-sm">
@@ -200,7 +200,7 @@ export default function LandingPage() {
                     className="w-full"
                     onClick={() => navigate("/startup")}
                   >
-                    Explore Startups
+                    Explore Rooms
                   </Button>
                 </div>
               </CardContent>

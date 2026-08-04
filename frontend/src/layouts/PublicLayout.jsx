@@ -86,7 +86,7 @@ export default function PublicLayout() {
               to="/startup"
               className="text-text-main/70 hover:text-primary transition-colors"
             >
-              Startup
+              Conference Room
             </Link>
             <Link
               to="/pricing"
@@ -226,7 +226,7 @@ export default function PublicLayout() {
               <Link to="/" className="py-3 border-b border-border-main/50 text-text-main font-medium">Services</Link>
               <Link to="/library" className="py-3 border-b border-border-main/50 text-text-main font-medium">Library</Link>
               <Link to="/coworking" className="py-3 border-b border-border-main/50 text-text-main font-medium">Coworking</Link>
-              <Link to="/startup" className="py-3 border-b border-border-main/50 text-text-main font-medium">Startup</Link>
+              <Link to="/startup" className="py-3 border-b border-border-main/50 text-text-main font-medium">Conference Room</Link>
               <Link to="/pricing" className="py-3 border-b border-border-main/50 text-text-main font-medium">Pricing</Link>
               <Link to="/contact" className="py-3 border-b border-border-main/50 text-text-main font-medium">Contact</Link>
               
