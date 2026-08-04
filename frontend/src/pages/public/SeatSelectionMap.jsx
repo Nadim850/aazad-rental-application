@@ -128,8 +128,6 @@ export default function SeatSelectionMap() {
     if (isSelected) return "fill-primary stroke-primary-dark";
     if (status === "occupied")
       return "fill-border-main stroke-border-main opacity-50 cursor-not-allowed";
-    if (status === "reserved")
-      return "fill-warning/50 stroke-warning cursor-not-allowed";
     return "fill-surface stroke-border-main hover:stroke-primary cursor-pointer hover:fill-primary/10";
   };
 
@@ -152,9 +150,6 @@ export default function SeatSelectionMap() {
             </div>
             <div className="flex items-center gap-2">
               <div className="w-4 h-4 rounded bg-border-main/50" /> Occupied
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-4 h-4 rounded bg-warning/50" /> Reserved
             </div>
           </div>
           </div>
