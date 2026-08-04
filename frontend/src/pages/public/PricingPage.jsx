@@ -63,7 +63,7 @@ const FACILITIES = [
     colorClass: "text-success",
     bgAccent: "bg-success/5",
     borderHover: "hover:border-success",
-    amenities: ['High-Speed Wi-Fi', 'Projector & Screen', 'Air Conditioning', 'Power Backup', 'Whiteboard', 'Reception Support', 'Housekeeping'],
+    amenities: ['6 Seats Capacity', 'High-Speed Wi-Fi', 'Projector & Screen', 'Air Conditioning', 'Power Backup', 'Whiteboard', 'Reception Support', 'Housekeeping'],
     status: 'Limited Availability',
     hours: '9 AM - 8 PM'
   }
@@ -79,7 +79,7 @@ const getAmenityIcon = (name) => {
   if (n.includes('coffee') || n.includes('tea')) return <Coffee className="w-5 h-5" />;
   if (n.includes('print') || n.includes('projector')) return <Printer className="w-5 h-5" />;
   if (n.includes('park')) return <Car className="w-5 h-5" />;
-  if (n.includes('reception')) return <Users className="w-5 h-5" />;
+  if (n.includes('reception') || n.includes('seat')) return <Users className="w-5 h-5" />;
   if (n.includes('locker') || n.includes('soundproof')) return <Lock className="w-5 h-5" />;
   return <Sparkles className="w-5 h-5" />;
 };
