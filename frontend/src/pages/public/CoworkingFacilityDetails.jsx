@@ -82,7 +82,7 @@ export default function CoworkingFacilityDetails() {
 
   const handleBookNow = (planName) => {
     const token = localStorage.getItem('access');
-    const targetUrl = `/payment?plan=${encodeURIComponent(planName)}&months=${duration}${seatParam ? \`&seat=\${seatParam}\` : ''}`;
+    const targetUrl = `/payment?plan=${encodeURIComponent(planName)}&months=${duration}${seatParam ? `&seat=${seatParam}` : ''}`;
     if (token) {
       navigate(targetUrl);
     } else {
