@@ -54,13 +54,19 @@ export default function SignupPage() {
   const handleChange = (e) => {
     const { id, value } = e.target;
     
-    // For password, we don't trim while typing so they can see the error, or we can prevent spaces?
-    // User requested "Trim accidental leading/trailing spaces before validation if appropriate"
-    // Let's just update the state
-    setFormData(prev => ({ ...prev, [id]: value }));
+    let formattedValue = value;
+    if (id === 'firstName' || id === 'lastName') {
+      // Auto-capitalize first letter of each word
+      formattedValue = value.replace(/\b\w/g, char => char.toUpperCase());
+    } else if (id === 'email') {
+      // Convert email to lowercase
+      formattedValue = value.toLowerCase();
+    }
+
+    setFormData(prev => ({ ...prev, [id]: formattedValue }));
 
     // Clear the specific error when user types and it becomes valid
-    const errorMsg = validateField(id, value);
+    const errorMsg = validateField(id, formattedValue);
     if (!errorMsg) {
       setErrors(prev => {
         const newErrors = { ...prev };
