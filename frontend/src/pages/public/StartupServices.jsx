@@ -84,7 +84,17 @@ export default function StartupServices() {
             <h2 className="text-3xl font-bold text-text-main mb-4">Enterprise-grade amenities.</h2>
           </div>
           
-          <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+          <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+            <Card className="border-0 shadow-sm bg-surface">
+              <CardContent className="p-8">
+                <div className="w-12 h-12 bg-warning/10 rounded-xl flex items-center justify-center mb-6">
+                  <Users className="w-6 h-6 text-warning" />
+                </div>
+                <h3 className="text-xl font-bold mb-3">6 Seats Capacity</h3>
+                <p className="text-text-main/70">Spacious and comfortable private office designed to perfectly accommodate a growing team of up to 6 members.</p>
+              </CardContent>
+            </Card>
+
             <Card className="border-0 shadow-sm bg-surface">
               <CardContent className="p-8">
                 <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center mb-6">
