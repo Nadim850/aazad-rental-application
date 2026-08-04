@@ -218,6 +218,22 @@ class ContactMessageCreateView(generics.CreateAPIView):
 
     def perform_create(self, serializer):
         message = serializer.save()
+        
+        # Send an acknowledgment email to the submitter (both authenticated and unauthenticated)
+        try:
+            from django.core.mail import send_mail
+            from django.conf import settings
+            from_email = getattr(settings, 'DEFAULT_FROM_EMAIL', 'noreply@aazadrental.com')
+            send_mail(
+                subject="We received your inquiry - Aazad Rental",
+                message=f"Hi {message.name},\n\nThank you for reaching out to us. We have received your query regarding '{message.subject}'. Our team will get back to you shortly.\n\nBest regards,\nAazad Rental Team",
+                from_email=from_email,
+                recipient_list=[message.email],
+                fail_silently=True,
+            )
+        except Exception as e:
+            pass
+            
         if self.request.user.is_authenticated:
             send_notification(
                 user=self.request.user,
