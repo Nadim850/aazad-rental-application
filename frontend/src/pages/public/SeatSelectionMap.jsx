@@ -337,9 +337,14 @@ export default function SeatSelectionMap() {
                 const seatType = selectedSeat?.startsWith('L') 
                   ? 'library' 
                   : selectedSeat?.startsWith('D') 
-                    ? 'dedicated-desk' 
-                    : 'dedicated-private';
-                navigate(`/pricing?plan=${seatType}&seat=${selectedSeat}`);
+                    ? 'dedicated' 
+                    : 'cabin';
+                
+                if (seatType === 'library') {
+                  navigate(`/pricing?plan=${seatType}&seat=${selectedSeat}`);
+                } else {
+                  navigate(`/coworking/details?type=${seatType}&seat=${selectedSeat}`);
+                }
               }}
             >
               Continue to Plans <ArrowRight className="ml-2 w-5 h-5" />

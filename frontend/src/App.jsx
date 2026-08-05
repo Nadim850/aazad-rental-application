@@ -39,6 +39,7 @@ function App() {
             <Route path="/contact" element={<ContactPage />} />
             <Route path="/library" element={<LibraryServices />} />
             <Route path="/coworking" element={<CoworkingServices />} />
+            <Route path="/coworking/details" element={<CoworkingFacilityDetails />} />
             <Route path="/startup" element={<StartupServices />} />
             <Route path="/pricing/library" element={<Navigate to="/pricing?plan=library" replace />} />
             <Route path="/pricing/coworking" element={<Navigate to="/pricing?plan=dedicated" replace />} />
