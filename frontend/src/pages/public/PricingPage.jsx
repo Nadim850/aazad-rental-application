@@ -3,7 +3,7 @@ import { useSearchParams, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   BookOpen, Briefcase, ChevronRight, Monitor, Rocket, 
-  CheckCircle2, Wifi, Wind, BatteryCharging, ShieldCheck, Droplet, Coffee, Lock, Sparkles, Printer, Car, Users, Clock, Info, Calendar
+  CheckCircle2, Wifi, Wind, BatteryCharging, ShieldCheck, Droplet, Coffee, Lock, Sparkles, Printer, Car, Users, Clock, Info, Calendar, ArrowLeft, ArrowRight
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "../../components/ui/Card";
 import { Button } from "../../components/ui/Button";
@@ -153,15 +153,26 @@ export default function PricingPage() {
   const PricingSection = ({ facility }) => {
     const facilityPlans = plans.filter(p => p.workspace_type === facility.apiType);
     const [duration, setDuration] = useState(1);
+    const [activePlanIndex, setActivePlanIndex] = useState(0);
+
+    const handleNextPlan = () => {
+      setActivePlanIndex((prev) => (prev + 1) % facilityPlans.length);
+    };
+
+    const handlePrevPlan = () => {
+      setActivePlanIndex((prev) => (prev - 1 + facilityPlans.length) % facilityPlans.length);
+    };
+
+    const activePlan = facilityPlans[activePlanIndex];
 
     return (
-      <section id={facility.id} className="pt-24 pb-12 border-t border-border-main scroll-mt-16">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start">
+      <section id={facility.id} className="min-h-[calc(100vh-4rem)] flex flex-col justify-center py-12 border-t border-border-main scroll-mt-16">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-stretch max-w-6xl mx-auto w-full">
           
-          {/* Left Column: sticky details */}
-          <div className="lg:col-span-5 lg:sticky lg:top-24 space-y-8">
-            <div className="border border-border-main bg-surface relative">
-              <div className="aspect-[4/3] relative overflow-hidden">
+          {/* Left Column: Image and Active Plan Card */}
+          <div className="lg:col-span-6 relative flex flex-col">
+            <div className="border border-border-main bg-surface relative flex-1 flex flex-col shadow-sm">
+              <div className="aspect-[4/3] relative overflow-hidden shrink-0">
                 <img 
                   src={facility.image} 
                   alt={facility.name} 
@@ -171,11 +182,107 @@ export default function PricingPage() {
                   {facility.name}
                 </div>
               </div>
+              
+              {/* Active Plan Details below the image inside the card */}
+              <div className="p-6 flex-1 flex flex-col relative bg-surface">
+                {isLoading ? (
+                  <div className="flex-1 flex justify-center items-center py-12">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+                  </div>
+                ) : !activePlan ? (
+                  <div className="flex-1 flex items-center justify-center text-text-main/50 py-12">
+                    No plans available.
+                  </div>
+                ) : (
+                  <div className="flex-1 flex flex-col relative">
+                    {/* Navigation Arrows for Plans */}
+                    {facilityPlans.length > 1 && (
+                      <div className="absolute -top-12 right-0 flex gap-2">
+                        <button onClick={handlePrevPlan} className="bg-surface/90 p-2 border border-border-main hover:bg-surface text-text-main shadow-sm transition-colors">
+                          <ArrowLeft className="w-4 h-4" />
+                        </button>
+                        <button onClick={handleNextPlan} className="bg-surface/90 p-2 border border-border-main hover:bg-surface text-text-main shadow-sm transition-colors">
+                          <ArrowRight className="w-4 h-4" />
+                        </button>
+                      </div>
+                    )}
+                    
+                    {/* Plan Header */}
+                    <div className="mb-4">
+                      <h3 className="text-2xl font-bold">{activePlan.name}</h3>
+                      {activePlan.total_seats > 0 && (
+                        <div className="text-sm text-text-main/60 mt-1">
+                          {activePlan.total_seats} {activePlan.total_seats === 1 ? 'seat available' : 'seats available'}
+                        </div>
+                      )}
+                    </div>
+                    
+                    {/* Duration Tabs */}
+                    <div className="flex w-fit border border-border-main mb-6">
+                      {DURATION_OPTIONS.map((option, idx) => (
+                        <button 
+                          key={option.value}
+                          onClick={() => setDuration(option.value)}
+                          className={`px-3 py-1.5 text-xs font-semibold transition-colors ${idx !== 0 ? 'border-l border-border-main' : ''} ${
+                            duration === option.value 
+                              ? 'bg-text-main text-background' 
+                              : 'bg-surface text-text-main/60 hover:text-text-main'
+                          }`}
+                        >
+                          {option.label}
+                        </button>
+                      ))}
+                    </div>
+                    
+                    {/* Price and Button */}
+                    <div className="mt-auto">
+                      {(() => {
+                        const totalPrice = getDurationPrice(activePlan, duration);
+                        const savingsPct = getSavingsPercentage(activePlan, duration);
+                        
+                        return (
+                          <div className="flex items-end justify-between mb-4 relative">
+                            {savingsPct > 0 && (
+                              <div className="absolute -top-10 right-0 transform rotate-[8deg]">
+                                <div className="px-2 py-1 border-2 border-primary text-primary text-[10px] font-bold uppercase tracking-wider bg-surface/50 backdrop-blur-sm">
+                                  Save {savingsPct}%
+                                </div>
+                              </div>
+                            )}
+                            <div className="flex flex-col">
+                              <div className="flex items-baseline tracking-tight">
+                                <span className="text-3xl font-bold">₹{totalPrice.toLocaleString('en-IN')}</span>
+                                <span className="text-xs text-text-main/60 ml-0.5">/{duration}{duration === 1 ? 'mo' : 'mo'}</span>
+                              </div>
+                              {savingsPct > 0 && (
+                                <div className="text-xs text-text-main/50 line-through mt-0.5">
+                                  ₹{(parseFloat(activePlan.monthly_price) * duration).toLocaleString('en-IN')}
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        );
+                      })()}
+                      
+                      <Button 
+                        variant="primary" 
+                        className="w-full rounded-none"
+                        onClick={() => handleBookNow(activePlan.name, duration)}
+                        disabled={!activePlan}
+                      >
+                        {(isBookingMode && seatParam) ? 'Confirm & Pay' : 'Reserve this seat'}
+                      </Button>
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
-            
-            {/* Amenities for Desktop */}
-            <div className="hidden lg:block">
-              <h3 className="text-xs uppercase tracking-[0.2em] text-text-main/60 mb-4 font-bold">Included Amenities</h3>
+          </div>
+          
+          {/* Right Column: Amenities and Features */}
+          <div className="lg:col-span-6 flex flex-col justify-center space-y-10 lg:pl-8">
+            <div>
+              <h3 className="text-xs uppercase tracking-[0.2em] text-text-main/60 mb-5 font-bold">Included Amenities</h3>
               <ul className="grid grid-cols-2 gap-3">
                 {facility.amenities.map((amenity, idx) => (
                   <li key={idx} className="flex items-center gap-3 text-sm text-text-main/80 bg-surface px-4 py-3 border border-border-main">
@@ -185,130 +292,24 @@ export default function PricingPage() {
                 ))}
               </ul>
             </div>
-          </div>
-
-          {/* Right Column: Plans */}
-          <div className="lg:col-span-7 space-y-8">
-            {/* Mobile Amenities Scroll */}
-            <div className="lg:hidden mb-8">
-              <h3 className="font-bold mb-3 px-1">Amenities</h3>
-              <div className="flex overflow-x-auto no-scrollbar gap-3 pb-2 snap-x">
-                {facility.amenities.map((amenity, idx) => (
-                  <div key={idx} className="flex-shrink-0 flex items-center gap-2 p-2 px-3 bg-surface border border-border-main/50 rounded-lg whitespace-nowrap snap-start shadow-sm">
-                    <div className={facility.colorClass}>
-                      {getAmenityIcon(amenity)}
-                    </div>
-                    <span className="text-xs font-medium">{amenity}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-border-main pb-4">
-              <div>
-                <h3 className="text-2xl font-bold tracking-tight">Available Plans</h3>
-                <p className="text-text-main/60 mt-1 text-sm">Choose the duration that fits your needs.</p>
-              </div>
-              
-              {/* Duration Tabs */}
-              <div className="flex w-fit border border-border-main">
-                {DURATION_OPTIONS.map((option, idx) => (
-                  <button 
-                    key={option.value}
-                    onClick={() => setDuration(option.value)}
-                    className={`px-4 py-2 text-xs font-semibold transition-colors ${idx !== 0 ? 'border-l border-border-main' : ''} ${
-                      duration === option.value 
-                        ? 'bg-text-main text-background' 
-                        : 'bg-surface text-text-main/60 hover:text-text-main'
-                    }`}
-                  >
-                    {option.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {isLoading ? (
-              <div className="py-12 flex justify-center">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-              </div>
-            ) : facilityPlans.length === 0 ? (
-              <Card className="bg-surface/50 border-dashed border-border-main text-center p-12">
-                <p className="text-text-main/50">No plans currently available for {facility.name}.</p>
-              </Card>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {facilityPlans.map(plan => {
-                  const totalPrice = getDurationPrice(plan, duration);
-                  const savingsPct = getSavingsPercentage(plan, duration);
-                  
-                  return (
-                    <Card key={plan.id} className="relative overflow-hidden flex flex-col h-full transition-colors shadow-sm rounded-none border border-border-main bg-surface">
-                      {/* Perforated top edge */}
-                      <div 
-                        className="h-3 w-full border-b border-dashed border-border-main"
-                        style={{
-                          backgroundImage: 'radial-gradient(circle 3.5px, var(--background, #fff) 3.5px, transparent 3.6px)',
-                          backgroundSize: '12px 12px',
-                          backgroundPosition: 'top center',
-                          backgroundRepeat: 'repeat-x'
-                        }}
-                      />
-                      
-                      {savingsPct > 0 && (
-                        <div className="absolute top-6 right-6 z-10 transform -rotate-[8deg]">
-                          <div className="px-2 py-1 border-2 border-primary text-primary text-xs font-bold uppercase tracking-wider">
-                            Save {savingsPct}%
-                          </div>
-                        </div>
-                      )}
-                      
-                      <CardHeader className="pb-4 relative pt-6">
-                        <div>
-                          <CardTitle className="text-lg pr-20">{plan.name}</CardTitle>
-                          {plan.total_seats > 0 && (
-                            <div className="text-sm text-text-main/60 mt-1">
-                              {plan.total_seats} {plan.total_seats === 1 ? 'seat available' : 'seats available'}
-                            </div>
-                          )}
-                        </div>
-                        <div className="mt-4 flex flex-col">
-                          <div className="flex items-baseline tracking-tight">
-                            <span className="text-3xl font-bold">₹{totalPrice.toLocaleString('en-IN')}</span>
-                            <span className="text-xs text-text-main/60 ml-0.5">/{duration}{duration === 1 ? 'mo' : 'mo'}</span>
-                          </div>
-                          {savingsPct > 0 && (
-                            <div className="text-xs text-text-main/50 line-through mt-0.5">
-                              ₹{(parseFloat(plan.monthly_price) * duration).toLocaleString('en-IN')}
-                            </div>
-                          )}
-                        </div>
-                      </CardHeader>
-                      <CardContent className="pt-2 flex-1 flex flex-col">
-                        <ul className="mb-8 flex-1 flex flex-col">
-                          {plan.features.map((feature, i) => (
-                            <li key={i} className={`flex items-center gap-3 text-sm py-3 ${i !== plan.features.length - 1 ? 'border-b border-dashed border-border-main' : ''}`}>
-                              <div className="w-4 h-4 rounded-full border-[1.3px] border-primary relative shrink-0">
-                                <div className="absolute left-[4px] top-[2px] w-[4px] h-[8px] border-r-[1.3px] border-b-[1.3px] border-primary rotate-[40deg]" />
-                              </div>
-                              <span className="text-text-main/80">{feature}</span>
-                            </li>
-                          ))}
-                        </ul>
-                        <Button 
-                          variant="primary" 
-                          className="w-full mt-auto rounded-none"
-                          onClick={() => handleBookNow(plan.name, duration)}
-                        >
-                          {(isBookingMode && seatParam) ? 'Confirm & Pay' : 'Reserve this seat'}
-                        </Button>
-                      </CardContent>
-                    </Card>
-                  );
-                })}
+            
+            {activePlan && activePlan.features && activePlan.features.length > 0 && (
+              <div className="border-t border-dashed border-border-main pt-8">
+                <h3 className="text-xs uppercase tracking-[0.2em] text-text-main/60 mb-5 font-bold">Plan Features</h3>
+                <ul className="flex flex-col">
+                  {activePlan.features.map((feature, i) => (
+                    <li key={i} className={`flex items-center gap-3 text-sm py-3 ${i !== activePlan.features.length - 1 ? 'border-b border-dashed border-border-main' : ''}`}>
+                      <div className="w-4 h-4 rounded-full border-[1.3px] border-primary relative shrink-0">
+                        <div className="absolute left-[4px] top-[2px] w-[4px] h-[8px] border-r-[1.3px] border-b-[1.3px] border-primary rotate-[40deg]" />
+                      </div>
+                      <span className="text-text-main/80">{feature}</span>
+                    </li>
+                  ))}
+                </ul>
               </div>
             )}
           </div>
+          
         </div>
       </section>
     );
