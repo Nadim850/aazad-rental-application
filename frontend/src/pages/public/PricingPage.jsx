@@ -160,19 +160,16 @@ export default function PricingPage() {
           
           {/* Left Column: sticky details */}
           <div className="lg:col-span-4 lg:sticky lg:top-24 space-y-6">
-            <div className={`rounded-2xl overflow-hidden border border-border-main shadow-lg bg-surface relative group`}>
+            <div className="border border-border-main bg-surface relative group">
               <div className="aspect-[4/3] relative overflow-hidden bg-black/5">
                 <img 
                   src={facility.image} 
                   alt={facility.name} 
                   className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-                <div className="absolute bottom-4 left-4 right-4 text-white flex items-center gap-3">
-                  <div className="p-2 bg-white/10 backdrop-blur-md rounded-lg">
-                    {React.cloneElement(facility.icon, { className: 'w-6 h-6 text-white' })}
-                  </div>
-                  <h2 className="text-2xl font-bold">{facility.name}</h2>
+                <div className="absolute top-0 left-0 bg-text-main text-background px-4 py-2 text-xs font-bold uppercase tracking-wider z-10 flex items-center gap-2 shadow-md">
+                  {React.cloneElement(facility.icon, { className: 'w-4 h-4' })}
+                  {facility.name}
                 </div>
               </div>
               
@@ -201,11 +198,11 @@ export default function PricingPage() {
             
             {/* Amenities for Desktop */}
             <div className="hidden lg:block">
-              <h3 className="font-bold mb-4">Included Amenities</h3>
+              <h3 className="text-xs uppercase tracking-widest text-text-main/60 mb-4 font-semibold">Included Amenities</h3>
               <ul className="grid grid-cols-2 gap-3">
                 {facility.amenities.map((amenity, idx) => (
-                  <li key={idx} className="flex items-center gap-2 text-sm text-text-main/80 bg-surface p-2 rounded-lg border border-border-main/50">
-                    <div className={facility.colorClass}>{getAmenityIcon(amenity)}</div>
+                  <li key={idx} className="flex items-center gap-3 text-sm text-text-main/80 bg-surface p-3 border border-border-main">
+                    <div className="w-1.5 h-1.5 rounded-full bg-text-main/40 shrink-0" />
                     <span className="truncate">{amenity}</span>
                   </li>
                 ))}
@@ -236,16 +233,16 @@ export default function PricingPage() {
                 <p className="text-text-main/60 mt-1 text-sm">Choose the duration that fits your needs.</p>
               </div>
               
-              {/* Duration Toggles */}
-              <div className="flex bg-border-main/20 p-1 rounded-xl w-fit border border-border-main/50">
-                {DURATION_OPTIONS.map(option => (
+              {/* Duration Tabs */}
+              <div className="flex w-fit border border-border-main">
+                {DURATION_OPTIONS.map((option, idx) => (
                   <button 
                     key={option.value}
                     onClick={() => setDuration(option.value)}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-300 ${
+                    className={`px-4 py-2 text-xs font-semibold transition-colors ${idx !== 0 ? 'border-l border-border-main' : ''} ${
                       duration === option.value 
-                        ? 'bg-surface shadow-sm text-primary scale-105' 
-                        : 'text-text-main/60 hover:text-text-main'
+                        ? 'bg-text-main text-background' 
+                        : 'bg-surface text-text-main/60 hover:text-text-main'
                     }`}
                   >
                     {option.label}
@@ -269,44 +266,61 @@ export default function PricingPage() {
                   const savingsPct = getSavingsPercentage(plan, duration);
                   
                   return (
-                    <Card key={plan.id} className={`relative overflow-hidden flex flex-col h-full ${facility.borderHover} transition-colors shadow-sm`}>
+                    <Card key={plan.id} className="relative overflow-hidden flex flex-col h-full transition-colors shadow-sm rounded-none border border-border-main bg-surface">
+                      {/* Perforated top edge */}
+                      <div 
+                        className="h-3 w-full border-b border-dashed border-border-main"
+                        style={{
+                          backgroundImage: 'radial-gradient(circle 3.5px, var(--background, #fff) 3.5px, transparent 3.6px)',
+                          backgroundSize: '12px 12px',
+                          backgroundPosition: 'top center',
+                          backgroundRepeat: 'repeat-x'
+                        }}
+                      />
+                      
                       {savingsPct > 0 && (
-                        <div className="absolute top-4 right-4 z-10">
-                          <Badge variant="success" className="animate-pulse shadow-sm">Save {savingsPct}%</Badge>
+                        <div className="absolute top-6 right-6 z-10 transform -rotate-[8deg]">
+                          <div className="px-2 py-1 border-2 border-primary text-primary text-xs font-bold uppercase tracking-wider">
+                            Save {savingsPct}%
+                          </div>
                         </div>
                       )}
-                      <CardHeader className={`${facility.bgAccent} pb-4 border-b border-border-main/50 relative`}>
-                        <CardTitle className="text-lg pr-20 flex items-center gap-2">
-                          {plan.name}
+                      
+                      <CardHeader className="pb-4 relative pt-6">
+                        <div>
+                          <CardTitle className="text-lg pr-20">{plan.name}</CardTitle>
                           {plan.total_seats > 0 && (
-                            <Badge variant="outline" className="text-xs bg-surface/50 border-border-main/50 text-text-main/70 flex items-center">
-                              <Users className="w-3 h-3 mr-1" />
+                            <div className="text-sm text-text-main/60 mt-1">
                               {plan.total_seats} {plan.total_seats === 1 ? 'Seat' : 'Seats'}
-                            </Badge>
+                            </div>
                           )}
-                        </CardTitle>
-                        <div className="mt-2">
-                          <span className="text-3xl font-bold">₹{totalPrice.toLocaleString('en-IN')}</span>
-                          <span className="text-sm text-text-main/60 ml-1">/{duration} {duration === 1 ? 'month' : 'months'}</span>
+                        </div>
+                        <div className="mt-4 flex flex-col">
+                          <div className="flex items-baseline tracking-tight">
+                            <span className="text-3xl font-bold">₹{totalPrice.toLocaleString('en-IN')}</span>
+                            <span className="text-xs text-text-main/60 ml-0.5">/{duration}{duration === 1 ? 'mo' : 'mo'}</span>
+                          </div>
                           {savingsPct > 0 && (
-                            <div className="text-xs text-text-main/50 line-through mt-1">
+                            <div className="text-xs text-text-main/50 line-through mt-0.5">
                               ₹{(parseFloat(plan.monthly_price) * duration).toLocaleString('en-IN')}
                             </div>
                           )}
                         </div>
                       </CardHeader>
-                      <CardContent className="pt-6 flex-1 flex flex-col">
-                        <ul className="space-y-3 mb-8 flex-1">
+                      <CardContent className="pt-2 flex-1 flex flex-col">
+                        <ul className="mb-8 flex-1 flex flex-col">
                           {plan.features.map((feature, i) => (
-                            <li key={i} className="flex items-start gap-3 text-sm">
-                              <CheckCircle2 className={`w-5 h-5 ${facility.colorClass} shrink-0`} />
+                            <li key={i} className={`flex items-center gap-3 text-sm py-3 ${i !== plan.features.length - 1 ? 'border-b border-dashed border-border-main' : ''}`}>
+                              <div className="w-4 h-4 rounded-full border-[1.3px] border-primary relative shrink-0">
+                                <div className="absolute left-[4px] top-[2px] w-[4px] h-[8px] border-r-[1.3px] border-b-[1.3px] border-primary rotate-[40deg]" />
+                              </div>
                               <span className="text-text-main/80">{feature}</span>
                             </li>
                           ))}
                         </ul>
                         <Button 
                           variant="primary" 
-                          className={`w-full mt-auto`}
+                          className="w-full mt-auto rounded-none"
                           onClick={() => handleBookNow(plan.name, duration)}
                         >
                           {(isBookingMode && seatParam) ? 'Confirm & Pay' : 'Book Now'}
