@@ -159,50 +159,27 @@ export default function PricingPage() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start">
           
           {/* Left Column: sticky details */}
-          <div className="lg:col-span-4 lg:sticky lg:top-24 space-y-6">
-            <div className="border border-border-main bg-surface relative group">
-              <div className="aspect-[4/3] relative overflow-hidden bg-black/5">
+          <div className="lg:col-span-5 lg:sticky lg:top-24 space-y-8">
+            <div className="border border-border-main bg-surface relative">
+              <div className="aspect-[4/3] relative overflow-hidden">
                 <img 
                   src={facility.image} 
                   alt={facility.name} 
-                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                  className="w-full h-full object-cover"
                 />
-                <div className="absolute top-0 left-0 bg-text-main text-background px-4 py-2 text-xs font-bold uppercase tracking-wider z-10 flex items-center gap-2 shadow-md">
-                  {React.cloneElement(facility.icon, { className: 'w-4 h-4' })}
+                <div className="absolute top-4 left-4 bg-text-main text-background px-4 py-2 text-sm font-semibold shadow-md">
                   {facility.name}
-                </div>
-              </div>
-              
-              <div className="p-6">
-                <p className="text-sm text-text-main/80 leading-relaxed mb-6">
-                  {facility.description}
-                </p>
-                <div className="space-y-4 text-sm border-t border-border-main/50 pt-4">
-                  <div className="flex items-center justify-between">
-                    <span className="text-text-main/60 flex items-center gap-2">
-                      <Clock className="w-4 h-4" /> Hours
-                    </span>
-                    <span className="font-medium">{facility.hours}</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-text-main/60 flex items-center gap-2">
-                      <Info className="w-4 h-4" /> Status
-                    </span>
-                    <span className={`font-medium ${facility.status.includes('Available') ? 'text-success' : 'text-warning'}`}>
-                      {facility.status}
-                    </span>
-                  </div>
                 </div>
               </div>
             </div>
             
             {/* Amenities for Desktop */}
             <div className="hidden lg:block">
-              <h3 className="text-xs uppercase tracking-widest text-text-main/60 mb-4 font-semibold">Included Amenities</h3>
+              <h3 className="text-xs uppercase tracking-[0.2em] text-text-main/60 mb-4 font-bold">Included Amenities</h3>
               <ul className="grid grid-cols-2 gap-3">
                 {facility.amenities.map((amenity, idx) => (
-                  <li key={idx} className="flex items-center gap-3 text-sm text-text-main/80 bg-surface p-3 border border-border-main">
-                    <div className="w-1.5 h-1.5 rounded-full bg-text-main/40 shrink-0" />
+                  <li key={idx} className="flex items-center gap-3 text-sm text-text-main/80 bg-surface px-4 py-3 border border-border-main">
+                    <div className="w-1.5 h-1.5 rounded-full bg-primary shrink-0" />
                     <span className="truncate">{amenity}</span>
                   </li>
                 ))}
@@ -211,7 +188,7 @@ export default function PricingPage() {
           </div>
 
           {/* Right Column: Plans */}
-          <div className="lg:col-span-8 space-y-8">
+          <div className="lg:col-span-7 space-y-8">
             {/* Mobile Amenities Scroll */}
             <div className="lg:hidden mb-8">
               <h3 className="font-bold mb-3 px-1">Amenities</h3>
@@ -291,7 +268,7 @@ export default function PricingPage() {
                           <CardTitle className="text-lg pr-20">{plan.name}</CardTitle>
                           {plan.total_seats > 0 && (
                             <div className="text-sm text-text-main/60 mt-1">
-                              {plan.total_seats} {plan.total_seats === 1 ? 'Seat' : 'Seats'}
+                              {plan.total_seats} {plan.total_seats === 1 ? 'seat available' : 'seats available'}
                             </div>
                           )}
                         </div>
@@ -323,7 +300,7 @@ export default function PricingPage() {
                           className="w-full mt-auto rounded-none"
                           onClick={() => handleBookNow(plan.name, duration)}
                         >
-                          {(isBookingMode && seatParam) ? 'Confirm & Pay' : 'Book Now'}
+                          {(isBookingMode && seatParam) ? 'Confirm & Pay' : 'Reserve this seat'}
                         </Button>
                       </CardContent>
                     </Card>
