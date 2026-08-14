@@ -5,7 +5,7 @@ import { Button } from "../../components/ui/Button";
 import { Badge } from "../../components/ui/Badge";
 import { ArrowRight, Info } from "lucide-react";
 import { cn } from "../../lib/utils";
-
+import { API_URL } from "../../config";
 import { Skeleton } from "../../components/ui/Skeleton";
 
 export default function SeatSelectionMap() {
@@ -14,12 +14,12 @@ export default function SeatSelectionMap() {
   const [seats, setSeats] = useState([]);
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const filterType = searchParams.get('type');
+  const filterType = searchParams.get("type");
 
   useEffect(() => {
     const fetchSeats = async () => {
       try {
-        const res = await fetch("http://localhost:8000/api/bookings/public-workspaces/");
+        const res = await fetch(`${API_URL}/api/bookings/public-workspaces/`);
         if (res.ok) {
           const data = await res.json();
           setSeats(data);
@@ -34,22 +34,24 @@ export default function SeatSelectionMap() {
   }, []);
 
   // Responsive grid logic
-  const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1200);
+  const [windowWidth, setWindowWidth] = useState(
+    typeof window !== "undefined" ? window.innerWidth : 1200,
+  );
 
   useEffect(() => {
     const handleResize = () => setWindowWidth(window.innerWidth);
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  const containerWidth = Math.min(windowWidth - 64, 1152); 
+  const containerWidth = Math.min(windowWidth - 64, 1152);
 
   let libCols = 3;
   let dedCols = 2;
 
-  if (filterType === 'library') {
+  if (filterType === "library") {
     libCols = Math.max(3, Math.floor((containerWidth - 60) / 95));
-  } else if (filterType === 'dedicated') {
+  } else if (filterType === "dedicated") {
     dedCols = Math.max(2, Math.floor((containerWidth - 300) / 120));
   } else {
     if (windowWidth >= 1280) {
@@ -66,57 +68,74 @@ export default function SeatSelectionMap() {
 
   const libRectX = 20;
   const libRectWidth = Math.max(300, (libCols - 1) * 95 + 90);
-  
-  const dedRectX = filterType === 'dedicated' ? 20 : (libRectX + libRectWidth + 30);
+
+  const dedRectX =
+    filterType === "dedicated" ? 20 : libRectX + libRectWidth + 30;
   const dedRectWidth = Math.max(300, dedCols * 120);
-  
+
   const cabinRectX = dedRectX + dedRectWidth + 30;
   const cabinRectWidth = 250;
 
-  const totalMapWidth = filterType === 'library' 
-    ? libRectWidth + 40 
-    : cabinRectX + cabinRectWidth + 20;
+  const totalMapWidth =
+    filterType === "library"
+      ? libRectWidth + 40
+      : cabinRectX + cabinRectWidth + 20;
 
   // Separate and map seats with coordinates
-  const librarySeats = seats.filter(s => s.name.startsWith('L-')).map((seat, i) => ({
-    id: seat.name,
-    type: "library",
-    status: seat.is_available ? "available" : "occupied",
-    x: libRectX + 20 + (i % libCols) * 95,
-    y: 80 + Math.floor(i / libCols) * 80,
-  }));
+  const librarySeats = seats
+    .filter((s) => s.name.startsWith("L-"))
+    .map((seat, i) => ({
+      id: seat.name,
+      type: "library",
+      status: seat.is_available ? "available" : "occupied",
+      x: libRectX + 20 + (i % libCols) * 95,
+      y: 80 + Math.floor(i / libCols) * 80,
+    }));
 
-  const dedicatedDesks = seats.filter(s => s.name.startsWith('D-')).map((seat, i) => ({
-    id: seat.name,
-    type: "dedicated",
-    subType: "dedicated-desk",
-    status: seat.is_available ? "available" : "occupied",
-    x: dedRectX + 30 + (i % dedCols) * 120,
-    y: 80 + Math.floor(i / dedCols) * 100,
-  }));
+  const dedicatedDesks = seats
+    .filter((s) => s.name.startsWith("D-"))
+    .map((seat, i) => ({
+      id: seat.name,
+      type: "dedicated",
+      subType: "dedicated-desk",
+      status: seat.is_available ? "available" : "occupied",
+      x: dedRectX + 30 + (i % dedCols) * 120,
+      y: 80 + Math.floor(i / dedCols) * 100,
+    }));
 
-  const privateCabins = seats.filter(s => s.name.startsWith('P-') || s.name.startsWith('C-')).map((seat, i) => ({
-    id: seat.name,
-    type: "dedicated",
-    subType: "private-cabin",
-    status: seat.is_available ? "available" : "occupied",
-    x: cabinRectX + 85,
-    y: 80 + i * 100,
-  }));
+  const privateCabins = seats
+    .filter((s) => s.name.startsWith("P-") || s.name.startsWith("C-"))
+    .map((seat, i) => ({
+      id: seat.name,
+      type: "dedicated",
+      subType: "private-cabin",
+      status: seat.is_available ? "available" : "occupied",
+      x: cabinRectX + 85,
+      y: 80 + i * 100,
+    }));
 
   const dedicatedSeats = [...dedicatedDesks, ...privateCabins];
 
-  const allSeats = [...librarySeats, ...dedicatedSeats].filter(seat => 
-    filterType ? seat.type === filterType : true
+  const allSeats = [...librarySeats, ...dedicatedSeats].filter((seat) =>
+    filterType ? seat.type === filterType : true,
   );
 
-  const maxLibraryHeight = Math.max(360, 60 + Math.ceil(librarySeats.length / libCols) * 80);
-  const maxDedicatedHeight = Math.max(360, 40 + Math.ceil(dedicatedDesks.length / dedCols) * 100);
+  const maxLibraryHeight = Math.max(
+    360,
+    60 + Math.ceil(librarySeats.length / libCols) * 80,
+  );
+  const maxDedicatedHeight = Math.max(
+    360,
+    40 + Math.ceil(dedicatedDesks.length / dedCols) * 100,
+  );
   const maxCabinHeight = Math.max(360, 40 + privateCabins.length * 100);
-  const maxTotalHeight = Math.max(
-    (!filterType || filterType === 'library') ? maxLibraryHeight : 0,
-    (!filterType || filterType === 'dedicated') ? Math.max(maxDedicatedHeight, maxCabinHeight) : 0
-  ) + 40;
+  const maxTotalHeight =
+    Math.max(
+      !filterType || filterType === "library" ? maxLibraryHeight : 0,
+      !filterType || filterType === "dedicated"
+        ? Math.max(maxDedicatedHeight, maxCabinHeight)
+        : 0,
+    ) + 40;
 
   const handleSeatClick = (seat) => {
     if (seat.status === "available") {
@@ -131,7 +150,9 @@ export default function SeatSelectionMap() {
     return "fill-surface stroke-border-main hover:stroke-primary cursor-pointer hover:fill-primary/10";
   };
 
-  const availableCount = allSeats.filter(s => s.status === 'available').length;
+  const availableCount = allSeats.filter(
+    (s) => s.status === "available",
+  ).length;
 
   return (
     <div className="min-h-screen bg-background flex flex-col pt-16">
@@ -145,22 +166,33 @@ export default function SeatSelectionMap() {
                 <div className="w-4 h-4 rounded border border-border-main bg-surface" />{" "}
                 Available
               </div>
-            <div className="flex items-center gap-2">
-              <div className="w-4 h-4 rounded bg-primary" /> Selected
+              <div className="flex items-center gap-2">
+                <div className="w-4 h-4 rounded bg-primary" /> Selected
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-4 h-4 rounded bg-border-main/50" /> Occupied
+              </div>
             </div>
-            <div className="flex items-center gap-2">
-              <div className="w-4 h-4 rounded bg-border-main/50" /> Occupied
-            </div>
-          </div>
           </div>
           <div>
-            {filterType === 'dedicated' ? (
+            {filterType === "dedicated" ? (
               <div className="flex gap-2">
-                <Badge variant="success" className="text-xs md:text-sm px-2 py-1 shadow-sm border-success/20">
-                  {dedicatedDesks.filter(s => s.status === 'available').length} Desks Available
+                <Badge
+                  variant="success"
+                  className="text-xs md:text-sm px-2 py-1 shadow-sm border-success/20"
+                >
+                  {
+                    dedicatedDesks.filter((s) => s.status === "available")
+                      .length
+                  }{" "}
+                  Desks Available
                 </Badge>
-                <Badge variant="success" className="text-xs md:text-sm px-2 py-1 shadow-sm border-success/20">
-                  {privateCabins.filter(s => s.status === 'available').length} Cabins Available
+                <Badge
+                  variant="success"
+                  className="text-xs md:text-sm px-2 py-1 shadow-sm border-success/20"
+                >
+                  {privateCabins.filter((s) => s.status === "available").length}{" "}
+                  Cabins Available
                 </Badge>
               </div>
             ) : (
@@ -180,134 +212,150 @@ export default function SeatSelectionMap() {
           </div>
         ) : (
           <div className="relative bg-surface rounded-3xl border border-border-main shadow-sm p-4 md:p-8 overflow-x-auto overflow-y-hidden min-w-full flex justify-start md:justify-center touch-pan-x">
-            <svg 
+            <svg
               width="100%"
               style={{ minWidth: `${totalMapWidth}px` }}
-              height={maxTotalHeight} 
+              height={maxTotalHeight}
               viewBox={`0 0 ${totalMapWidth} ${maxTotalHeight}`}
               className="select-none"
             >
-            {/* Zones */}
-            {(!filterType || filterType === 'library') && (
-              <>
-                <rect
-                  x={libRectX}
-                  y="20"
-                  width={libRectWidth}
-                  height={maxLibraryHeight}
-                  rx="16"
-                  fill="var(--color-primary)"
-                  fillOpacity="0.03"
-                  stroke="var(--color-primary)"
-                  strokeOpacity="0.2"
-                  strokeWidth="2"
-                  strokeDasharray="8 8"
-                />
-                <text
-                  x={libRectX + libRectWidth / 2}
-                  y="50"
-                  textAnchor="middle"
-                  className="fill-primary font-bold text-lg opacity-50"
+              {/* Zones */}
+              {(!filterType || filterType === "library") && (
+                <>
+                  <rect
+                    x={libRectX}
+                    y="20"
+                    width={libRectWidth}
+                    height={maxLibraryHeight}
+                    rx="16"
+                    fill="var(--color-primary)"
+                    fillOpacity="0.03"
+                    stroke="var(--color-primary)"
+                    strokeOpacity="0.2"
+                    strokeWidth="2"
+                    strokeDasharray="8 8"
+                  />
+                  <text
+                    x={libRectX + libRectWidth / 2}
+                    y="50"
+                    textAnchor="middle"
+                    className="fill-primary font-bold text-lg opacity-50"
+                  >
+                    Library Zone (Silent)
+                  </text>
+                </>
+              )}
+
+              {(!filterType || filterType === "dedicated") && (
+                <>
+                  {/* Dedicated Desks Zone */}
+                  <rect
+                    x={dedRectX}
+                    y="20"
+                    width={dedRectWidth}
+                    height={maxDedicatedHeight}
+                    rx="16"
+                    fill="var(--color-secondary)"
+                    fillOpacity="0.03"
+                    stroke="var(--color-secondary)"
+                    strokeOpacity="0.2"
+                    strokeWidth="2"
+                    strokeDasharray="8 8"
+                  />
+                  <text
+                    x={dedRectX + dedRectWidth / 2}
+                    y="45"
+                    textAnchor="middle"
+                    className="fill-secondary font-bold text-sm opacity-50"
+                  >
+                    Dedicated Desks
+                  </text>
+
+                  {/* Private Cabins Zone */}
+                  <rect
+                    x={cabinRectX}
+                    y="20"
+                    width={cabinRectWidth}
+                    height={maxCabinHeight}
+                    rx="16"
+                    fill="var(--color-secondary)"
+                    fillOpacity="0.03"
+                    stroke="var(--color-secondary)"
+                    strokeOpacity="0.3"
+                    strokeWidth="2"
+                    strokeDasharray="8 8"
+                  />
+                  <text
+                    x={cabinRectX + cabinRectWidth / 2}
+                    y="45"
+                    textAnchor="middle"
+                    className="fill-secondary font-bold text-sm opacity-50"
+                  >
+                    Private Cabins
+                  </text>
+                </>
+              )}
+
+              {/* Render Seats */}
+              {allSeats.map((seat) => (
+                <g
+                  key={seat.id}
+                  transform={`translate(${seat.x}, ${seat.y})`}
+                  onClick={() => handleSeatClick(seat)}
+                  className="transition-all duration-300"
                 >
-                  Library Zone (Silent)
-                </text>
-              </>
-            )}
-
-            {(!filterType || filterType === 'dedicated') && (
-              <>
-                {/* Dedicated Desks Zone */}
-                <rect
-                  x={dedRectX}
-                  y="20"
-                  width={dedRectWidth}
-                  height={maxDedicatedHeight}
-                  rx="16"
-                  fill="var(--color-secondary)"
-                  fillOpacity="0.03"
-                  stroke="var(--color-secondary)"
-                  strokeOpacity="0.2"
-                  strokeWidth="2"
-                  strokeDasharray="8 8"
-                />
-                <text x={dedRectX + dedRectWidth / 2} y="45" textAnchor="middle" className="fill-secondary font-bold text-sm opacity-50">
-                  Dedicated Desks
-                </text>
-
-                {/* Private Cabins Zone */}
-                <rect
-                  x={cabinRectX}
-                  y="20"
-                  width={cabinRectWidth}
-                  height={maxCabinHeight}
-                  rx="16"
-                  fill="var(--color-secondary)"
-                  fillOpacity="0.03"
-                  stroke="var(--color-secondary)"
-                  strokeOpacity="0.3"
-                  strokeWidth="2"
-                  strokeDasharray="8 8"
-                />
-                <text x={cabinRectX + cabinRectWidth / 2} y="45" textAnchor="middle" className="fill-secondary font-bold text-sm opacity-50">
-                  Private Cabins
-                </text>
-              </>
-            )}
-
-            {/* Render Seats */}
-            {allSeats.map((seat) => (
-              <g
-                key={seat.id}
-                transform={`translate(${seat.x}, ${seat.y})`}
-                onClick={() => handleSeatClick(seat)}
-                className="transition-all duration-300"
-              >
-                {seat.type === "library" ? (
-                  // Library desk design
-                  <rect
-                    width="50"
-                    height="50"
-                    rx="12"
-                    className={cn(
-                      "transition-colors duration-200 stroke-2",
-                      getSeatColor(seat.status, selectedSeat === seat.id),
-                    )}
-                  />
-                ) : seat.subType === "private-cabin" ? (
-                  // Private Cabin design
-                  <rect
-                    width="80"
-                    height="60"
-                    rx="8"
-                    className={cn(
-                      "transition-colors duration-200 stroke-2",
-                      getSeatColor(seat.status, selectedSeat === seat.id),
-                    )}
-                  />
-                ) : (
-                  // Dedicated Desk design
-                  <rect
-                    width="60"
-                    height="50"
-                    rx="6"
-                    className={cn(
-                      "transition-colors duration-200 stroke-2",
-                      getSeatColor(seat.status, selectedSeat === seat.id),
-                    )}
-                  />
-                )}
-                <text
-                  x={seat.subType === "private-cabin" ? 40 : seat.type === "library" ? 25 : 30}
-                  y={seat.subType === "private-cabin" ? 35 : 30}
-                  textAnchor="middle"
-                  className="text-xs font-semibold fill-text-main pointer-events-none"
-                >
-                  {seat.id}
-                </text>
-              </g>
-            ))}
-          </svg>
-        </div>
+                  {seat.type === "library" ? (
+                    // Library desk design
+                    <rect
+                      width="50"
+                      height="50"
+                      rx="12"
+                      className={cn(
+                        "transition-colors duration-200 stroke-2",
+                        getSeatColor(seat.status, selectedSeat === seat.id),
+                      )}
+                    />
+                  ) : seat.subType === "private-cabin" ? (
+                    // Private Cabin design
+                    <rect
+                      width="80"
+                      height="60"
+                      rx="8"
+                      className={cn(
+                        "transition-colors duration-200 stroke-2",
+                        getSeatColor(seat.status, selectedSeat === seat.id),
+                      )}
+                    />
+                  ) : (
+                    // Dedicated Desk design
+                    <rect
+                      width="60"
+                      height="50"
+                      rx="6"
+                      className={cn(
+                        "transition-colors duration-200 stroke-2",
+                        getSeatColor(seat.status, selectedSeat === seat.id),
+                      )}
+                    />
+                  )}
+                  <text
+                    x={
+                      seat.subType === "private-cabin"
+                        ? 40
+                        : seat.type === "library"
+                          ? 25
+                          : 30
+                    }
+                    y={seat.subType === "private-cabin" ? 35 : 30}
+                    textAnchor="middle"
+                    className="text-xs font-semibold fill-text-main pointer-events-none"
+                  >
+                    {seat.id}
+                  </text>
+                </g>
+              ))}
+            </svg>
+          </div>
         )}
       </div>
 
@@ -334,16 +382,18 @@ export default function SeatSelectionMap() {
               size="lg"
               className="px-8 rounded-full shadow-lg shadow-primary/20"
               onClick={() => {
-                const seatType = selectedSeat?.startsWith('L') 
-                  ? 'library' 
-                  : selectedSeat?.startsWith('D') 
-                    ? 'dedicated' 
-                    : 'cabin';
-                
-                if (seatType === 'library') {
+                const seatType = selectedSeat?.startsWith("L")
+                  ? "library"
+                  : selectedSeat?.startsWith("D")
+                    ? "dedicated"
+                    : "cabin";
+
+                if (seatType === "library") {
                   navigate(`/pricing?plan=${seatType}&seat=${selectedSeat}`);
                 } else {
-                  navigate(`/coworking/details?type=${seatType}&seat=${selectedSeat}`);
+                  navigate(
+                    `/coworking/details?type=${seatType}&seat=${selectedSeat}`,
+                  );
                 }
               }}
             >

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
+import { API_URL } from "../../config";
 import {
   BookOpen,
   Briefcase,
@@ -189,9 +190,7 @@ export default function PricingPage() {
   useEffect(() => {
     const fetchPlans = async () => {
       try {
-        const res = await fetch(
-          "http://localhost:8000/api/bookings/public-plans/",
-        );
+        const res = await fetch(`${API_URL}/api/bookings/public-plans/`);
         if (res.ok) {
           const data = await res.json();
           setPlans(data);

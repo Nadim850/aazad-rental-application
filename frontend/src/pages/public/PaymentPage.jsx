@@ -1,12 +1,19 @@
-import { useState, useEffect } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { CheckCircle2, ShieldCheck, ArrowLeft, CreditCard } from 'lucide-react';
-import { Button } from '../../components/ui/Button';
-import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '../../components/ui/Card';
+import { useState, useEffect } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import { motion } from "framer-motion";
+import { CheckCircle2, ShieldCheck, ArrowLeft, CreditCard } from "lucide-react";
+import { Button } from "../../components/ui/Button";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardContent,
+  CardFooter,
+} from "../../components/ui/Card";
 
-import { apiFetch } from '../../lib/api';
-import { getDurationPrice } from '../../lib/pricingUtils';
+import { apiFetch } from "../../lib/api";
+import { getDurationPrice } from "../../lib/pricingUtils";
+import { API_URL } from "../../config";
 
 const loadRazorpayScript = () => {
   return new Promise((resolve) => {
@@ -22,48 +29,54 @@ export default function PaymentPage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [isProcessing, setIsProcessing] = useState(false);
-  const [paymentStatus, setPaymentStatus] = useState('pending'); // pending, success
+  const [paymentStatus, setPaymentStatus] = useState("pending"); // pending, success
   const [successfulBookingId, setSuccessfulBookingId] = useState(null);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const [isScriptLoaded, setIsScriptLoaded] = useState(false);
 
-  const planType = searchParams.get('plan') || 'Premium Plan';
-  const [seatId, setSeatId] = useState(searchParams.get('seat') || '');
-  const months = parseInt(searchParams.get('months') || '1', 10);
-  
+  const planType = searchParams.get("plan") || "Premium Plan";
+  const [seatId, setSeatId] = useState(searchParams.get("seat") || "");
+  const months = parseInt(searchParams.get("months") || "1", 10);
+
   const [basePrice, setBasePrice] = useState(1999);
   const [planObj, setPlanObj] = useState(null);
-  
+
   useEffect(() => {
-    loadRazorpayScript().then(res => {
+    loadRazorpayScript().then((res) => {
       setIsScriptLoaded(res);
     });
 
     const fetchPlans = async () => {
       try {
-        const res = await fetch('http://localhost:8000/api/bookings/public-plans/');
+        const res = await fetch(`${API_URL}/api/bookings/public-plans/`);
         if (res.ok) {
           const data = await res.json();
-          const selectedPlan = data.find(p => p.name === planType);
+          const selectedPlan = data.find((p) => p.name === planType);
           if (selectedPlan) {
             setPlanObj(selectedPlan);
             setBasePrice(parseFloat(selectedPlan.monthly_price));
-            
+
             // If no seat was provided in the URL, auto-select the first available one for this plan type
-            const initialSeatId = searchParams.get('seat');
+            const initialSeatId = searchParams.get("seat");
             if (!initialSeatId) {
               try {
-                const wsRes = await fetch('http://localhost:8000/api/bookings/public-workspaces/');
+                const wsRes = await fetch(
+                  `${API_URL}/api/bookings/public-workspaces/`,
+                );
                 if (wsRes.ok) {
                   const wsData = await wsRes.json();
                   const availableSeats = wsData
-                    .filter(ws => ws.workspace_type === selectedPlan.workspace_type && ws.is_available)
+                    .filter(
+                      (ws) =>
+                        ws.workspace_type === selectedPlan.workspace_type &&
+                        ws.is_available,
+                    )
                     .sort((a, b) => a.name.localeCompare(b.name));
-                    
+
                   if (availableSeats.length > 0) {
                     setSeatId(availableSeats[0].name);
                   } else {
-                    setError('No seats available for this plan.');
+                    setError("No seats available for this plan.");
                   }
                 }
               } catch (wsErr) {
@@ -84,42 +97,47 @@ export default function PaymentPage() {
 
   const handlePayment = async () => {
     if (!seatId) {
-      setError('Please select a seat or wait for one to be auto-assigned.');
+      setError("Please select a seat or wait for one to be auto-assigned.");
       return;
     }
 
     if (!isScriptLoaded) {
-      setError('Payment gateway is still loading. Please try again in a moment.');
+      setError(
+        "Payment gateway is still loading. Please try again in a moment.",
+      );
       return;
     }
 
     setIsProcessing(true);
-    setError('');
-    
+    setError("");
+
     try {
-      const token = localStorage.getItem('access');
+      const token = localStorage.getItem("access");
       if (!token) {
-        navigate('/auth/login');
+        navigate("/auth/login");
         return;
       }
-      
+
       // 1. Create Order on Backend
-      const orderResponse = await apiFetch('http://localhost:8000/api/bookings/create-razorpay-order/', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
+      const orderResponse = await apiFetch(
+        `${API_URL}/api/bookings/create-razorpay-order/`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            seat_id: seatId,
+            plan_type: planType,
+            months: months,
+          }),
         },
-        body: JSON.stringify({
-          seat_id: seatId,
-          plan_type: planType,
-          months: months
-        })
-      });
-      
+      );
+
       if (!orderResponse.ok) {
         const data = await orderResponse.json();
-        setError(data.error || 'Failed to initialize payment');
+        setError(data.error || "Failed to initialize payment");
         setIsProcessing(false);
         return;
       }
@@ -137,32 +155,35 @@ export default function PaymentPage() {
         handler: async function (response) {
           // 3. Verify Payment Signature on Backend
           try {
-            const verifyResponse = await apiFetch('http://localhost:8000/api/bookings/verify-razorpay-payment/', {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
+            const verifyResponse = await apiFetch(
+              `${API_URL}/api/bookings/verify-razorpay-payment/`,
+              {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                  Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify({
+                  razorpay_order_id: response.razorpay_order_id,
+                  razorpay_payment_id: response.razorpay_payment_id,
+                  razorpay_signature: response.razorpay_signature,
+                  seat_id: seatId,
+                  plan_type: planType,
+                  months: months,
+                }),
               },
-              body: JSON.stringify({
-                razorpay_order_id: response.razorpay_order_id,
-                razorpay_payment_id: response.razorpay_payment_id,
-                razorpay_signature: response.razorpay_signature,
-                seat_id: seatId,
-                plan_type: planType,
-                months: months
-              })
-            });
+            );
 
             if (verifyResponse.ok) {
               const verifyData = await verifyResponse.json();
               setSuccessfulBookingId(verifyData.booking.id);
-              setPaymentStatus('success');
+              setPaymentStatus("success");
             } else {
               const errorData = await verifyResponse.json();
-              setError(errorData.error || 'Payment verification failed');
+              setError(errorData.error || "Payment verification failed");
             }
           } catch (err) {
-            setError('Network error occurred during verification');
+            setError("Network error occurred during verification");
           } finally {
             setIsProcessing(false);
           }
@@ -170,28 +191,27 @@ export default function PaymentPage() {
         prefill: {
           name: "User",
           email: "user@example.com",
-          contact: "9999999999"
+          contact: "9999999999",
         },
         theme: {
-          color: "#4f46e5" // Use your primary color here
+          color: "#4f46e5", // Use your primary color here
         },
         modal: {
-          ondismiss: function() {
+          ondismiss: function () {
             setIsProcessing(false);
-          }
-        }
+          },
+        },
       };
 
       const paymentObject = new window.Razorpay(options);
       paymentObject.open();
-
     } catch (err) {
-      setError('Network error occurred during payment initialization');
+      setError("Network error occurred during payment initialization");
       setIsProcessing(false);
     }
   };
 
-  if (paymentStatus === 'success') {
+  if (paymentStatus === "success") {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background p-4">
         <motion.div
@@ -201,7 +221,7 @@ export default function PaymentPage() {
         >
           <Card className="text-center border-success/20 shadow-xl shadow-success/10">
             <CardContent className="pt-12 pb-8">
-              <motion.div 
+              <motion.div
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
                 transition={{ type: "spring", delay: 0.2 }}
@@ -211,9 +231,14 @@ export default function PaymentPage() {
               </motion.div>
               <h2 className="text-3xl font-bold mb-2">Payment Successful!</h2>
               <p className="text-text-main/70 mb-8">
-                Your workspace at Aazad Rental is confirmed. Your booking is now active.
+                Your workspace at Aazad Rental is confirmed. Your booking is now
+                active.
               </p>
-              <Button size="lg" className="w-full" onClick={() => navigate(`/receipt/${successfulBookingId}`)}>
+              <Button
+                size="lg"
+                className="w-full"
+                onClick={() => navigate(`/receipt/${successfulBookingId}`)}
+              >
                 View Receipt
               </Button>
             </CardContent>
@@ -226,7 +251,7 @@ export default function PaymentPage() {
   return (
     <div className="min-h-screen bg-background py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-4xl mx-auto">
-        <button 
+        <button
           onClick={() => navigate(-1)}
           className="flex items-center text-sm font-medium text-text-main/60 hover:text-text-main mb-8 transition-colors"
         >
@@ -234,7 +259,6 @@ export default function PaymentPage() {
         </button>
 
         <div className="grid md:grid-cols-2 gap-8">
-          
           {/* Order Summary */}
           <div className="space-y-6">
             <h2 className="text-2xl font-bold">Order Summary</h2>
@@ -243,11 +267,14 @@ export default function PaymentPage() {
                 <div className="flex justify-between items-start mb-6">
                   <div>
                     <h3 className="font-bold text-lg">{planType}</h3>
-                    <p className="text-sm text-text-main/70">Seat: {seatId || 'Assigning...'} &bull; {months} {months === 1 ? 'Month' : 'Months'}</p>
+                    <p className="text-sm text-text-main/70">
+                      Seat: {seatId || "Assigning..."} &bull; {months}{" "}
+                      {months === 1 ? "Month" : "Months"}
+                    </p>
                   </div>
                   <span className="font-semibold">₹{price.toFixed(2)}</span>
                 </div>
-                
+
                 <div className="space-y-3 pt-6 border-t border-border-main/50 text-sm">
                   <div className="flex justify-between text-text-main/70">
                     <span>Subtotal</span>
@@ -281,19 +308,23 @@ export default function PaymentPage() {
               </CardHeader>
               <CardContent className="space-y-4 text-sm text-text-main/70">
                 <p>
-                  You will be redirected to the secure Razorpay payment gateway to complete your transaction safely.
+                  You will be redirected to the secure Razorpay payment gateway
+                  to complete your transaction safely.
                 </p>
                 <p>
-                  We support Credit Cards, Debit Cards, Netbanking, UPI, and various Wallets.
+                  We support Credit Cards, Debit Cards, Netbanking, UPI, and
+                  various Wallets.
                 </p>
               </CardContent>
               <CardFooter className="flex-col pt-6 border-t border-border-main/50 gap-4">
-                <Button 
-                  className="w-full h-12 text-lg" 
+                <Button
+                  className="w-full h-12 text-lg"
                   onClick={handlePayment}
                   isLoading={isProcessing}
                 >
-                  {isProcessing ? 'Initializing...' : `Pay ₹${total.toFixed(2)}`}
+                  {isProcessing
+                    ? "Initializing..."
+                    : `Pay ₹${total.toFixed(2)}`}
                 </Button>
                 <p className="flex items-center justify-center text-xs text-text-main/50">
                   <ShieldCheck className="w-4 h-4 mr-1.5 text-success" />
@@ -302,7 +333,6 @@ export default function PaymentPage() {
               </CardFooter>
             </Card>
           </div>
-
         </div>
       </div>
     </div>

@@ -1,13 +1,26 @@
-import { Outlet, NavLink, Link, useNavigate } from 'react-router-dom';
-import { useTheme } from '../contexts/ThemeContext';
-import { BookOpen, LayoutDashboard, QrCode, CreditCard, Calendar, Settings, Bell, Moon, Sun, Menu, Loader2 } from 'lucide-react';
-import { useState, useEffect } from 'react';
-import { cn } from '../lib/utils';
-import { Button } from '../components/ui/Button';
-import { Badge } from '../components/ui/Badge';
-import { apiFetch } from '../lib/api';
-import NotificationBell from '../components/layout/NotificationBell';
-import { Skeleton } from '../components/ui/Skeleton';
+import { Outlet, NavLink, Link, useNavigate } from "react-router-dom";
+import { useTheme } from "../contexts/ThemeContext";
+import {
+  BookOpen,
+  LayoutDashboard,
+  QrCode,
+  CreditCard,
+  Calendar,
+  Settings,
+  Bell,
+  Moon,
+  Sun,
+  Menu,
+  Loader2,
+} from "lucide-react";
+import { useState, useEffect } from "react";
+import { cn } from "../lib/utils";
+import { Button } from "../components/ui/Button";
+import { Badge } from "../components/ui/Badge";
+import { apiFetch } from "../lib/api";
+import NotificationBell from "../components/layout/NotificationBell";
+import { Skeleton } from "../components/ui/Skeleton";
+import { API_URL } from "../config";
 
 export default function UserDashboardLayout() {
   const { theme, toggleTheme } = useTheme();
@@ -20,20 +33,22 @@ export default function UserDashboardLayout() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const token = localStorage.getItem('access');
+        const token = localStorage.getItem("access");
         if (!token) {
-          navigate('/auth/login');
+          navigate("/auth/login");
           return;
         }
 
         const headers = {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
         };
 
         const [userRes, dashboardRes] = await Promise.all([
-          apiFetch('http://localhost:8000/api/accounts/me/', { headers }),
-          apiFetch('http://localhost:8000/api/bookings/my-dashboard/', { headers })
+          apiFetch(`${API_URL}/api/accounts/me/`, { headers }),
+          apiFetch(`${API_URL}/api/bookings/my-dashboard/`, {
+            headers,
+          }),
         ]);
 
         if (userRes.ok) {
@@ -44,18 +59,24 @@ export default function UserDashboardLayout() {
             const dashboard = await dashboardRes.json();
             setDashboardData(dashboard);
           } else if (dashboardRes.status === 401) {
-            navigate('/auth/login');
+            navigate("/auth/login");
             return;
           } else {
-            console.error('Failed to load dashboard details:', dashboardRes.status);
-            setDashboardData({ active_subscription: null, payment_history: [] });
+            console.error(
+              "Failed to load dashboard details:",
+              dashboardRes.status,
+            );
+            setDashboardData({
+              active_subscription: null,
+              payment_history: [],
+            });
           }
         } else if (userRes.status === 401) {
-          navigate('/auth/login');
+          navigate("/auth/login");
           return;
         } else {
-          console.error('Failed to verify user session:', userRes.status);
-          navigate('/auth/login');
+          console.error("Failed to verify user session:", userRes.status);
+          navigate("/auth/login");
           return;
         }
       } catch (error) {
@@ -69,13 +90,11 @@ export default function UserDashboardLayout() {
   }, [navigate]);
 
   const navigation = [
-    { name: 'Overview', to: '/dashboard', icon: LayoutDashboard },
-    { name: 'Settings', to: '/dashboard/settings', icon: Settings },
+    { name: "Overview", to: "/dashboard", icon: LayoutDashboard },
+    { name: "Settings", to: "/dashboard/settings", icon: Settings },
   ];
 
   const [showNotifications, setShowNotifications] = useState(false);
-
-
 
   const { active_subscription } = dashboardData || {};
   let daysRemaining = 0;
@@ -88,38 +107,49 @@ export default function UserDashboardLayout() {
     isNearExpire = daysRemaining <= 7 && daysRemaining > 0;
   }
 
-  const userName = userData?.first_name || userData?.email?.split('@')[0] || 'User';
+  const userName =
+    userData?.first_name || userData?.email?.split("@")[0] || "User";
 
   return (
     <div className="min-h-screen bg-background flex flex-col md:flex-row transition-colors duration-300">
-      
       {/* Sidebar */}
-      <aside className={cn(
-        "fixed inset-y-0 left-0 z-50 w-64 border-r border-border-main bg-surface transition-transform duration-300 ease-in-out md:static md:translate-x-0",
-        sidebarOpen ? "translate-x-0" : "-translate-x-full"
-      )}>
-        <Link to="/" className="flex h-16 items-center px-6 border-b border-border-main hover:bg-border-main/20 transition-colors">
-           <div className="bg-primary p-1.5 rounded-lg text-white mr-3">
-             <BookOpen size={20} />
-           </div>
-           <div className="flex-1">
-             <span className="text-xl font-bold tracking-tight text-text-main block">Aazad</span>
-             <span className="text-[10px] text-text-main/50 font-medium">Return to Home</span>
-           </div>
+      <aside
+        className={cn(
+          "fixed inset-y-0 left-0 z-50 w-64 border-r border-border-main bg-surface transition-transform duration-300 ease-in-out md:static md:translate-x-0",
+          sidebarOpen ? "translate-x-0" : "-translate-x-full",
+        )}
+      >
+        <Link
+          to="/"
+          className="flex h-16 items-center px-6 border-b border-border-main hover:bg-border-main/20 transition-colors"
+        >
+          <div className="bg-primary p-1.5 rounded-lg text-white mr-3">
+            <BookOpen size={20} />
+          </div>
+          <div className="flex-1">
+            <span className="text-xl font-bold tracking-tight text-text-main block">
+              Aazad
+            </span>
+            <span className="text-[10px] text-text-main/50 font-medium">
+              Return to Home
+            </span>
+          </div>
         </Link>
-        
+
         <div className="p-4 space-y-1">
           {navigation.map((item) => (
             <NavLink
               key={item.name}
               to={item.to}
-              end={item.to === '/dashboard'}
-              className={({ isActive }) => cn(
-                "flex items-center gap-3 px-3 py-2.5 rounded-xl font-medium transition-colors",
-                isActive 
-                  ? "bg-primary/10 text-primary" 
-                  : "text-text-main/70 hover:bg-border-main/50 hover:text-text-main"
-              )}
+              end={item.to === "/dashboard"}
+              className={({ isActive }) =>
+                cn(
+                  "flex items-center gap-3 px-3 py-2.5 rounded-xl font-medium transition-colors",
+                  isActive
+                    ? "bg-primary/10 text-primary"
+                    : "text-text-main/70 hover:bg-border-main/50 hover:text-text-main",
+                )
+              }
             >
               <item.icon size={20} />
               {item.name}
@@ -129,25 +159,40 @@ export default function UserDashboardLayout() {
 
         <div className="absolute bottom-4 left-4 right-4">
           <div className="bg-border-main/30 rounded-xl p-4">
-             <p className="text-sm font-medium mb-1">
-               {active_subscription ? (active_subscription.workspace.workspace_type === 'library' ? 'Silent Reader' : 'Pro Plan') : 'No Plan'}
-             </p>
-             <p className={cn("text-xs mb-3", isNearExpire ? "text-error font-medium" : "text-text-main/70")}>
-               {active_subscription ? `${daysRemaining} days remaining` : 'Get started today'}
-             </p>
-             <Button variant="outline" size="sm" className="w-full bg-surface" onClick={() => navigate('/pricing')}>
-               {active_subscription ? 'Renew Plan' : 'View Plans'}
-             </Button>
+            <p className="text-sm font-medium mb-1">
+              {active_subscription
+                ? active_subscription.workspace.workspace_type === "library"
+                  ? "Silent Reader"
+                  : "Pro Plan"
+                : "No Plan"}
+            </p>
+            <p
+              className={cn(
+                "text-xs mb-3",
+                isNearExpire ? "text-error font-medium" : "text-text-main/70",
+              )}
+            >
+              {active_subscription
+                ? `${daysRemaining} days remaining`
+                : "Get started today"}
+            </p>
+            {/* <Button
+              variant="outline"
+              size="sm"
+              className="w-full bg-surface"
+              onClick={() => navigate("/pricing")}
+            >
+              {active_subscription ? "Renew Plan" : "View Plans"}
+            </Button> */}
           </div>
         </div>
       </aside>
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col min-w-0">
-        
         {/* Top Navbar */}
         <header className="h-16 border-b border-border-main bg-surface/50 backdrop-blur-md flex items-center justify-between px-4 sm:px-6 sticky top-0 z-40">
-          <button 
+          <button
             onClick={() => setSidebarOpen(!sidebarOpen)}
             className="md:hidden p-2 rounded-lg hover:bg-border-main/50"
           >
@@ -159,14 +204,16 @@ export default function UserDashboardLayout() {
               onClick={toggleTheme}
               className="p-2 rounded-full hover:bg-border-main/50 transition-colors"
             >
-              {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
+              {theme === "dark" ? <Sun size={20} /> : <Moon size={20} />}
             </button>
             <div className="relative">
               <NotificationBell />
             </div>
-            
+
             <div className="flex items-center gap-2 ml-2 pl-2 border-l border-border-main relative group">
-              <span className="text-sm font-medium hidden sm:block">{userName}</span>
+              <span className="text-sm font-medium hidden sm:block">
+                {userName}
+              </span>
               <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-sm border border-primary/20 cursor-pointer">
                 {userName.charAt(0).toUpperCase()}
               </div>
@@ -179,35 +226,59 @@ export default function UserDashboardLayout() {
                       {userName.charAt(0).toUpperCase()}
                     </div>
                     <div className="overflow-hidden">
-                      <p className="font-semibold truncate">{userData?.first_name ? `${userData.first_name} ${userData.last_name || ''}`.trim() : userName}</p>
-                      <p className="text-xs text-text-main/70 truncate">{userData?.email}</p>
-                      {userData?.phone_number && <p className="text-xs text-text-main/70 truncate">{userData.phone_number}</p>}
+                      <p className="font-semibold truncate">
+                        {userData?.first_name
+                          ? `${userData.first_name} ${userData.last_name || ""}`.trim()
+                          : userName}
+                      </p>
+                      <p className="text-xs text-text-main/70 truncate">
+                        {userData?.email}
+                      </p>
+                      {userData?.phone_number && (
+                        <p className="text-xs text-text-main/70 truncate">
+                          {userData.phone_number}
+                        </p>
+                      )}
                     </div>
                   </div>
                 </div>
-                
+
                 <div className="p-3 border-b border-border-main/50 bg-black/5 dark:bg-white/5">
-                  <p className="text-[10px] font-bold text-text-main/50 uppercase tracking-wider mb-1.5">Current Plan</p>
+                  <p className="text-[10px] font-bold text-text-main/50 uppercase tracking-wider mb-1.5">
+                    Current Plan
+                  </p>
                   {active_subscription ? (
                     <div>
-                      <p className="text-sm font-medium">{active_subscription.workspace.name}</p>
-                      <p className="text-xs text-text-main/70 capitalize mb-1">{active_subscription.workspace.workspace_type} Zone</p>
-                      <Badge variant="success" className="text-[10px] px-1.5 py-0">Active</Badge>
+                      <p className="text-sm font-medium">
+                        {active_subscription.workspace.name}
+                      </p>
+                      <p className="text-xs text-text-main/70 capitalize mb-1">
+                        {active_subscription.workspace.workspace_type} Zone
+                      </p>
+                      <Badge
+                        variant="success"
+                        className="text-[10px] px-1.5 py-0"
+                      >
+                        Active
+                      </Badge>
                     </div>
                   ) : (
                     <p className="text-xs text-text-main/70">No active plan</p>
                   )}
                 </div>
-                
+
                 <div className="p-2 space-y-1">
-                  <Link to="/dashboard/settings" className="flex items-center px-3 py-2 text-sm rounded-lg hover:bg-border-main/50 transition-colors">
+                  <Link
+                    to="/dashboard/settings"
+                    className="flex items-center px-3 py-2 text-sm rounded-lg hover:bg-border-main/50 transition-colors"
+                  >
                     <Settings className="w-4 h-4 mr-2 opacity-70" /> Settings
                   </Link>
-                  <button 
+                  <button
                     onClick={() => {
-                      localStorage.removeItem('access');
-                      localStorage.removeItem('refresh');
-                      navigate('/auth/login');
+                      localStorage.removeItem("access");
+                      localStorage.removeItem("refresh");
+                      navigate("/auth/login");
                     }}
                     className="w-full flex items-center px-3 py-2 text-sm rounded-lg hover:bg-error/10 hover:text-error transition-colors text-left"
                   >

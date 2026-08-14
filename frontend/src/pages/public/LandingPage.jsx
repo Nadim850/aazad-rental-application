@@ -33,7 +33,8 @@ export default function LandingPage() {
                 Revolutionizing Work & Study Spaces
               </Badge>
               <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight mb-8">
-                Your Premium <br />
+                Your Premium
+                <br />
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary">
                   Workspace & Library
                 </span>
@@ -93,7 +94,8 @@ export default function LandingPage() {
                   <h3 className="text-2xl font-bold mb-2">Premium Library</h3>
                   <p className="text-text-main/70 mb-6 line-clamp-2">
                     Pin-drop silence, ergonomic chairs, personal reading lights,
-                    and high-speed WiFi. The ultimate environment for deep focus.
+                    and high-speed WiFi. The ultimate environment for deep
+                    focus.
                   </p>
                   <ul className="space-y-3 mb-8">
                     {[
@@ -164,22 +166,34 @@ export default function LandingPage() {
             <Card className="overflow-hidden group hover:shadow-xl hover:shadow-success/5 transition-all duration-300 border-border-main/50">
               <div className="h-48 bg-success/10 relative overflow-hidden flex items-center justify-center">
                 {/* Placeholder for image */}
-                <svg className="w-20 h-20 text-success opacity-50 group-hover:scale-110 transition-transform duration-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/>
-                  <path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/>
-                  <path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"/>
-                  <path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"/>
+                <svg
+                  className="w-20 h-20 text-success opacity-50 group-hover:scale-110 transition-transform duration-500"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z" />
+                  <path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z" />
+                  <path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0" />
+                  <path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5" />
                 </svg>
                 <div className="absolute inset-0 bg-gradient-to-t from-surface to-transparent" />
               </div>
               <CardContent className="pt-6 relative flex flex-col h-[350px]">
                 <div>
-                  <Badge variant="outline" className="mb-4 text-success border-success/30">
+                  <Badge
+                    variant="outline"
+                    className="mb-4 text-success border-success/30"
+                  >
                     Teams & Meetings
                   </Badge>
                   <h3 className="text-2xl font-bold mb-2">Conference Rooms</h3>
                   <p className="text-text-main/70 mb-6 line-clamp-2">
-                    Premium rooms with enterprise IT, 4K displays, and 6-seat capacity for high-stakes pitches.
+                    Premium rooms with enterprise IT, 4K displays, and 6-seat
+                    capacity for high-stakes pitches.
                   </p>
                   <ul className="space-y-3 mb-8">
                     {[

@@ -1,17 +1,18 @@
-import { useState, useEffect } from 'react';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { Button } from '../../components/ui/Button';
-import { Input } from '../../components/ui/Input';
-import { Mail, Lock } from 'lucide-react';
-import { motion } from 'framer-motion';
-import { useGoogleLogin } from '@react-oauth/google';
-import { apiFetch } from '../../lib/api';
+import { useState, useEffect } from "react";
+import { Link, useNavigate, useLocation } from "react-router-dom";
+import { Button } from "../../components/ui/Button";
+import { Input } from "../../components/ui/Input";
+import { Mail, Lock } from "lucide-react";
+import { motion } from "framer-motion";
+import { useGoogleLogin } from "@react-oauth/google";
+import { apiFetch } from "../../lib/api";
+import { API_URL } from "../../config";
 
 export default function LoginPage() {
   const navigate = useNavigate();
   const location = useLocation();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [errors, setErrors] = useState({});
   const [globalError, setGlobalError] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -22,19 +23,19 @@ export default function LoginPage() {
   useEffect(() => {
     // Check for GitHub OAuth callback code in URL
     const urlParams = new URLSearchParams(location.search);
-    const code = urlParams.get('code');
+    const code = urlParams.get("code");
     if (code) {
-      handleSocialLogin('github', code);
+      handleSocialLogin("github", code);
     }
   }, [location]);
 
   const validateForm = () => {
     const newErrors = {};
     if (!email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      newErrors.email = 'Please enter a valid email address.';
+      newErrors.email = "Please enter a valid email address.";
     }
     if (!password.trim()) {
-      newErrors.password = 'Password is required.';
+      newErrors.password = "Password is required.";
     }
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -43,26 +44,29 @@ export default function LoginPage() {
   const handleLogin = async (e) => {
     e.preventDefault();
     setGlobalError(null);
-    
+
     if (!validateForm()) return;
 
     setIsLoading(true);
     try {
-      const response = await fetch('http://localhost:8000/api/accounts/login/', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: email.trim(), password: password.trim() }),
+      const response = await fetch(`${API_URL}/api/accounts/login/`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: email.trim(),
+          password: password.trim(),
+        }),
       });
       if (response.ok) {
         const data = await response.json();
-        localStorage.setItem('access', data.access);
-        localStorage.setItem('refresh', data.refresh);
-        
+        localStorage.setItem("access", data.access);
+        localStorage.setItem("refresh", data.refresh);
+
         // Fetch user data to check if admin
-        const meRes = await apiFetch('http://localhost:8000/api/accounts/me/', {
-          headers: { 'Authorization': `Bearer ${data.access}` }
+        const meRes = await apiFetch(`${API_URL}/api/accounts/me/`, {
+          headers: { Authorization: `Bearer ${data.access}` },
         });
-        
+
         let isAdmin = false;
         if (meRes.ok) {
           const user = await meRes.json();
@@ -70,18 +74,18 @@ export default function LoginPage() {
         }
 
         const urlParams = new URLSearchParams(window.location.search);
-        const redirectUrl = urlParams.get('redirect');
-        
+        const redirectUrl = urlParams.get("redirect");
+
         if (isAdmin) {
-          navigate('/admin');
+          navigate("/admin");
         } else {
-          navigate(redirectUrl ? redirectUrl : '/');
+          navigate(redirectUrl ? redirectUrl : "/");
         }
       } else {
-        setGlobalError('Invalid email or password.');
+        setGlobalError("Invalid email or password.");
       }
     } catch (err) {
-      setGlobalError('Network error. Please try again later.');
+      setGlobalError("Network error. Please try again later.");
     } finally {
       setIsLoading(false);
     }
@@ -91,21 +95,21 @@ export default function LoginPage() {
     setIsLoading(true);
     setGlobalError(null);
     try {
-      const response = await fetch('http://localhost:8000/api/accounts/social-login/', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const response = await fetch(`${API_URL}/api/accounts/social-login/`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ provider, token }),
       });
       if (response.ok) {
         const data = await response.json();
-        localStorage.setItem('access', data.access);
-        localStorage.setItem('refresh', data.refresh);
-        
+        localStorage.setItem("access", data.access);
+        localStorage.setItem("refresh", data.refresh);
+
         // Fetch user data to check if admin
-        const meRes = await apiFetch('http://localhost:8000/api/accounts/me/', {
-          headers: { 'Authorization': `Bearer ${data.access}` }
+        const meRes = await apiFetch(`${API_URL}/api/accounts/me/`, {
+          headers: { Authorization: `Bearer ${data.access}` },
         });
-        
+
         let isAdmin = false;
         if (meRes.ok) {
           const user = await meRes.json();
@@ -113,24 +117,28 @@ export default function LoginPage() {
         }
 
         const urlParams = new URLSearchParams(window.location.search);
-        const redirectUrl = urlParams.get('redirect');
-        
+        const redirectUrl = urlParams.get("redirect");
+
         if (isAdmin) {
-          navigate('/admin');
+          navigate("/admin");
         } else {
-          navigate(redirectUrl ? redirectUrl : '/');
+          navigate(redirectUrl ? redirectUrl : "/");
         }
       } else {
         const data = await response.json();
-        setGlobalError(data.error || 'Social login failed');
+        setGlobalError(data.error || "Social login failed");
       }
     } catch (err) {
-      setGlobalError('Network error during social login');
+      setGlobalError("Network error during social login");
     } finally {
       setIsLoading(false);
       // Clean up URL if it was a github callback
-      if (provider === 'github') {
-        window.history.replaceState({}, document.title, window.location.pathname);
+      if (provider === "github") {
+        window.history.replaceState(
+          {},
+          document.title,
+          window.location.pathname,
+        );
       }
     }
   };
@@ -140,17 +148,21 @@ export default function LoginPage() {
       // get id_token or access_token depending on the flow (standard implicit flow returns access_token)
       // Usually social logins prefer id_token. If useGoogleLogin is used, we might need to get user info or use the access_token.
       // Since our backend expects an id_token or standard token, we'll send the access_token.
-      handleSocialLogin('google', tokenResponse.access_token);
+      handleSocialLogin("google", tokenResponse.access_token);
     },
-    onError: () => setGlobalError('Google Login Failed'),
+    onError: () => setGlobalError("Google Login Failed"),
   });
 
   const githubLogin = () => {
     if (!GITHUB_CLIENT_ID) {
-      setGlobalError('GitHub login is not configured. Please add VITE_GITHUB_CLIENT_ID to your frontend/.env file.');
+      setGlobalError(
+        "GitHub login is not configured. Please add VITE_GITHUB_CLIENT_ID to your frontend/.env file.",
+      );
       return;
     }
-    window.location.assign(`https://github.com/login/oauth/authorize?client_id=${GITHUB_CLIENT_ID}&scope=user:email`);
+    window.location.assign(
+      `https://github.com/login/oauth/authorize?client_id=${GITHUB_CLIENT_ID}&scope=user:email`,
+    );
   };
 
   return (
@@ -160,7 +172,9 @@ export default function LoginPage() {
       transition={{ duration: 0.4 }}
     >
       <div>
-        <h2 className="text-3xl font-bold tracking-tight text-text-main mb-2">Welcome back</h2>
+        <h2 className="text-3xl font-bold tracking-tight text-text-main mb-2">
+          Welcome back
+        </h2>
         <p className="text-sm text-text-main/70 mb-8">
           Enter your details to access your workspace and library bookings.
         </p>
@@ -174,19 +188,23 @@ export default function LoginPage() {
             </div>
           )}
           <div>
-            <label htmlFor="email" className="block text-sm font-medium text-text-main mb-2">
+            <label
+              htmlFor="email"
+              className="block text-sm font-medium text-text-main mb-2"
+            >
               Email address
             </label>
-            <Input 
-              id="email" 
-              type="email" 
+            <Input
+              id="email"
+              type="email"
               placeholder="name@example.com"
               value={email}
               onChange={(e) => {
                 setEmail(e.target.value);
-                if (errors.email) setErrors(prev => ({ ...prev, email: null }));
-              }} 
-              leftIcon={<Mail size={18} />} 
+                if (errors.email)
+                  setErrors((prev) => ({ ...prev, email: null }));
+              }}
+              leftIcon={<Mail size={18} />}
               error={errors.email}
               tabIndex={1}
               required
@@ -194,27 +212,36 @@ export default function LoginPage() {
           </div>
 
           <div>
-            <label htmlFor="password" className="block text-sm font-medium text-text-main mb-2">
+            <label
+              htmlFor="password"
+              className="block text-sm font-medium text-text-main mb-2"
+            >
               Password
             </label>
-            <Input 
-              id="password" 
-              type="password" 
-              placeholder="••••••••" 
+            <Input
+              id="password"
+              type="password"
+              placeholder="••••••••"
               value={password}
               onChange={(e) => {
                 setPassword(e.target.value);
-                if (errors.password) setErrors(prev => ({ ...prev, password: null }));
+                if (errors.password)
+                  setErrors((prev) => ({ ...prev, password: null }));
               }}
-              leftIcon={<Lock size={18} />} 
+              leftIcon={<Lock size={18} />}
               error={errors.password}
               tabIndex={2}
               required
             />
           </div>
 
-          <Button type="submit" className="w-full mt-6" disabled={isLoading} tabIndex={3}>
-            {isLoading ? 'Signing in...' : 'Sign in'}
+          <Button
+            type="submit"
+            className="w-full mt-6"
+            disabled={isLoading}
+            tabIndex={3}
+          >
+            {isLoading ? "Signing in..." : "Sign in"}
           </Button>
         </form>
 
@@ -224,32 +251,66 @@ export default function LoginPage() {
               <div className="w-full border-t border-border-main" />
             </div>
             <div className="relative flex justify-center text-sm">
-              <span className="bg-background px-4 text-text-main/50">Or continue with</span>
+              <span className="bg-background px-4 text-text-main/50">
+                Or continue with
+              </span>
             </div>
           </div>
 
           <div className="mt-6 grid grid-cols-2 gap-4">
-            <Button variant="outline" className="w-full" onClick={() => googleLogin()} disabled={isLoading} tabIndex={4}>
+            <Button
+              variant="outline"
+              className="w-full"
+              onClick={() => googleLogin()}
+              disabled={isLoading}
+              tabIndex={4}
+            >
               <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24">
-                <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
-                <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
-                <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
-                <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+                <path
+                  d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+                  fill="#4285F4"
+                />
+                <path
+                  d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+                  fill="#34A853"
+                />
+                <path
+                  d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
+                  fill="#FBBC05"
+                />
+                <path
+                  d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
+                  fill="#EA4335"
+                />
               </svg>
               Google
             </Button>
-            <Button variant="outline" className="w-full" onClick={githubLogin} disabled={isLoading} tabIndex={5}>
-              <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24" fill="currentColor">
+            <Button
+              variant="outline"
+              className="w-full"
+              onClick={githubLogin}
+              disabled={isLoading}
+              tabIndex={5}
+            >
+              <svg
+                className="w-5 h-5 mr-2"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+              >
                 <path d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.865 8.166 6.839 9.489.5.092.682-.217.682-.482 0-.237-.009-.866-.013-1.7-2.782.603-3.369-1.34-3.369-1.34-.454-1.156-1.11-1.462-1.11-1.462-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.831.092-.646.35-1.086.636-1.336-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.578 9.578 0 0112 6.836c.85.004 1.705.114 2.504.336 1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.203 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.578.688.48C19.138 20.161 22 16.416 22 12c0-5.523-4.477-10-10-10z" />
               </svg>
               GitHub
             </Button>
           </div>
         </div>
-        
+
         <p className="mt-8 text-center text-sm text-text-main/70">
-          Don't have an account?{' '}
-          <Link to="/auth/signup" className="font-semibold text-primary hover:text-primary/80 transition-colors" tabIndex={6}>
+          Don't have an account?{" "}
+          <Link
+            to="/auth/signup"
+            className="font-semibold text-primary hover:text-primary/80 transition-colors"
+            tabIndex={6}
+          >
             Sign up
           </Link>
         </p>

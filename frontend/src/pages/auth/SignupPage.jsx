@@ -1,18 +1,19 @@
-import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { Button } from '../../components/ui/Button';
-import { Input } from '../../components/ui/Input';
-import { User, Phone, Lock, Mail } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { Button } from "../../components/ui/Button";
+import { Input } from "../../components/ui/Input";
+import { User, Phone, Lock, Mail } from "lucide-react";
+import { motion } from "framer-motion";
+import { API_URL } from "../../config";
 
 export default function SignupPage() {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
-    firstName: '',
-    lastName: '',
-    email: '',
-    phoneNumber: '',
-    password: ''
+    firstName: "",
+    lastName: "",
+    email: "",
+    phoneNumber: "",
+    password: "",
   });
   const [errors, setErrors] = useState({});
   const [globalError, setGlobalError] = useState(null);
@@ -20,32 +21,34 @@ export default function SignupPage() {
 
   const validateField = (id, value) => {
     let errorMsg = null;
-    if (id === 'firstName') {
+    if (id === "firstName") {
       if (!value.trim()) {
-        errorMsg = 'First name is required.';
+        errorMsg = "First name is required.";
       } else if (!/^[A-Za-z\s\-']+$/.test(value)) {
-        errorMsg = "First name can only contain letters, spaces, hyphens, and apostrophes.";
+        errorMsg =
+          "First name can only contain letters, spaces, hyphens, and apostrophes.";
       }
-    } else if (id === 'lastName') {
+    } else if (id === "lastName") {
       if (!value.trim()) {
-        errorMsg = 'Last name is required.';
+        errorMsg = "Last name is required.";
       }
-    } else if (id === 'email') {
+    } else if (id === "email") {
       if (!value.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
-        errorMsg = 'Please enter a valid email address.';
+        errorMsg = "Please enter a valid email address.";
       }
-    } else if (id === 'phoneNumber') {
+    } else if (id === "phoneNumber") {
       if (value && !/^[6-9]\d{9}$/.test(value)) {
-        errorMsg = 'Phone number must be a valid 10-digit Indian number starting with 6-9.';
+        errorMsg =
+          "Phone number must be a valid 10-digit Indian number starting with 6-9.";
       }
-    } else if (id === 'password') {
+    } else if (id === "password") {
       const pwd = value.trim();
       if (!pwd) {
-        errorMsg = 'Password is required.';
+        errorMsg = "Password is required.";
       } else if (/\s/.test(value)) {
-        errorMsg = 'Password cannot contain spaces.';
+        errorMsg = "Password cannot contain spaces.";
       } else if (pwd.length < 8) {
-        errorMsg = 'Password must be at least 8 characters.';
+        errorMsg = "Password must be at least 8 characters.";
       }
     }
     return errorMsg;
@@ -53,42 +56,42 @@ export default function SignupPage() {
 
   const handleChange = (e) => {
     const { id, value } = e.target;
-    
+
     let formattedValue = value;
-    if (id === 'firstName' || id === 'lastName') {
+    if (id === "firstName" || id === "lastName") {
       // Auto-capitalize first letter of each word
-      formattedValue = value.replace(/\b\w/g, char => char.toUpperCase());
-    } else if (id === 'email') {
+      formattedValue = value.replace(/\b\w/g, (char) => char.toUpperCase());
+    } else if (id === "email") {
       // Convert email to lowercase
       formattedValue = value.toLowerCase();
     }
 
-    setFormData(prev => ({ ...prev, [id]: formattedValue }));
+    setFormData((prev) => ({ ...prev, [id]: formattedValue }));
 
     // Clear the specific error when user types and it becomes valid
     const errorMsg = validateField(id, formattedValue);
     if (!errorMsg) {
-      setErrors(prev => {
+      setErrors((prev) => {
         const newErrors = { ...prev };
         delete newErrors[id];
         return newErrors;
       });
     } else {
-      setErrors(prev => ({ ...prev, [id]: errorMsg }));
+      setErrors((prev) => ({ ...prev, [id]: errorMsg }));
     }
   };
 
   const handleSignup = async (e) => {
     e.preventDefault();
     setGlobalError(null);
-    
+
     // Trim accidental leading/trailing spaces for password before final validation
     const submitData = { ...formData };
     submitData.password = submitData.password.trim();
 
     // Validate all fields
     const newErrors = {};
-    Object.keys(submitData).forEach(key => {
+    Object.keys(submitData).forEach((key) => {
       const err = validateField(key, submitData[key]);
       if (err) newErrors[key] = err;
     });
@@ -99,50 +102,50 @@ export default function SignupPage() {
     }
 
     setIsLoading(true);
-    
+
     try {
-      const response = await fetch('http://localhost:8000/api/accounts/register/', {
-        method: 'POST',
+      const response = await fetch(`${API_URL}/api/accounts/register/`, {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           first_name: submitData.firstName,
           last_name: submitData.lastName,
           email: submitData.email,
           phone_number: submitData.phoneNumber || null,
-          password: submitData.password
+          password: submitData.password,
         }),
       });
-      
+
       if (response.ok) {
         const urlParams = new URLSearchParams(window.location.search);
-        const redirectUrl = urlParams.get('redirect');
+        const redirectUrl = urlParams.get("redirect");
         if (redirectUrl) {
           navigate(`/auth/login?redirect=${encodeURIComponent(redirectUrl)}`);
         } else {
-          navigate('/auth/login');
+          navigate("/auth/login");
         }
       } else {
         const data = await response.json();
         const fieldMap = {
-          first_name: 'firstName',
-          last_name: 'lastName',
-          email: 'email',
-          phone_number: 'phoneNumber',
-          password: 'password'
+          first_name: "firstName",
+          last_name: "lastName",
+          email: "email",
+          phone_number: "phoneNumber",
+          password: "password",
         };
 
         const newBackendErrors = {};
         let hasSpecificError = false;
         const globalErrors = [];
 
-        Object.keys(data).forEach(key => {
+        Object.keys(data).forEach((key) => {
           const errorText = Array.isArray(data[key]) ? data[key][0] : data[key];
           if (fieldMap[key]) {
             newBackendErrors[fieldMap[key]] = errorText;
             hasSpecificError = true;
-          } else if (key === 'detail' || key === 'non_field_errors') {
+          } else if (key === "detail" || key === "non_field_errors") {
             globalErrors.push(errorText);
           } else {
             globalErrors.push(`${key}: ${errorText}`);
@@ -150,17 +153,17 @@ export default function SignupPage() {
         });
 
         if (hasSpecificError) {
-          setErrors(prev => ({ ...prev, ...newBackendErrors }));
+          setErrors((prev) => ({ ...prev, ...newBackendErrors }));
         }
-        
+
         if (globalErrors.length > 0) {
-          setGlobalError(globalErrors.join(' '));
+          setGlobalError(globalErrors.join(" "));
         } else if (!hasSpecificError) {
-          setGlobalError('Registration failed.');
+          setGlobalError("Registration failed.");
         }
       }
     } catch (err) {
-      setGlobalError('Network error. Please try again later.');
+      setGlobalError("Network error. Please try again later.");
     } finally {
       setIsLoading(false);
     }
@@ -173,7 +176,9 @@ export default function SignupPage() {
       transition={{ duration: 0.4 }}
     >
       <div>
-        <h2 className="text-3xl font-bold tracking-tight text-text-main mb-2">Create an account</h2>
+        <h2 className="text-3xl font-bold tracking-tight text-text-main mb-2">
+          Create an account
+        </h2>
         <p className="text-sm text-text-main/70 mb-8">
           Join us to book workspaces, library seats, and more.
         </p>
@@ -181,7 +186,6 @@ export default function SignupPage() {
 
       <div className="mt-8">
         <form className="space-y-4" onSubmit={handleSignup} noValidate>
-          
           {globalError && (
             <div className="p-3 bg-red-500/10 border border-red-500/50 rounded text-red-500 text-sm">
               {globalError}
@@ -190,13 +194,16 @@ export default function SignupPage() {
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label htmlFor="firstName" className="block text-sm font-medium text-text-main mb-1">
+              <label
+                htmlFor="firstName"
+                className="block text-sm font-medium text-text-main mb-1"
+              >
                 First name
               </label>
-              <Input 
-                id="firstName" 
-                type="text" 
-                placeholder="John" 
+              <Input
+                id="firstName"
+                type="text"
+                placeholder="John"
                 value={formData.firstName}
                 onChange={handleChange}
                 leftIcon={<User size={18} />}
@@ -205,13 +212,16 @@ export default function SignupPage() {
               />
             </div>
             <div>
-              <label htmlFor="lastName" className="block text-sm font-medium text-text-main mb-1">
+              <label
+                htmlFor="lastName"
+                className="block text-sm font-medium text-text-main mb-1"
+              >
                 Last name
               </label>
-              <Input 
-                id="lastName" 
-                type="text" 
-                placeholder="Doe" 
+              <Input
+                id="lastName"
+                type="text"
+                placeholder="Doe"
                 value={formData.lastName}
                 onChange={handleChange}
                 leftIcon={<User size={18} />}
@@ -222,16 +232,19 @@ export default function SignupPage() {
           </div>
 
           <div>
-            <label htmlFor="email" className="block text-sm font-medium text-text-main mb-1">
+            <label
+              htmlFor="email"
+              className="block text-sm font-medium text-text-main mb-1"
+            >
               Email address
             </label>
-            <Input 
-              id="email" 
-              type="email" 
-              placeholder="name@example.com" 
+            <Input
+              id="email"
+              type="email"
+              placeholder="name@example.com"
               value={formData.email}
               onChange={handleChange}
-              leftIcon={<Mail size={18} />} 
+              leftIcon={<Mail size={18} />}
               error={errors.email}
               tabIndex={3}
               required
@@ -239,46 +252,61 @@ export default function SignupPage() {
           </div>
 
           <div>
-            <label htmlFor="phoneNumber" className="block text-sm font-medium text-text-main mb-1">
+            <label
+              htmlFor="phoneNumber"
+              className="block text-sm font-medium text-text-main mb-1"
+            >
               Phone number (Optional)
             </label>
-            <Input 
-              id="phoneNumber" 
-              type="tel" 
-              placeholder="e.g. 1234567890" 
+            <Input
+              id="phoneNumber"
+              type="tel"
+              placeholder="e.g. 1234567890"
               value={formData.phoneNumber}
               onChange={handleChange}
-              leftIcon={<Phone size={18} />} 
+              leftIcon={<Phone size={18} />}
               error={errors.phoneNumber}
               tabIndex={4}
             />
           </div>
 
           <div>
-            <label htmlFor="password" className="block text-sm font-medium text-text-main mb-1">
+            <label
+              htmlFor="password"
+              className="block text-sm font-medium text-text-main mb-1"
+            >
               Password
             </label>
-            <Input 
-              id="password" 
-              type="password" 
-              placeholder="••••••••" 
+            <Input
+              id="password"
+              type="password"
+              placeholder="••••••••"
               value={formData.password}
               onChange={handleChange}
-              leftIcon={<Lock size={18} />} 
+              leftIcon={<Lock size={18} />}
               error={errors.password}
               tabIndex={5}
               required
             />
           </div>
 
-          <Button type="submit" className="w-full mt-6" disabled={isLoading} tabIndex={6}>
-            {isLoading ? 'Creating account...' : 'Sign up'}
+          <Button
+            type="submit"
+            className="w-full mt-6"
+            disabled={isLoading}
+            tabIndex={6}
+          >
+            {isLoading ? "Creating account..." : "Sign up"}
           </Button>
         </form>
 
         <p className="mt-8 text-center text-sm text-text-main/70">
-          Already have an account?{' '}
-          <Link to="/auth/login" className="font-semibold text-primary hover:text-primary/80 transition-colors" tabIndex={7}>
+          Already have an account?{" "}
+          <Link
+            to="/auth/login"
+            className="font-semibold text-primary hover:text-primary/80 transition-colors"
+            tabIndex={7}
+          >
             Sign in
           </Link>
         </p>

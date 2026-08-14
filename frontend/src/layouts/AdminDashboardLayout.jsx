@@ -14,13 +14,14 @@ import {
   Tags,
   LogOut,
   MessageSquare,
-  Loader2
+  Loader2,
 } from "lucide-react";
 import { cn } from "../lib/utils";
 import { Button } from "../components/ui/Button";
 
 import { apiFetch } from "../lib/api";
 import { SearchProvider, useSearch } from "../contexts/SearchContext";
+import { API_URL } from "../config";
 
 function AdminDashboardLayoutContent() {
   const { theme, toggleTheme } = useTheme();
@@ -30,28 +31,28 @@ function AdminDashboardLayoutContent() {
   const { searchQuery, setSearchQuery } = useSearch();
 
   useEffect(() => {
-    const token = localStorage.getItem('access');
+    const token = localStorage.getItem("access");
     if (!token) {
-      navigate('/auth/login');
+      navigate("/auth/login");
       return;
     }
-    apiFetch('http://localhost:8000/api/accounts/me/', {
-      headers: { 'Authorization': `Bearer ${token}` }
+    apiFetch(`${API_URL}/api/accounts/me/`, {
+      headers: { Authorization: `Bearer ${token}` },
     })
-    .then(res => res.ok ? res.json() : null)
-    .then(data => {
-      if (data) {
-        setUser(data);
-        if (!data.is_staff) {
-          navigate('/dashboard'); // Normal users shouldn't be in admin
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (data) {
+          setUser(data);
+          if (!data.is_staff) {
+            navigate("/dashboard"); // Normal users shouldn't be in admin
+          } else {
+            setIsVerifying(false);
+          }
         } else {
-          setIsVerifying(false);
+          navigate("/auth/login");
         }
-      } else {
-        navigate('/auth/login');
-      }
-    })
-    .catch(() => navigate('/auth/login'));
+      })
+      .catch(() => navigate("/auth/login"));
   }, [navigate]);
 
   if (isVerifying) {
@@ -63,9 +64,9 @@ function AdminDashboardLayoutContent() {
   }
 
   const handleLogout = () => {
-    localStorage.removeItem('access');
-    localStorage.removeItem('refresh');
-    navigate('/');
+    localStorage.removeItem("access");
+    localStorage.removeItem("refresh");
+    navigate("/");
   };
 
   const navigationGroups = [
@@ -75,7 +76,7 @@ function AdminDashboardLayoutContent() {
         { name: "Users", to: "/admin/library/users", icon: Users },
         { name: "Plans", to: "/admin/library/plans", icon: Tags },
         { name: "Workspaces", to: "/admin/library/workspaces", icon: Box },
-      ]
+      ],
     },
     {
       title: "Coworking Management",
@@ -83,14 +84,18 @@ function AdminDashboardLayoutContent() {
         { name: "Users", to: "/admin/coworking/users", icon: Users },
         { name: "Plans", to: "/admin/coworking/plans", icon: Tags },
         { name: "Workspaces", to: "/admin/coworking/workspaces", icon: Box },
-      ]
+      ],
     },
     {
       title: "System",
       links: [
-        { name: "Contact Queries", to: "/admin/contact-queries", icon: MessageSquare },
-      ]
-    }
+        {
+          name: "Contact Queries",
+          to: "/admin/contact-queries",
+          icon: MessageSquare,
+        },
+      ],
+    },
   ];
 
   return (
@@ -107,8 +112,6 @@ function AdminDashboardLayoutContent() {
             <p className="text-[11px] text-text-main/50">Admin Dashboard</p>
           </div>
         </div>
-
-
 
         {/* Navigation */}
         <div className="px-3 space-y-6 flex-1 overflow-y-auto mt-2">
@@ -154,15 +157,23 @@ function AdminDashboardLayoutContent() {
         <div className="p-4 border-t border-border-main">
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center text-white font-bold text-xs">
-              {user?.first_name?.[0]?.toUpperCase() || user?.email?.[0]?.toUpperCase() || 'A'}
+              {user?.first_name?.[0]?.toUpperCase() ||
+                user?.email?.[0]?.toUpperCase() ||
+                "A"}
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-[13px] font-medium truncate">{user?.first_name || 'Admin User'}</p>
+              <p className="text-[13px] font-medium truncate">
+                {user?.first_name || "Admin User"}
+              </p>
               <p className="text-[11px] text-text-main/50 truncate">
-                {user?.email || 'admin@aazad.com'}
+                {user?.email || "admin@aazad.com"}
               </p>
             </div>
-            <button onClick={handleLogout} className="p-1.5 text-text-main/50 hover:text-red-500 hover:bg-red-500/10 rounded-md transition-colors" title="Logout">
+            <button
+              onClick={handleLogout}
+              className="p-1.5 text-text-main/50 hover:text-red-500 hover:bg-red-500/10 rounded-md transition-colors"
+              title="Logout"
+            >
               <LogOut size={16} />
             </button>
           </div>
@@ -176,9 +187,9 @@ function AdminDashboardLayoutContent() {
           {/* Search */}
           <div className="flex items-center gap-2 text-text-main/50 max-w-sm w-full bg-black/5 dark:bg-white/[0.03] hover:bg-black/10 dark:hover:bg-white/[0.06] border border-border-main rounded-md px-3 py-1.5 focus-within:ring-1 focus-within:ring-primary/50 transition-colors">
             <Search size={14} />
-            <input 
-              type="text" 
-              placeholder="Search users, plans, workspaces..." 
+            <input
+              type="text"
+              placeholder="Search users, plans, workspaces..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="text-[13px] flex-1 bg-transparent border-none outline-none text-text-main placeholder:text-text-main/50"
