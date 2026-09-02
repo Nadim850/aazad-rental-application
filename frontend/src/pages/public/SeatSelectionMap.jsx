@@ -374,12 +374,13 @@ export default function SeatSelectionMap() {
             </div>
           </div>
           <div className="flex items-center gap-4">
-            <div className="hidden md:flex items-center text-sm text-text-main/70 mr-4">
+            {/* <div className="hidden md:flex items-center text-sm text-text-main/70 mr-4">
               <Info className="w-4 h-4 mr-1.5" />
               You can change this later
-            </div>
+            </div> */}
             <Button
               size="lg"
+              variant="secondary"
               className="px-8 rounded-full shadow-lg shadow-primary/20"
               onClick={() => {
                 const seatType = selectedSeat?.startsWith("L")
@@ -390,10 +391,12 @@ export default function SeatSelectionMap() {
 
                 if (seatType === "library") {
                   navigate(`/pricing?plan=${seatType}&seat=${selectedSeat}`);
+                } else if (seatType === "dedicated") {
+                  navigate(`/pricing?plan=dedicated&seat=${selectedSeat}`);
+                } else if (seatType === "cabin") {
+                  navigate(`/pricing?plan=dedicated&seat=${selectedSeat}`);
                 } else {
-                  navigate(
-                    `/coworking/details?type=${seatType}&seat=${selectedSeat}`,
-                  );
+                  navigate(`/pricing?plan=${seatType}&seat=${selectedSeat}`);
                 }
               }}
             >

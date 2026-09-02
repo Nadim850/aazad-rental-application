@@ -9,6 +9,8 @@ import { Input } from "../../components/ui/Input";
 import { apiFetch } from "../../lib/api";
 import { API_URL } from "../../config";
 
+import { toast } from "react-hot-toast";
+
 export default function AdminWorkspacesPage({ category = "library" }) {
   const [workspaces, setWorkspaces] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -56,6 +58,7 @@ export default function AdminWorkspacesPage({ category = "library" }) {
   }, [category]);
 
   const toggleAvailability = async (id, currentStatus) => {
+    const loadingToast = toast.loading("Updating availability...");
     try {
       const token = localStorage.getItem("access");
       const res = await apiFetch(
@@ -70,10 +73,14 @@ export default function AdminWorkspacesPage({ category = "library" }) {
         },
       );
       if (res.ok) {
+        toast.success("Availability updated!", { id: loadingToast });
         fetchWorkspaces();
+      } else {
+        toast.error("Failed to update availability", { id: loadingToast });
       }
     } catch (err) {
       console.error(err);
+      toast.error("An error occurred", { id: loadingToast });
     }
   };
 
@@ -86,8 +93,11 @@ export default function AdminWorkspacesPage({ category = "library" }) {
     setAddError(null);
     if (!newWorkspace.name || !newWorkspace.price_per_hour) {
       setAddError("Please provide a name and price.");
+      toast.error("Please provide a name and price");
       return;
     }
+
+    const loadingToast = toast.loading("Adding workspace...");
 
     try {
       const token = localStorage.getItem("access");
@@ -110,13 +120,18 @@ export default function AdminWorkspacesPage({ category = "library" }) {
           price_per_hour: "",
         });
         setIsAdding(false);
+        toast.success("Workspace added successfully!", { id: loadingToast });
         fetchWorkspaces();
       } else {
         const data = await res.json();
         setAddError(data.error || "Failed to create workspace.");
+        toast.error(data.error || "Failed to create workspace", {
+          id: loadingToast,
+        });
       }
     } catch (err) {
       setAddError("Network error occurred.");
+      toast.error("Network error occurred", { id: loadingToast });
     }
   };
 

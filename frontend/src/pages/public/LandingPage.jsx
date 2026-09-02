@@ -29,13 +29,13 @@ export default function LandingPage() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5 }}
             >
-              <Badge variant="primary" className="mb-6 px-4 py-1.5 text-sm">
+              <Badge variant="secondary" className="mb-6 px-4 py-1.5 text-sm">
                 Revolutionizing Work & Study Spaces
               </Badge>
               <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight mb-8">
                 Your Premium
                 <br />
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary">
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-secondary to-primary">
                   Workspace & Library
                 </span>
               </h1>
@@ -47,6 +47,7 @@ export default function LandingPage() {
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
                 <Button
                   size="lg"
+                  variant="secondary"
                   className="w-full sm:w-auto text-lg px-8 rounded-full"
                   onClick={() => navigate("/book")}
                 >

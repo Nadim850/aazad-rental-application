@@ -11,6 +11,8 @@ import { Badge } from "../../components/ui/Badge";
 
 import { apiFetch } from "../../lib/api";
 
+import { toast } from "react-hot-toast";
+
 export default function AdminPlansPage({ category = "library" }) {
   const [plans, setPlans] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -25,9 +27,12 @@ export default function AdminPlansPage({ category = "library" }) {
   const fetchPlans = async () => {
     try {
       const token = localStorage.getItem("access");
-      const res = await apiFetch(`${API_URL}/api/bookings/admin-plans/`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await apiFetch(
+        "http://localhost:8000/api/bookings/admin-plans/",
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        },
+      );
       if (res.ok) {
         const data = await res.json();
         setPlans(data);
@@ -51,6 +56,7 @@ export default function AdminPlansPage({ category = "library" }) {
     const numPrice = parseFloat(editPrice);
     if (isNaN(numPrice) || numPrice < 0) {
       setError("Please enter a valid positive price.");
+      toast.error("Invalid price value");
       return;
     }
 
@@ -59,31 +65,41 @@ export default function AdminPlansPage({ category = "library" }) {
       setError(
         `Price for ${planToEdit.workspace_type} cannot exceed ₹${maxPrice.toLocaleString("en-IN")}.`,
       );
+      toast.error("Price exceeds maximum allowed");
       return;
     }
 
+    const loadingToast = toast.loading("Saving changes...");
+
     try {
       const token = localStorage.getItem("access");
-      const res = await apiFetch(`${API_URL}/api/bookings/admin-plans/${id}/`, {
-        method: "PATCH",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
+      const res = await apiFetch(
+        `http://localhost:8000/api/bookings/admin-plans/${id}/`,
+        {
+          method: "PATCH",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            monthly_price: editPrice,
+            price_3_months: editPrice3M || null,
+            price_6_months: editPrice6M || null,
+            price_1_year: editPrice1Y || null,
+            total_seats: editSeats,
+          }),
         },
-        body: JSON.stringify({
-          monthly_price: editPrice,
-          price_3_months: editPrice3M || null,
-          price_6_months: editPrice6M || null,
-          price_1_year: editPrice1Y || null,
-          total_seats: editSeats,
-        }),
-      });
+      );
       if (res.ok) {
         setEditingPlan(null);
+        toast.success("Plan updated successfully!", { id: loadingToast });
         fetchPlans();
+      } else {
+        toast.error("Failed to update plan", { id: loadingToast });
       }
     } catch (err) {
       console.error(err);
+      toast.error("An error occurred", { id: loadingToast });
     }
   };
 

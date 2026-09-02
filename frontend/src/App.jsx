@@ -26,9 +26,12 @@ import AdminContactQueriesPage from "./pages/admin/AdminContactQueriesPage";
 
 import UserSettingsPage from "./pages/dashboard/UserSettingsPage";
 
+import { Toaster } from "react-hot-toast";
+
 function App() {
   return (
     <ThemeProvider>
+      <Toaster position="top-right" />
       <BrowserRouter>
         <Routes>
           {/* Public Routes */}
@@ -39,11 +42,23 @@ function App() {
             <Route path="/contact" element={<ContactPage />} />
             <Route path="/library" element={<LibraryServices />} />
             <Route path="/coworking" element={<CoworkingServices />} />
-            <Route path="/coworking/details" element={<CoworkingFacilityDetails />} />
+            <Route
+              path="/coworking/details"
+              element={<CoworkingFacilityDetails />}
+            />
             <Route path="/startup" element={<StartupServices />} />
-            <Route path="/pricing/library" element={<Navigate to="/pricing?plan=library" replace />} />
-            <Route path="/pricing/coworking" element={<Navigate to="/pricing?plan=dedicated" replace />} />
-            <Route path="/pricing/startup" element={<Navigate to="/pricing?plan=conference" replace />} />
+            <Route
+              path="/pricing/library"
+              element={<Navigate to="/pricing?plan=library" replace />}
+            />
+            <Route
+              path="/pricing/coworking"
+              element={<Navigate to="/pricing?plan=dedicated" replace />}
+            />
+            <Route
+              path="/pricing/startup"
+              element={<Navigate to="/pricing?plan=conference" replace />}
+            />
             <Route path="/payment" element={<PaymentPage />} />
             <Route path="/receipt/:id" element={<ReceiptPage />} />
           </Route>
@@ -63,19 +78,40 @@ function App() {
           {/* Admin Routes */}
           <Route path="/admin" element={<AdminDashboardLayout />}>
             <Route index element={<Navigate to="library/users" replace />} />
-            
+
             {/* Library Management */}
-            <Route path="library/users" element={<AdminUsersPage category="library" />} />
-            <Route path="library/plans" element={<AdminPlansPage category="library" />} />
-            <Route path="library/workspaces" element={<AdminWorkspacesPage category="library" />} />
-            
+            <Route
+              path="library/users"
+              element={<AdminUsersPage category="library" />}
+            />
+            <Route
+              path="library/plans"
+              element={<AdminPlansPage category="library" />}
+            />
+            <Route
+              path="library/workspaces"
+              element={<AdminWorkspacesPage category="library" />}
+            />
+
             {/* Coworking Management */}
-            <Route path="coworking/users" element={<AdminUsersPage category="coworking" />} />
-            <Route path="coworking/plans" element={<AdminPlansPage category="coworking" />} />
-            <Route path="coworking/workspaces" element={<AdminWorkspacesPage category="coworking" />} />
-            
+            <Route
+              path="coworking/users"
+              element={<AdminUsersPage category="coworking" />}
+            />
+            <Route
+              path="coworking/plans"
+              element={<AdminPlansPage category="coworking" />}
+            />
+            <Route
+              path="coworking/workspaces"
+              element={<AdminWorkspacesPage category="coworking" />}
+            />
+
             {/* System */}
-            <Route path="contact-queries" element={<AdminContactQueriesPage />} />
+            <Route
+              path="contact-queries"
+              element={<AdminContactQueriesPage />}
+            />
           </Route>
         </Routes>
       </BrowserRouter>

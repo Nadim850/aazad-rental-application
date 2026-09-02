@@ -303,7 +303,7 @@ export default function SignupPage() {
         <p className="mt-8 text-center text-sm text-text-main/70">
           Already have an account?{" "}
           <Link
-            to="/auth/login"
+            to={`/auth/login${new URLSearchParams(window.location.search).get("redirect") ? `?redirect=${encodeURIComponent(new URLSearchParams(window.location.search).get("redirect"))}` : ""}`}
             className="font-semibold text-primary hover:text-primary/80 transition-colors"
             tabIndex={7}
           >

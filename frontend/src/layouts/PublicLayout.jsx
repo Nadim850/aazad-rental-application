@@ -51,6 +51,17 @@ export default function PublicLayout() {
     navigate("/");
   };
 
+  const isActive = (path) => {
+    if (path === "/") return location.pathname === "/";
+    return location.pathname.startsWith(path);
+  };
+
+  const desktopClass = (path) =>
+    `transition-colors font-medium ${isActive(path) ? "text-primary" : "text-text-main/70 hover:text-primary"}`;
+
+  const mobileClass = (path) =>
+    `py-3 font-medium transition-colors block w-full ${isActive(path) ? "text-primary border-b-2 border-primary" : "border-b border-border-main/50 text-text-main hover:text-primary"}`;
+
   return (
     <div className="min-h-screen flex flex-col bg-background text-text-main transition-colors duration-300">
       <header className="sticky top-0 z-50 w-full border-b border-border-main bg-background/80 backdrop-blur-md">
@@ -64,41 +75,23 @@ export default function PublicLayout() {
             </span>
           </Link>
 
-          <nav className="hidden md:flex items-center gap-8 text-sm font-medium">
-            <Link
-              to="/"
-              className="text-text-main/70 hover:text-primary transition-colors"
-            >
+          <nav className="hidden md:flex items-center gap-8 font-medium">
+            <Link to="/" className={desktopClass("/")}>
               Services
             </Link>
-            <Link
-              to="/library"
-              className="text-text-main/70 hover:text-primary transition-colors"
-            >
+            <Link to="/library" className={desktopClass("/library")}>
               Library
             </Link>
-            <Link
-              to="/coworking"
-              className="text-text-main/70 hover:text-primary transition-colors"
-            >
+            <Link to="/coworking" className={desktopClass("/coworking")}>
               Coworking
             </Link>
-            <Link
-              to="/startup"
-              className="text-text-main/70 hover:text-primary transition-colors"
-            >
+            <Link to="/startup" className={desktopClass("/startup")}>
               Conference Room
             </Link>
-            <Link
-              to="/pricing"
-              className="text-text-main/70 hover:text-primary transition-colors"
-            >
+            <Link to="/pricing" className={desktopClass("/pricing")}>
               Pricing
             </Link>
-            <Link
-              to="/contact"
-              className="text-text-main/70 hover:text-primary transition-colors"
-            >
+            <Link to="/contact" className={desktopClass("/contact")}>
               Contact
             </Link>
           </nav>
@@ -195,7 +188,9 @@ export default function PublicLayout() {
                           <button
                             onClick={() => {
                               setIsDropdownOpen(false);
-                              navigate("/auth/login");
+                              navigate(
+                                `/auth/login?redirect=${encodeURIComponent(location.pathname + location.search)}`,
+                              );
                             }}
                             className="block w-full text-left px-4 py-2 text-sm text-text-main hover:bg-border-main/50 transition-colors font-medium"
                           >
@@ -204,7 +199,9 @@ export default function PublicLayout() {
                           <button
                             onClick={() => {
                               setIsDropdownOpen(false);
-                              navigate("/auth/signup");
+                              navigate(
+                                `/auth/signup?redirect=${encodeURIComponent(location.pathname + location.search)}`,
+                              );
                             }}
                             className="block w-full text-left px-4 py-2 text-sm text-text-main hover:bg-border-main/50 transition-colors font-medium"
                           >
@@ -224,40 +221,22 @@ export default function PublicLayout() {
         {isMobileMenuOpen && (
           <div className="md:hidden border-t border-border-main bg-background/95 backdrop-blur-md pb-4 animate-in fade-in slide-in-from-top-2">
             <nav className="flex flex-col px-4 pt-2">
-              <Link
-                to="/"
-                className="py-3 border-b border-border-main/50 text-text-main font-medium"
-              >
+              <Link to="/" className={mobileClass("/")}>
                 Services
               </Link>
-              <Link
-                to="/library"
-                className="py-3 border-b border-border-main/50 text-text-main font-medium"
-              >
+              <Link to="/library" className={mobileClass("/library")}>
                 Library
               </Link>
-              <Link
-                to="/coworking"
-                className="py-3 border-b border-border-main/50 text-text-main font-medium"
-              >
+              <Link to="/coworking" className={mobileClass("/coworking")}>
                 Coworking
               </Link>
-              <Link
-                to="/startup"
-                className="py-3 border-b border-border-main/50 text-text-main font-medium"
-              >
+              <Link to="/startup" className={mobileClass("/startup")}>
                 Conference Room
               </Link>
-              <Link
-                to="/pricing"
-                className="py-3 border-b border-border-main/50 text-text-main font-medium"
-              >
+              <Link to="/pricing" className={mobileClass("/pricing")}>
                 Pricing
               </Link>
-              <Link
-                to="/contact"
-                className="py-3 border-b border-border-main/50 text-text-main font-medium"
-              >
+              <Link to="/contact" className={mobileClass("/contact")}>
                 Contact
               </Link>
 
@@ -301,14 +280,22 @@ export default function PublicLayout() {
                     <Button
                       variant="outline"
                       className="w-full justify-center"
-                      onClick={() => navigate("/auth/login")}
+                      onClick={() =>
+                        navigate(
+                          `/auth/login?redirect=${encodeURIComponent(location.pathname + location.search)}`,
+                        )
+                      }
                     >
                       Log In
                     </Button>
                     <Button
                       variant="primary"
                       className="w-full justify-center"
-                      onClick={() => navigate("/auth/signup")}
+                      onClick={() =>
+                        navigate(
+                          `/auth/signup?redirect=${encodeURIComponent(location.pathname + location.search)}`,
+                        )
+                      }
                     >
                       Sign Up
                     </Button>

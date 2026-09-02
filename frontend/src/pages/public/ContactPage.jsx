@@ -27,6 +27,31 @@ export default function ContactPage() {
     message: "",
   });
 
+  useEffect(() => {
+    const fetchUserData = async () => {
+      const token = localStorage.getItem("access");
+      if (token) {
+        try {
+          const res = await fetch(`${API_URL}/api/accounts/me/`, {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          if (res.ok) {
+            const user = await res.json();
+            setFormData((prev) => ({
+              ...prev,
+              name: `${user.first_name || ""} ${user.last_name || ""}`.trim(),
+              email: user.email || "",
+              phone: user.phone_number || "",
+            }));
+          }
+        } catch (err) {
+          console.error("Failed to fetch user data for auto-fill", err);
+        }
+      }
+    };
+    fetchUserData();
+  }, []);
+
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [status, setStatus] = useState({ type: "", message: "" });
 
@@ -191,6 +216,7 @@ export default function ContactPage() {
               <Button
                 type="submit"
                 size="lg"
+                variant="secondary"
                 className="w-full h-14 text-lg mt-4 shadow-lg hover:-translate-y-0.5"
                 isLoading={isSubmitting}
               >

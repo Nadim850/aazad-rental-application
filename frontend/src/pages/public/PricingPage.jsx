@@ -1,14 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
-import { motion, AnimatePresence } from "framer-motion";
 import { API_URL } from "../../config";
+import { getDurationPrice, getSavingsPercentage } from "../../lib/pricingUtils";
 import {
-  BookOpen,
-  Briefcase,
-  ChevronRight,
-  Monitor,
-  Rocket,
-  CheckCircle2,
   Wifi,
   Wind,
   BatteryCharging,
@@ -20,21 +14,7 @@ import {
   Printer,
   Car,
   Users,
-  Clock,
-  Info,
-  Calendar,
-  ArrowLeft,
-  ArrowRight,
 } from "lucide-react";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "../../components/ui/Card";
-import { Button } from "../../components/ui/Button";
-import { Badge } from "../../components/ui/Badge";
-import { getDurationPrice, getSavingsPercentage } from "../../lib/pricingUtils";
 
 const FACILITIES = [
   {
@@ -42,13 +22,9 @@ const FACILITIES = [
     apiType: "library",
     name: "Library Zones",
     description:
-      "A pin-drop silence zone designed for deep focus, research, and uninterrupted study. Perfect for students and researchers.",
+      "Quiet reading and study seats with locker access. A pin-drop silence zone designed for deep focus, research, and uninterrupted study.",
     image:
       "https://images.unsplash.com/photo-1521587760476-6c12a4b040da?auto=format&fit=crop&q=80",
-    icon: <BookOpen className="w-8 h-8 text-primary" />,
-    colorClass: "text-primary",
-    bgAccent: "bg-primary/5",
-    borderHover: "hover:border-primary",
     amenities: [
       "High-Speed Wi-Fi",
       "Air Conditioning",
@@ -57,8 +33,6 @@ const FACILITIES = [
       "RO Water",
       "Locker Facility",
     ],
-    status: "Available",
-    hours: "24/7 Access",
   },
   {
     id: "dedicated",
@@ -68,10 +42,6 @@ const FACILITIES = [
       "Your own personal desk in a vibrant coworking environment. Leave your monitors and gear securely overnight.",
     image:
       "https://images.unsplash.com/photo-1527192491265-7e15c55b1ed2?auto=format&fit=crop&q=80",
-    icon: <Monitor className="w-8 h-8 text-secondary" />,
-    colorClass: "text-secondary",
-    bgAccent: "bg-secondary/5",
-    borderHover: "hover:border-secondary",
     amenities: [
       "High-Speed Wi-Fi",
       "Air Conditioning",
@@ -81,21 +51,15 @@ const FACILITIES = [
       "Housekeeping",
       "Meeting Room Access",
     ],
-    status: "Limited Seats",
-    hours: "24/7 Access",
   },
   {
     id: "cabin",
     apiType: "cabin",
     name: "Private Cabin",
     description:
-      "A fully furnished, soundproof private office for you and your small team. Focus without distractions.",
+      "A fully furnished, lockable private office for you and your small team. Focus without distractions away from the open floor.",
     image:
       "https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&q=80",
-    icon: <Briefcase className="w-8 h-8 text-warning" />,
-    colorClass: "text-warning",
-    bgAccent: "bg-warning/5",
-    borderHover: "hover:border-warning",
     amenities: [
       "High-Speed Wi-Fi",
       "Air Conditioning",
@@ -105,21 +69,15 @@ const FACILITIES = [
       "Mail Handling",
       "Parking",
     ],
-    status: "Available",
-    hours: "24/7 Access",
   },
   {
     id: "conference",
-    apiType: "startup", // backend uses 'startup' for this category
+    apiType: "startup",
     name: "Conference Room",
     description:
-      "Spacious private offices and conference rooms tailored for growing startups, team collaborations, and board meetings.",
+      "Prepaid hour blocks for client meetings, interviews, and team collaborations. Book the conference room from your prepaid balance.",
     image:
       "https://images.unsplash.com/photo-1497215728101-856f4ea42174?auto=format&fit=crop&q=80",
-    icon: <Rocket className="w-8 h-8 text-success" />,
-    colorClass: "text-success",
-    bgAccent: "bg-success/5",
-    borderHover: "hover:border-success",
     amenities: [
       "6 Seats Capacity",
       "High-Speed Wi-Fi",
@@ -130,36 +88,34 @@ const FACILITIES = [
       "Reception Support",
       "Housekeeping",
     ],
-    status: "Limited Availability",
-    hours: "9 AM - 8 PM",
   },
 ];
 
 const getAmenityIcon = (name) => {
   const n = name.toLowerCase();
-  if (n.includes("wi-fi")) return <Wifi className="w-5 h-5" />;
-  if (n.includes("air")) return <Wind className="w-5 h-5" />;
-  if (n.includes("power")) return <BatteryCharging className="w-5 h-5" />;
+  if (n.includes("wi-fi")) return <Wifi className="w-4 h-4" />;
+  if (n.includes("air")) return <Wind className="w-4 h-4" />;
+  if (n.includes("power")) return <BatteryCharging className="w-4 h-4" />;
   if (n.includes("cctv") || n.includes("security"))
-    return <ShieldCheck className="w-5 h-5" />;
-  if (n.includes("water")) return <Droplet className="w-5 h-5" />;
+    return <ShieldCheck className="w-4 h-4" />;
+  if (n.includes("water")) return <Droplet className="w-4 h-4" />;
   if (n.includes("coffee") || n.includes("tea"))
-    return <Coffee className="w-5 h-5" />;
+    return <Coffee className="w-4 h-4" />;
   if (n.includes("print") || n.includes("projector"))
-    return <Printer className="w-5 h-5" />;
-  if (n.includes("park")) return <Car className="w-5 h-5" />;
-  if (n.includes("reception") || n.includes("seat"))
-    return <Users className="w-5 h-5" />;
+    return <Printer className="w-4 h-4" />;
+  if (n.includes("park")) return <Car className="w-4 h-4" />;
+  if (n.includes("reception") || n.includes("seat") || n.includes("board"))
+    return <Users className="w-4 h-4" />;
   if (n.includes("locker") || n.includes("soundproof"))
-    return <Lock className="w-5 h-5" />;
-  return <Sparkles className="w-5 h-5" />;
+    return <Lock className="w-4 h-4" />;
+  return <Sparkles className="w-4 h-4" />;
 };
 
 const DURATION_OPTIONS = [
-  { value: 1, label: "1 Month" },
-  { value: 3, label: "3 Months" },
-  { value: 6, label: "6 Months" },
-  { value: 12, label: "12 Months" },
+  { value: 1, label: "Monthly" },
+  { value: 3, label: "Quarterly" },
+  { value: 6, label: "Half-Yearly" },
+  { value: 12, label: "Yearly" },
 ];
 
 export default function PricingPage() {
@@ -169,23 +125,18 @@ export default function PricingPage() {
   const [isLoading, setIsLoading] = useState(true);
 
   const seatParam = searchParams.get("seat");
+  const planParam = searchParams.get("plan");
   const isBookingMode = !!seatParam;
 
   useEffect(() => {
-    // Check if we need to scroll to a specific section based on ?plan=
-    const planParam = searchParams.get("plan");
-    if (planParam) {
-      setTimeout(() => {
-        const targetId = planParam === "startup" ? "conference" : planParam;
-        const element = document.getElementById(targetId);
-        if (element) {
-          element.scrollIntoView({ behavior: "smooth", block: "start" });
-        }
-      }, 500);
-    } else {
-      window.scrollTo(0, 0);
-    }
-  }, [searchParams]);
+    window.scrollTo(0, 0);
+    const link = document.createElement("link");
+    link.href =
+      "https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Manrope:wght@400;500;600;700&display=swap";
+    link.rel = "stylesheet";
+    document.head.appendChild(link);
+    return () => document.head.removeChild(link);
+  }, []);
 
   useEffect(() => {
     const fetchPlans = async () => {
@@ -214,317 +165,215 @@ export default function PricingPage() {
     }
   };
 
-  const scrollToSection = (id) => {
-    const element = document.getElementById(id);
-    if (element) {
-      element.scrollIntoView({ behavior: "smooth" });
-    }
-  };
-
-  const PricingSection = ({ facility }) => {
-    const facilityPlans = plans.filter(
-      (p) => p.workspace_type === facility.apiType,
-    );
-    const [duration, setDuration] = useState(1);
-    const [activePlanIndex, setActivePlanIndex] = useState(0);
-
-    const handleNextPlan = () => {
-      setActivePlanIndex((prev) => (prev + 1) % facilityPlans.length);
-    };
-
-    const handlePrevPlan = () => {
-      setActivePlanIndex(
-        (prev) => (prev - 1 + facilityPlans.length) % facilityPlans.length,
+  // Filter facilities based on the ?plan= parameter to act as separate pages
+  let displayedFacilities = FACILITIES;
+  if (planParam) {
+    if (planParam === "library") {
+      displayedFacilities = FACILITIES.filter((f) => f.apiType === "library");
+    } else if (planParam === "dedicated" || planParam === "coworking") {
+      displayedFacilities = FACILITIES.filter(
+        (f) => f.apiType === "dedicated" || f.apiType === "cabin",
       );
-    };
-
-    const activePlan = facilityPlans[activePlanIndex];
-
-    return (
-      <section
-        id={facility.id}
-        className="min-h-[calc(100vh-4rem)] flex flex-col justify-center py-12 border-t border-border-main scroll-mt-16"
-      >
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-stretch max-w-6xl mx-auto w-full">
-          {/* Left Column: Full-background Image and Active Plan Card */}
-          <div className="lg:col-span-6 relative flex flex-col min-h-[500px] lg:h-auto max-h-[calc(100vh-8rem)]">
-            <div className="border border-border-main relative flex-1 overflow-hidden shadow-sm flex flex-col justify-end p-8 text-white">
-              {/* Background Image & Overlay */}
-              <div className="absolute inset-0">
-                <img
-                  src={facility.image}
-                  alt={facility.name}
-                  className="w-full h-full object-cover"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-black/10" />
-              </div>
-
-              {/* Facility Name Label */}
-              {/* <div className="absolute top-4 left-4 bg-black/40 backdrop-blur-md text-white px-4 py-2 text-sm font-semibold border border-white/20 z-10">
-                {facility.name}
-              </div> */}
-
-              {/* Navigation Arrows for Plans (if multiple) */}
-              {facilityPlans.length > 1 && (
-                <div className="absolute top-4 right-4 flex gap-2 z-10">
-                  <button
-                    onClick={handlePrevPlan}
-                    className="bg-black/40 backdrop-blur-md p-2 border border-white/20 hover:bg-white/20 text-white transition-colors"
-                  >
-                    <ArrowLeft className="w-4 h-4" />
-                  </button>
-                  <button
-                    onClick={handleNextPlan}
-                    className="bg-black/40 backdrop-blur-md p-2 border border-white/20 hover:bg-white/20 text-white transition-colors"
-                  >
-                    <ArrowRight className="w-4 h-4" />
-                  </button>
-                </div>
-              )}
-
-              {/* Active Plan Details below the image inside the card */}
-              <div className="relative z-10 flex flex-col h-full justify-end">
-                {isLoading ? (
-                  <div className="flex-1 flex justify-center items-center py-12">
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white"></div>
-                  </div>
-                ) : !activePlan ? (
-                  <div className="flex-1 flex items-center justify-center text-white/50 py-12">
-                    No plans available.
-                  </div>
-                ) : (
-                  <>
-                    <div className="mb-4">
-                      <h3 className="text-3xl font-bold">{activePlan.name}</h3>
-                      {activePlan.total_seats > 0 && (
-                        <div className="text-sm text-white/80 mt-1">
-                          {activePlan.total_seats}{" "}
-                          {activePlan.total_seats === 1
-                            ? "seat available"
-                            : "seats available"}
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Duration Cycler Button */}
-                    <button
-                      onClick={() => {
-                        const currentIndex = DURATION_OPTIONS.findIndex(
-                          (opt) => opt.value === duration,
-                        );
-                        const nextIndex =
-                          (currentIndex + 1) % DURATION_OPTIONS.length;
-                        setDuration(DURATION_OPTIONS[nextIndex].value);
-                      }}
-                      className="flex items-center gap-3 bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/30 px-5 py-2.5 text-sm font-semibold rounded-full transition-colors w-fit mb-6"
-                    >
-                      <span>
-                        {
-                          DURATION_OPTIONS.find((o) => o.value === duration)
-                            ?.label
-                        }
-                      </span>
-                      <ArrowRight className="w-4 h-4" />
-                    </button>
-
-                    {/* Price and Button */}
-                    <div className="mt-auto">
-                      {(() => {
-                        const totalPrice = getDurationPrice(
-                          activePlan,
-                          duration,
-                        );
-                        const savingsPct = getSavingsPercentage(
-                          activePlan,
-                          duration,
-                        );
-
-                        return (
-                          <div className="flex items-end justify-between mb-6">
-                            <div className="flex flex-col">
-                              <div className="flex items-baseline tracking-tight">
-                                <span className="text-4xl font-bold">
-                                  ₹{totalPrice.toLocaleString("en-IN")}
-                                </span>
-                                <span className="text-sm text-white/80 ml-1">
-                                  /{duration}
-                                  {duration === 1 ? "mo" : "mo"}
-                                </span>
-                              </div>
-                              {savingsPct > 0 && (
-                                <div className="text-sm text-white/60 line-through mt-0.5 flex items-center gap-3">
-                                  ₹
-                                  {(
-                                    parseFloat(activePlan.monthly_price) *
-                                    duration
-                                  ).toLocaleString("en-IN")}
-                                  <span className="text-success font-bold text-xs no-underline bg-success/20 px-2 py-0.5 rounded-sm border border-success/30">
-                                    Save {savingsPct}%
-                                  </span>
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                        );
-                      })()}
-
-                      <Button
-                        variant="primary"
-                        className="w-full rounded-none bg-white text-black hover:bg-white/90 font-bold border-none"
-                        onClick={() => handleBookNow(activePlan.name, duration)}
-                        disabled={!activePlan}
-                      >
-                        {isBookingMode && seatParam
-                          ? "Confirm & Pay"
-                          : "Reserve this seat"}
-                      </Button>
-                    </div>
-                  </>
-                )}
-              </div>
-            </div>
-          </div>
-
-          {/* Right Column: Amenities and Features */}
-          <div className="lg:col-span-6 flex flex-col justify-center space-y-10 lg:pl-8">
-            <div>
-              <h3 className="text-xs uppercase tracking-[0.2em] text-text-main/60 mb-5 font-bold">
-                Included Amenities
-              </h3>
-              <ul className="grid grid-cols-2 gap-3">
-                {facility.amenities.map((amenity, idx) => (
-                  <li
-                    key={idx}
-                    className="flex items-center gap-3 text-sm text-text-main/80 bg-surface px-4 py-3 border border-border-main"
-                  >
-                    <div className="w-1.5 h-1.5 rounded-full bg-primary shrink-0" />
-                    <span className="truncate">{amenity}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            {activePlan &&
-              activePlan.features &&
-              activePlan.features.length > 0 && (
-                <div className="border-t border-dashed border-border-main pt-8">
-                  <h3 className="text-xs uppercase tracking-[0.2em] text-text-main/60 mb-5 font-bold">
-                    Plan Features
-                  </h3>
-                  <ul className="flex flex-col">
-                    {activePlan.features.map((feature, i) => (
-                      <li
-                        key={i}
-                        className={`flex items-center gap-3 text-sm py-3 ${i !== activePlan.features.length - 1 ? "border-b border-dashed border-border-main" : ""}`}
-                      >
-                        <div className="w-4 h-4 rounded-full border-[1.3px] border-primary relative shrink-0">
-                          <div className="absolute left-[4px] top-[2px] w-[4px] h-[8px] border-r-[1.3px] border-b-[1.3px] border-primary rotate-[40deg]" />
-                        </div>
-                        <span className="text-text-main/80">{feature}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-          </div>
-        </div>
-      </section>
-    );
-  };
+    } else if (planParam === "conference" || planParam === "startup") {
+      displayedFacilities = FACILITIES.filter((f) => f.apiType === "startup");
+    }
+  }
 
   return (
-    <div className="min-h-screen bg-background pt-16 pb-24">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Page Header */}
-        <div className="text-center mb-16 animate-in fade-in slide-in-from-bottom-4 duration-500">
-          <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight mb-4">
-            Choose the Workspace That Fits You
-          </h1>
-          <p className="text-lg text-text-main/70 max-w-2xl mx-auto">
-            Flexible plans designed for studying, individual work, private
-            teams, and meetings.
-          </p>
+    <div className="min-h-screen bg-background text-text-main pt-16 pb-24">
+      <div className="max-w-[1080px] mx-auto px-6 md:px-8">
+        {/* Top Header Section */}
+        <div className="flex flex-col md:flex-row md:justify-between md:items-end gap-6 mb-12 border-b border-border-main pb-8">
+          <div>
+            <div
+              className="text-[15px] tracking-wide text-primary mb-3 font-serif"
+              style={{ fontFamily: "'Fraunces', serif" }}
+            >
+              Aazad Rental
+            </div>
+            <h1
+              className="font-medium text-[32px] md:text-[44px] leading-[1.12] mt-0 mb-3.5 max-w-[560px] tracking-tight font-serif"
+              style={{ fontFamily: "'Fraunces', serif" }}
+            >
+              Space, by the hour, the month, or the year.
+            </h1>
+            <p
+              className="text-[16px] text-text-main/70 max-w-[440px] leading-[1.6] m-0 font-sans"
+              style={{ fontFamily: "'Manrope', sans-serif" }}
+            >
+              Library seats, coworking desks and cabins, conference rooms — pick
+              a term that matches how you actually work.
+            </p>
+          </div>
         </div>
 
         {isBookingMode && (
-          <div className="mb-8 max-w-4xl mx-auto">
-            <Badge
-              variant="success"
-              className="px-3 py-1 text-sm bg-success/10 text-success border-success/20 mb-2"
-            >
-              <span className="flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4" />
-                Booking Seat {seatParam}
-              </span>
-            </Badge>
-            <p className="text-text-main/70 text-sm">
-              Scroll down to select a plan for your chosen seat.
-            </p>
+          <div
+            className="mb-10 p-4 border border-success/30 bg-success/5 rounded text-success font-medium flex items-center justify-center font-sans"
+            style={{ fontFamily: "'Manrope', sans-serif" }}
+          >
+            Booking Seat {seatParam} — Select a plan below to continue.
           </div>
         )}
 
-        {/* Workspace Category Anchor Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
-          {FACILITIES.map((facility, idx) => (
-            <motion.div
-              key={facility.id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.4, delay: idx * 0.1 }}
-            >
-              <Card
-                className={`h-full border border-border-main ${facility.borderHover} transition-all duration-300 cursor-pointer shadow-sm hover:shadow-md bg-surface group`}
-                onClick={() => scrollToSection(facility.id)}
-              >
-                <div className="aspect-[16/9] relative overflow-hidden rounded-t-xl">
-                  <img
-                    src={facility.image}
-                    alt={facility.name}
-                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                  />
-                  <div className="absolute inset-0 bg-black/10 group-hover:bg-black/0 transition-colors" />
+        {isLoading ? (
+          <div className="flex justify-center items-center py-20">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+          </div>
+        ) : (
+          <div className="space-y-16">
+            {displayedFacilities.map((facility) => {
+              const activePlan = plans.find(
+                (p) => p.workspace_type === facility.apiType,
+              );
+
+              if (!activePlan) return null;
+
+              return (
+                <div
+                  key={facility.id}
+                  className="bg-surface border border-border-main overflow-hidden rounded-md flex flex-col"
+                  style={{ fontFamily: "'Manrope', sans-serif" }}
+                >
+                  {/* TOP SIDE: Image */}
+                  <div className="w-full h-[250px] lg:h-[350px] relative border-b border-border-main">
+                    <img
+                      src={facility.image}
+                      alt={facility.name}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+
+                  {/* BOTTOM SIDE: Split into two columns */}
+                  <div className="flex flex-col lg:flex-row p-6 md:p-10 gap-10">
+                    {/* LEFT COLUMN: Details & Amenities */}
+                    <div className="lg:w-5/12 flex flex-col">
+                      <h2
+                        className="text-[28px] font-medium mb-3 font-serif tracking-tight"
+                        style={{ fontFamily: "'Fraunces', serif" }}
+                      >
+                        {facility.name}
+                      </h2>
+                      <p className="text-[15px] text-text-main/70 mb-8 leading-relaxed">
+                        {facility.description}
+                      </p>
+
+                      {/* Amenities Grid */}
+                      <div className="mb-10">
+                        <h3 className="text-[11px] font-bold text-text-main/50 uppercase tracking-widest mb-4">
+                          Amenities & Facilities
+                        </h3>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-4 gap-x-4">
+                          {facility.amenities.map((amenity, idx) => (
+                            <div
+                              key={idx}
+                              className="flex items-center gap-3 text-[14px]"
+                            >
+                              <div className="text-primary shrink-0 opacity-80">
+                                {getAmenityIcon(amenity)}
+                              </div>
+                              <span className="text-text-main/80 font-medium">
+                                {amenity}
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* RIGHT COLUMN: Available Plans (Durations) Nested Boxes */}
+                    <div className="lg:w-7/12">
+                      <h3
+                        className="text-[16px] font-bold mb-6 font-serif tracking-tight"
+                        style={{ fontFamily: "'Fraunces', serif" }}
+                      >
+                        Available Plans
+                      </h3>
+
+                      <div className="flex flex-col gap-4">
+                        {DURATION_OPTIONS.map((durationOpt) => {
+                          const duration = durationOpt.value;
+                          const totalPrice = getDurationPrice(
+                            activePlan,
+                            duration,
+                          );
+                          const savingsPct = getSavingsPercentage(
+                            activePlan,
+                            duration,
+                          );
+                          const originalPrice =
+                            parseFloat(activePlan.monthly_price) * duration;
+
+                          return (
+                            <div
+                              key={duration}
+                              className="border border-border-main bg-background p-5 rounded flex flex-col sm:flex-row sm:items-center justify-between gap-6 transition-colors hover:border-text-main/30"
+                            >
+                              <div className="flex-1">
+                                <div className="flex items-center gap-3 mb-1">
+                                  <h4 className="font-bold text-[15px] m-0">
+                                    {durationOpt.label}
+                                  </h4>
+                                  {savingsPct > 0 && (
+                                    <span className="bg-primary text-primary-foreground text-[10px] font-bold px-2 py-0.5 rounded-sm uppercase tracking-wider">
+                                      Save {savingsPct}%
+                                    </span>
+                                  )}
+                                </div>
+
+                                <div className="flex items-baseline gap-2 mb-2">
+                                  <span
+                                    className="text-[22px] font-medium font-serif"
+                                    style={{ fontFamily: "'Fraunces', serif" }}
+                                  >
+                                    ₹{totalPrice.toLocaleString("en-IN")}
+                                  </span>
+                                  {savingsPct > 0 && (
+                                    <span className="text-[12px] text-text-main/50 line-through">
+                                      ₹{originalPrice.toLocaleString("en-IN")}
+                                    </span>
+                                  )}
+                                </div>
+
+                                {activePlan.features &&
+                                  activePlan.features.length > 0 && (
+                                    <div className="text-[13px] text-text-main/70 leading-snug">
+                                      Includes: {activePlan.features.join(", ")}
+                                    </div>
+                                  )}
+                              </div>
+
+                              <div className="sm:shrink-0 w-full sm:w-auto">
+                                <button
+                                  onClick={() =>
+                                    handleBookNow(activePlan.name, duration)
+                                  }
+                                  className="w-full sm:w-auto text-center py-2.5 px-6 rounded-sm text-[13.5px] font-bold border border-text-main bg-transparent text-text-main hover:bg-text-main/5 transition-colors cursor-pointer"
+                                >
+                                  {isBookingMode && seatParam
+                                    ? "Confirm & Pay"
+                                    : "Choose plan"}
+                                </button>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  </div>
                 </div>
-                <CardContent className="p-5">
-                  <div className="flex items-center gap-3 mb-2">
-                    {React.cloneElement(facility.icon, {
-                      className: `w-6 h-6 ${facility.colorClass}`,
-                    })}
-                    <h3 className="font-bold text-lg">{facility.name}</h3>
-                  </div>
-                  <p className="text-sm text-text-main/60 line-clamp-2 mb-4">
-                    {facility.description}
-                  </p>
-                  <div
-                    className={`flex items-center text-sm font-semibold ${facility.colorClass} group-hover:translate-x-1 transition-transform`}
-                  >
-                    Explore Plans <ChevronRight className="w-4 h-4 ml-1" />
-                  </div>
-                </CardContent>
-              </Card>
-            </motion.div>
-          ))}
-        </div>
+              );
+            })}
+          </div>
+        )}
 
-        {/* Dynamic Pricing Sections */}
-        {FACILITIES.map((facility) => (
-          <PricingSection key={facility.id} facility={facility} />
-        ))}
-
-        {/* Contact / Help Section */}
-        <section className="mt-20 text-center py-12 px-4 rounded-3xl bg-surface border border-border-main">
-          <h2 className="text-2xl font-bold mb-4">Need Help Choosing?</h2>
-          <p className="text-text-main/70 max-w-xl mx-auto mb-8">
-            Our team is here to help you find the perfect workspace setup.
-            Contact us for custom enterprise plans or a free campus tour.
-          </p>
-          <Button
-            variant="outline"
-            size="lg"
-            onClick={() => navigate("/contact")}
-          >
-            Contact Sales Team
-          </Button>
-        </section>
+        <p
+          className="mt-12 text-[12.5px] text-text-main/70 text-center font-sans"
+          style={{ fontFamily: "'Manrope', sans-serif" }}
+        >
+          Quarterly and yearly plans are billed upfront. Prices exclude
+          applicable taxes.
+        </p>
       </div>
     </div>
   );

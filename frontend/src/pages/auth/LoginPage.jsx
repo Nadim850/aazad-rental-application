@@ -144,6 +144,7 @@ export default function LoginPage() {
   };
 
   const googleLogin = useGoogleLogin({
+    flow: "auth-code",
     onSuccess: (tokenResponse) => {
       // get id_token or access_token depending on the flow (standard implicit flow returns access_token)
       // Usually social logins prefer id_token. If useGoogleLogin is used, we might need to get user info or use the access_token.
@@ -285,6 +286,7 @@ export default function LoginPage() {
               </svg>
               Google
             </Button>
+
             <Button
               variant="outline"
               className="w-full"
@@ -307,7 +309,7 @@ export default function LoginPage() {
         <p className="mt-8 text-center text-sm text-text-main/70">
           Don't have an account?{" "}
           <Link
-            to="/auth/signup"
+            to={`/auth/signup${new URLSearchParams(window.location.search).get("redirect") ? `?redirect=${encodeURIComponent(new URLSearchParams(window.location.search).get("redirect"))}` : ""}`}
             className="font-semibold text-primary hover:text-primary/80 transition-colors"
             tabIndex={6}
           >
