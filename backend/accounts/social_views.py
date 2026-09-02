@@ -1,3 +1,6 @@
+import email
+import token
+
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -9,12 +12,15 @@ import requests
 from google.oauth2 import id_token
 from google.auth.transport import requests as google_requests
 
+from backend.core import settings
+
 User = get_user_model()
 
 import os
 
 # Replace with your actual Client IDs in production
-GOOGLE_CLIENT_ID = os.environ.get("GOOGLE_CLIENT_ID", "YOUR_GOOGLE_CLIENT_ID")
+GOOGLE_CLIENT_ID = settings.GOOGLE_CLIENT_ID
+GOOGLE_CLIENT_SECRET=settings.GOOGLE_CLIENT_SECRET
 GITHUB_CLIENT_ID = os.environ.get("GITHUB_CLIENT_ID", "YOUR_GITHUB_CLIENT_ID")
 GITHUB_CLIENT_SECRET = os.environ.get("GITHUB_CLIENT_SECRET", "YOUR_GITHUB_CLIENT_SECRET")
 
@@ -39,20 +45,83 @@ class SocialLoginView(APIView):
         first_name = ""
         last_name = ""
 
-        if provider == 'google':
+        # if provider == 'google':
+        #     try:
+        #         # Verify Google ID Token
+        #         # For development/testing, we might bypass the client ID check by removing it, but it's insecure.
+        #         idinfo = id_token.verify_oauth2_token(token, google_requests.Request())
+        #         email = idinfo['email']
+        #         first_name = idinfo.get('given_name', '')
+        #         last_name = idinfo.get('family_name', '')
+        #     except ValueError:
+        #         return Response({'error': 'Invalid Google token'}, status=status.HTTP_400_BAD_REQUEST)
+    
+        # if provider == 'google':
             try:
-                # Verify Google ID Token
-                # For development/testing, we might bypass the client ID check by removing it, but it's insecure.
-                idinfo = id_token.verify_oauth2_token(token, google_requests.Request())
-                email = idinfo['email']
+                 # Exchange Google authorization code for tokens
+                token_res = requests.post(
+                    'https://oauth2.googleapis.com/token',
+                    data={
+                    'code':token,
+                    'client_id': GOOGLE_CLIENT_ID,
+                    'client_secret': GOOGLE_CLIENT_SECRET,
+                    'redirect_uri': 'postmessage',
+                    'grant_type': 'authorization_code',
+                     },
+                     timeout=10,
+                    )
+
+                token_json = token_res.json()
+
+                if not token_res.ok:
+                    return Response(
+                {
+                    'error': token_json.get(
+                        'error_description',
+                        'Failed to exchange Google authorization code'
+                    )
+                },
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+                 google_id_token = token_json.get('id_token')
+
+                 if not google_id_token:
+                      return Response(
+                {'error': 'Google ID token not received'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+                # Verify Google ID token
+                idinfo = id_token.verify_oauth2_token(
+                    google_id_token,
+                    google_requests.Request(),
+                    GOOGLE_CLIENT_ID,
+                )
+
+                email = idinfo.get('email')
                 first_name = idinfo.get('given_name', '')
                 last_name = idinfo.get('family_name', '')
-            except ValueError:
-                return Response({'error': 'Invalid Google token'}, status=status.HTTP_400_BAD_REQUEST)
-                
-        elif provider == 'github':
+
+                  if not email:
+                   return Response(
+                {'error': 'Google account email not available'},
+                status=status.HTTP_400_BAD_REQUEST
+                  )
+
+             except ValueError:
+             return Response(
+            {'error': 'Invalid Google ID token'},
+            status=status.HTTP_400_BAD_REQUEST )
+
+              except requests.RequestException:
+              return Response(
+                 {'error': 'Unable to connect to Google'},
+                    status=status.HTTP_502_BAD_GATEWAY
+                     )
+                    elif provider == 'github':
             # Exchange code for access token
-            token_res = requests.post(
+                     token_res = requests.post(
                 'https://github.com/login/oauth/access_token',
                 data={
                     'client_id': GITHUB_CLIENT_ID,
@@ -120,4 +189,111 @@ class SocialLoginView(APIView):
             
         # Issue JWT tokens
         tokens = get_tokens_for_user(user)
+        return Response(tokens, status=status.HTTP_200_OK)
+class SocialLoginView(APIView):
+    permission_classes = (AllowAny,)
+
+    def post(self, request):
+        provider = request.data.get('provider')
+        token = request.data.get('token')
+
+        if not provider or not token:
+            return Response(
+                {'error': 'Provider and token are required'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        email = None
+        first_name = ""
+        last_name = ""
+
+        if provider == 'google':
+            try:
+                # Google code exchange
+                token_res = requests.post(
+                    'https://oauth2.googleapis.com/token',
+                    data={
+                        'code': token,
+                        'client_id': GOOGLE_CLIENT_ID,
+                        'client_secret': GOOGLE_CLIENT_SECRET,
+                        'redirect_uri': 'postmessage',
+                        'grant_type': 'authorization_code',
+                    },
+                    timeout=10,
+                )
+
+                token_json = token_res.json()
+
+                if not token_res.ok:
+                    return Response(
+                        {
+                            'error': token_json.get(
+                                'error_description',
+                                'Failed to exchange Google authorization code'
+                            )
+                        },
+                        status=status.HTTP_400_BAD_REQUEST
+                    )
+
+                google_id_token = token_json.get('id_token')
+
+                if not google_id_token:
+                    return Response(
+                        {'error': 'Google ID token not received'},
+                        status=status.HTTP_400_BAD_REQUEST
+                    )
+
+                # Verify ID token
+                idinfo = id_token.verify_oauth2_token(
+                    google_id_token,
+                    google_requests.Request(),
+                    GOOGLE_CLIENT_ID,
+                )
+
+                email = idinfo.get('email')
+                first_name = idinfo.get('given_name', '')
+                last_name = idinfo.get('family_name', '')
+
+                if not email:
+                    return Response(
+                        {'error': 'Google account email not available'},
+                        status=status.HTTP_400_BAD_REQUEST
+                    )
+
+            except ValueError:
+                return Response(
+                    {'error': 'Invalid Google ID token'},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+
+            except requests.RequestException:
+                return Response(
+                    {'error': 'Unable to connect to Google'},
+                    status=status.HTTP_502_BAD_GATEWAY
+                )
+
+        elif provider == 'github':
+            # Tumhara existing GitHub code
+            ...
+
+        else:
+            return Response(
+                {'error': 'Unsupported provider'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # Get or create user
+        try:
+            user = User.objects.get(email=email)
+        except User.DoesNotExist:
+            user = User.objects.create_user(
+                email=email,
+                first_name=first_name,
+                last_name=last_name,
+                password=get_random_string(32),
+            )
+
+        # Issue JWT tokens
+        tokens = get_tokens_for_user(user)
+
         return Response(tokens, status=status.HTTP_200_OK)
