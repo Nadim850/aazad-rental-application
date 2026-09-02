@@ -28,6 +28,7 @@ class SubscriptionPlan(models.Model):
 
 class Booking(models.Model):
     STATUS_CHOICES = (
+        ('PENDING', 'Pending Approval'),
         ('ACTIVE', 'Active'),
         ('UPCOMING', 'Upcoming'),
         ('UPGRADED', 'Upgraded'),
@@ -49,6 +50,7 @@ class Booking(models.Model):
     razorpay_order_id = models.CharField(max_length=100, blank=True, null=True)
     razorpay_payment_id = models.CharField(max_length=100, blank=True, null=True)
     razorpay_signature = models.CharField(max_length=255, blank=True, null=True)
+    transaction_id = models.CharField(max_length=255, blank=True, null=True)
 
     def __str__(self):
         return f"Booking #{self.id} for {self.workspace.name} by {self.user}"

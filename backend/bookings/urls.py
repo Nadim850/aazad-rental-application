@@ -1,6 +1,6 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from .views import DashboardView, BookSeatView, AdminWorkspaceViewSet, AdminPlanViewSet, PublicPlanListView, PublicWorkspaceListView, AdminDetailedUserListView, AdminUserDetailView, ContactMessageCreateView, CreateRazorpayOrderView, VerifyRazorpayPaymentView, BookingDetailView, AdminContactMessageViewSet
+from .views import DashboardView, BookSeatView, AdminWorkspaceViewSet, AdminPlanViewSet, PublicPlanListView, PublicWorkspaceListView, AdminDetailedUserListView, AdminUserDetailView, ContactMessageCreateView, CreateManualBookingView, BookingDetailView, AdminContactMessageViewSet, ApproveBookingView
 
 router = DefaultRouter()
 router.register(r'admin-workspaces', AdminWorkspaceViewSet, basename='admin-workspace')
@@ -16,7 +16,7 @@ urlpatterns = [
     path('admin/detailed-users/', AdminDetailedUserListView.as_view(), name='admin-detailed-users'),
     path('admin/users/<int:pk>/', AdminUserDetailView.as_view(), name='admin-user-detail'),
     path('contact/', ContactMessageCreateView.as_view(), name='contact-message'),
-    path('create-razorpay-order/', CreateRazorpayOrderView.as_view(), name='create-razorpay-order'),
-    path('verify-razorpay-payment/', VerifyRazorpayPaymentView.as_view(), name='verify-razorpay-payment'),
+    path('create-manual-booking/', CreateManualBookingView.as_view(), name='create-manual-booking'),
+    path('admin/approve-booking/<int:pk>/', ApproveBookingView.as_view(), name='admin-approve-booking'),
     path('<int:pk>/', BookingDetailView.as_view(), name='booking-detail'),
 ]

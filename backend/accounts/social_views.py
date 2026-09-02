@@ -12,7 +12,7 @@ import requests
 from google.oauth2 import id_token
 from google.auth.transport import requests as google_requests
 
-from backend.core import settings
+from django.conf import settings
 
 User = get_user_model()
 
@@ -56,7 +56,7 @@ class SocialLoginView(APIView):
         #     except ValueError:
         #         return Response({'error': 'Invalid Google token'}, status=status.HTTP_400_BAD_REQUEST)
     
-        # if provider == 'google':
+        if provider == 'google':
             try:
                  # Exchange Google authorization code for tokens
                 token_res = requests.post(
@@ -84,10 +84,10 @@ class SocialLoginView(APIView):
                 status=status.HTTP_400_BAD_REQUEST
             )
 
-                 google_id_token = token_json.get('id_token')
+                google_id_token = token_json.get('id_token')
 
-                 if not google_id_token:
-                      return Response(
+                if not google_id_token:
+                    return Response(
                 {'error': 'Google ID token not received'},
                 status=status.HTTP_400_BAD_REQUEST
             )
@@ -103,25 +103,27 @@ class SocialLoginView(APIView):
                 first_name = idinfo.get('given_name', '')
                 last_name = idinfo.get('family_name', '')
 
-                  if not email:
-                   return Response(
-                {'error': 'Google account email not available'},
-                status=status.HTTP_400_BAD_REQUEST
-                  )
+                if not email:
+                    return Response(
+                        {'error': 'Google account email not available'},
+                        status=status.HTTP_400_BAD_REQUEST
+                    )
 
-             except ValueError:
-             return Response(
-            {'error': 'Invalid Google ID token'},
-            status=status.HTTP_400_BAD_REQUEST )
+            except ValueError:
+                return Response(
+                    {'error': 'Invalid Google ID token'},
+                    status=status.HTTP_400_BAD_REQUEST 
+                )
 
-              except requests.RequestException:
-              return Response(
-                 {'error': 'Unable to connect to Google'},
+            except requests.RequestException:
+                return Response(
+                    {'error': 'Unable to connect to Google'},
                     status=status.HTTP_502_BAD_GATEWAY
-                     )
-                    elif provider == 'github':
+                )
+
+        elif provider == 'github':
             # Exchange code for access token
-                     token_res = requests.post(
+            token_res = requests.post(
                 'https://github.com/login/oauth/access_token',
                 data={
                     'client_id': GITHUB_CLIENT_ID,

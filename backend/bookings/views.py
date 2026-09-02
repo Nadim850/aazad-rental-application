@@ -169,6 +169,9 @@ class AdminDetailedUserListView(APIView):
             # Upcoming subscriptions
             upcoming = [b for b in bookings if b.status == 'UPCOMING']
             
+            # Pending subscriptions
+            pending = [b for b in bookings if b.status == 'PENDING']
+            
             # Payment history (paid bookings)
             payments = [b for b in bookings if b.is_paid]
             payments.sort(key=lambda x: x.created_at, reverse=True)
@@ -185,6 +188,7 @@ class AdminDetailedUserListView(APIView):
                 'is_superuser': user.is_superuser,
                 'active_subscription': BookingSerializer(active).data if active else None,
                 'upcoming_subscriptions': BookingSerializer(upcoming, many=True).data,
+                'pending_subscriptions': BookingSerializer(pending, many=True).data,
                 'payment_history': BookingSerializer(payments, many=True).data
             })
             
@@ -203,6 +207,31 @@ class AdminUserDetailView(APIView):
             return Response(status=status.HTTP_204_NO_CONTENT)
         except User.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
+
+class ApproveBookingView(APIView):
+    permission_classes = (IsAdminUser,)
+
+    def post(self, request, pk):
+        try:
+            booking = Booking.objects.get(pk=pk, status='PENDING')
+        except Booking.DoesNotExist:
+            return Response({'error': 'Pending booking not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+        booking.status = 'ACTIVE' # Or UPCOMING based on start_time, but for simplicity we assume ACTIVE or let the logic calculate it
+        booking.is_paid = True
+        booking.save()
+
+        # Send notification to user
+        send_notification(
+            user=booking.user,
+            title="Payment Approved",
+            message=f"Your payment for {booking.workspace.name} has been approved. Your booking is now confirmed.",
+            notification_type="payment",
+            action_url=f"/receipt/{booking.id}",
+            email_template="generic"
+        )
+
+        return Response({'message': 'Booking approved successfully.'})
 
 from .serializers import ContactMessageSerializer
 from .models import ContactMessage
@@ -254,26 +283,24 @@ class ContactMessageCreateView(generics.CreateAPIView):
                 email_template="generic"
             )
 
-class CreateRazorpayOrderView(APIView):
+class CreateManualBookingView(APIView):
     permission_classes = (IsAuthenticated,)
 
     def post(self, request):
         seat_id = request.data.get('seat_id')
         plan_type = request.data.get('plan_type', 'Premium Plan')
         months = int(request.data.get('months', 1))
+        transaction_id = request.data.get('transaction_id')
 
         if not seat_id:
             return Response({'error': 'seat_id is required'}, status=status.HTTP_400_BAD_REQUEST)
+        if not transaction_id:
+            return Response({'error': 'transaction_id is required'}, status=status.HTTP_400_BAD_REQUEST)
 
         try:
             workspace = Workspace.objects.get(name=seat_id)
         except Workspace.DoesNotExist:
             return Response({'error': f'Seat {seat_id} does not exist.'}, status=status.HTTP_404_NOT_FOUND)
-
-        if not workspace.is_available:
-            has_booking = Booking.objects.filter(workspace=workspace, status__in=['ACTIVE', 'UPCOMING'], user=request.user).exists()
-            if not has_booking:
-                return Response({'error': f'Seat {seat_id} is currently not available or already booked.'}, status=status.HTTP_400_BAD_REQUEST)
 
         # Get Plan price
         try:
@@ -290,53 +317,7 @@ class CreateRazorpayOrderView(APIView):
             # Fallback
             amount = 1999 * months
 
-        if not razorpay_client:
-            return Response({'error': 'Razorpay client not configured'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-        try:
-            razorpay_order = razorpay_client.order.create(dict(amount=int(amount * 100), currency='INR', payment_capture='0'))
-        except Exception as e:
-            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        
-        return Response({
-            'order_id': razorpay_order['id'],
-            'amount': razorpay_order['amount'],
-            'currency': razorpay_order['currency'],
-            'key_id': settings.RAZORPAY_KEY_ID
-        })
-
-class VerifyRazorpayPaymentView(APIView):
-    permission_classes = (IsAuthenticated,)
-
-    def post(self, request):
-        razorpay_order_id = request.data.get('razorpay_order_id')
-        razorpay_payment_id = request.data.get('razorpay_payment_id')
-        razorpay_signature = request.data.get('razorpay_signature')
-        
-        seat_id = request.data.get('seat_id')
-        plan_type = request.data.get('plan_type', 'Premium Plan')
-        months = int(request.data.get('months', 1))
-
-        if not razorpay_client:
-            return Response({'error': 'Razorpay client not configured'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-        try:
-            # Verify signature
-            razorpay_client.utility.verify_payment_signature({
-                'razorpay_order_id': razorpay_order_id,
-                'razorpay_payment_id': razorpay_payment_id,
-                'razorpay_signature': razorpay_signature
-            })
-        except razorpay.errors.SignatureVerificationError:
-            return Response({'error': 'Payment verification failed'}, status=status.HTTP_400_BAD_REQUEST)
-
-        # If verified, create booking
-        try:
-            workspace = Workspace.objects.get(name=seat_id)
-        except Workspace.DoesNotExist:
-            return Response({'error': f'Seat {seat_id} does not exist.'}, status=status.HTTP_404_NOT_FOUND)
-
-        # Mark seat unavailable
+        # Mark seat unavailable temporarily
         workspace.is_available = False
         workspace.save()
 
@@ -345,54 +326,56 @@ class VerifyRazorpayPaymentView(APIView):
         
         if latest_user_booking:
             start_time = latest_user_booking.end_time
-            booking_status = 'UPCOMING'
         else:
             start_time = timezone.now()
-            booking_status = 'ACTIVE'
-
-        end_time = start_time + timedelta(days=30 * months)
-
-        # Get Plan price for amount_paid
-        try:
-            plan = SubscriptionPlan.objects.get(name=plan_type)
-            if months == 3 and plan.price_3_months:
-                amount_paid = float(plan.price_3_months)
-            elif months == 6 and plan.price_6_months:
-                amount_paid = float(plan.price_6_months)
-            elif months == 12 and plan.price_1_year:
-                amount_paid = float(plan.price_1_year)
-            else:
-                amount_paid = float(plan.monthly_price) * months
-        except SubscriptionPlan.DoesNotExist:
-            amount_paid = 1999 * months
+            
+        # Standardize duration logic
+        if months == 1:
+            end_time = start_time + timedelta(days=30)
+        elif months == 3:
+            end_time = start_time + timedelta(days=90)
+        elif months == 6:
+            end_time = start_time + timedelta(days=180)
+        elif months == 12:
+            end_time = start_time + timedelta(days=365)
+        else:
+            end_time = start_time + timedelta(days=30 * months)
 
         booking = Booking.objects.create(
             user=request.user,
             workspace=workspace,
             start_time=start_time,
             end_time=end_time,
-            is_paid=True,
-            status=booking_status,
-            amount_paid=amount_paid,
+            is_paid=False,
+            amount_paid=amount,
             plan_name=plan_type,
-            razorpay_order_id=razorpay_order_id,
-            razorpay_payment_id=razorpay_payment_id,
-            razorpay_signature=razorpay_signature
+            status='PENDING',
+            transaction_id=transaction_id
         )
 
         send_notification(
             user=request.user,
-            title="Payment Successful",
-            message=f"Your payment of ₹{amount_paid} for {plan_type} was successful.",
+            title="Booking Pending Approval",
+            message=f"Your booking for {workspace.name} is pending admin approval.",
             notification_type="payment",
-            action_url=f"/receipt/{booking.id}",
             email_template="generic"
         )
+        
+        # Notify admins
+        admins = User.objects.filter(is_staff=True)
+        for admin in admins:
+            send_notification(
+                user=admin,
+                title="New Payment Approval Required",
+                message=f"User {request.user.email} submitted payment for {workspace.name}.",
+                notification_type="payment",
+                email_template="generic"
+            )
 
         return Response({
-            'message': 'Payment successful and booking created',
-            'booking': BookingSerializer(booking).data
-        }, status=status.HTTP_201_CREATED)
+            'message': 'Booking created successfully and is pending approval.',
+            'booking_id': booking.id
+        })
 
 class BookingDetailView(generics.RetrieveAPIView):
     queryset = Booking.objects.all()
