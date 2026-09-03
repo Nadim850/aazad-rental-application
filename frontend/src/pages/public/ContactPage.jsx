@@ -27,10 +27,13 @@ export default function ContactPage() {
     message: "",
   });
 
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
   useEffect(() => {
     const fetchUserData = async () => {
       const token = localStorage.getItem("access");
       if (token) {
+        setIsLoggedIn(true);
         try {
           const res = await fetch(`${API_URL}/api/accounts/me/`, {
             headers: { Authorization: `Bearer ${token}` },
@@ -152,6 +155,7 @@ export default function ContactPage() {
                     onChange={handleChange}
                     placeholder="John Doe"
                     leftIcon={<User size={16} />}
+                    disabled={isLoggedIn}
                   />
                 </div>
                 <div className="space-y-2">
@@ -166,6 +170,7 @@ export default function ContactPage() {
                     onChange={handleChange}
                     placeholder="john@example.com"
                     leftIcon={<Mail size={16} />}
+                    disabled={isLoggedIn}
                   />
                 </div>
               </div>
@@ -182,6 +187,7 @@ export default function ContactPage() {
                     onChange={handleChange}
                     placeholder="+91 98765 43210"
                     leftIcon={<Phone size={16} />}
+                    disabled={isLoggedIn && formData.phone !== ""}
                   />
                 </div>
                 <div className="space-y-2">

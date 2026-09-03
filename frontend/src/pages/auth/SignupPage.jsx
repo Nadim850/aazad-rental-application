@@ -248,6 +248,7 @@ export default function SignupPage() {
               error={errors.email}
               tabIndex={3}
               required
+              autoComplete="off"
             />
           </div>
 
@@ -287,6 +288,7 @@ export default function SignupPage() {
               error={errors.password}
               tabIndex={5}
               required
+              autoComplete="new-password"
             />
           </div>
 
