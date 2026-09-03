@@ -15,7 +15,6 @@ import {
 import { useNavigate } from "react-router-dom";
 
 export default function CoworkingServices() {
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -55,7 +54,7 @@ export default function CoworkingServices() {
               size="lg"
               variant="outline"
               className="w-full sm:w-auto h-14 px-8 rounded-2xl shadow-sm hover:-translate-y-1"
-              onClick={() => setIsModalOpen(true)}
+              onClick={() => navigate('/pricing')}
             >
               View Memberships
             </Button>
@@ -63,49 +62,7 @@ export default function CoworkingServices() {
         </div>
       </section>
 
-      {/* Membership Selection Modal */}
-      {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-          <div className="bg-surface border border-border-main rounded-3xl p-6 md:p-8 max-w-lg w-full relative shadow-2xl animate-in fade-in zoom-in duration-200">
-            <button 
-              onClick={() => setIsModalOpen(false)}
-              className="absolute top-4 right-4 p-2 text-text-main/50 hover:text-text-main hover:bg-border-main/50 rounded-full transition-colors"
-            >
-              <X className="w-5 h-5" />
-            </button>
-            <h3 className="text-2xl font-bold mb-2">Explore Memberships</h3>
-            <p className="text-text-main/70 mb-8">Which facility would you like to explore?</p>
-            
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <button
-                onClick={() => {
-                  setIsModalOpen(false);
-                  navigate('/pricing?plan=dedicated');
-                }}
-                className="flex flex-col items-center text-center p-6 rounded-2xl border border-border-main hover:border-secondary hover:bg-secondary/5 transition-all group"
-              >
-                <div className="w-12 h-12 bg-secondary/10 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                  <Monitor className="w-6 h-6 text-secondary" />
-                </div>
-                <span className="font-semibold text-lg">Dedicated Desk</span>
-              </button>
-              
-              <button
-                onClick={() => {
-                  setIsModalOpen(false);
-                  navigate('/pricing?plan=cabin');
-                }}
-                className="flex flex-col items-center text-center p-6 rounded-2xl border border-border-main hover:border-primary hover:bg-primary/5 transition-all group"
-              >
-                <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                  <Building2 className="w-6 h-6 text-primary" />
-                </div>
-                <span className="font-semibold text-lg">Private Cabin</span>
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+
 
       {/* Solutions Grid */}
       <section className="py-24 bg-surface border-t border-border-main/50">
@@ -198,7 +155,7 @@ export default function CoworkingServices() {
             <Button
               size="lg"
               className="h-14 px-8 text-lg rounded-2xl shadow-lg hover:-translate-y-1"
-              onClick={() => setIsModalOpen(true)}
+              onClick={() => navigate('/pricing')}
             >
               Compare Plans
             </Button>

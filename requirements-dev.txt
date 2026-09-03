@@ -11,9 +11,6 @@ django-apscheduler==0.7.0
 django-cors-headers==4.9.0
 django-environ==0.14.0
 django-unfold==0.101.0
-django-allauth
-dj-rest-auth
-psycopg2-binary
 djangorestframework==3.17.1
 djangorestframework_simplejwt==5.5.1
 google-auth==2.56.0

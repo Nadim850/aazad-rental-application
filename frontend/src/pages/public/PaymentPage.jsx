@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
-import { CheckCircle2, ShieldCheck, ArrowLeft, CreditCard } from "lucide-react";
+import { CheckCircle2, ShieldCheck, ArrowLeft, QrCode } from "lucide-react";
 import { Button } from "../../components/ui/Button";
+import { Input } from "../../components/ui/Input";
 import {
   Card,
   CardHeader,
@@ -11,20 +12,10 @@ import {
   CardFooter,
 } from "../../components/ui/Card";
 
+import QRCode from "react-qr-code";
 import { apiFetch } from "../../lib/api";
 import { getDurationPrice } from "../../lib/pricingUtils";
 import { API_URL } from "../../config";
-
-const loadRazorpayScript = () => {
-  return new Promise((resolve) => {
-    const script = document.createElement("script");
-    script.src = "https://checkout.razorpay.com/v1/checkout.js";
-    script.onload = () => resolve(true);
-    script.onerror = () => resolve(false);
-    document.body.appendChild(script);
-  });
-};
-
 export default function PaymentPage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -32,7 +23,7 @@ export default function PaymentPage() {
   const [paymentStatus, setPaymentStatus] = useState("pending"); // pending, success
   const [successfulBookingId, setSuccessfulBookingId] = useState(null);
   const [error, setError] = useState("");
-  const [isScriptLoaded, setIsScriptLoaded] = useState(false);
+  const [transactionId, setTransactionId] = useState("");
 
   const planType = searchParams.get("plan") || "Premium Plan";
   const [seatId, setSeatId] = useState(searchParams.get("seat") || "");
@@ -42,10 +33,6 @@ export default function PaymentPage() {
   const [planObj, setPlanObj] = useState(null);
 
   useEffect(() => {
-    loadRazorpayScript().then((res) => {
-      setIsScriptLoaded(res);
-    });
-
     const fetchPlans = async () => {
       try {
         const res = await fetch(`${API_URL}/api/bookings/public-plans/`);
@@ -100,11 +87,8 @@ export default function PaymentPage() {
       setError("Please select a seat or wait for one to be auto-assigned.");
       return;
     }
-
-    if (!isScriptLoaded) {
-      setError(
-        "Payment gateway is still loading. Please try again in a moment.",
-      );
+    if (!transactionId.trim()) {
+      setError("Please enter the UTR/Transaction ID.");
       return;
     }
 
@@ -118,9 +102,8 @@ export default function PaymentPage() {
         return;
       }
 
-      // 1. Create Order on Backend
       const orderResponse = await apiFetch(
-        `${API_URL}/api/bookings/create-razorpay-order/`,
+        `${API_URL}/api/bookings/create-manual-booking/`,
         {
           method: "POST",
           headers: {
@@ -131,82 +114,23 @@ export default function PaymentPage() {
             seat_id: seatId,
             plan_type: planType,
             months: months,
+            transaction_id: transactionId,
           }),
         },
       );
 
       if (!orderResponse.ok) {
         const data = await orderResponse.json();
-        setError(data.error || "Failed to initialize payment");
+        setError(data.error || "Failed to submit payment");
         setIsProcessing(false);
         return;
       }
 
       const orderData = await orderResponse.json();
-
-      // 2. Open Razorpay Checkout Modal
-      const options = {
-        key: orderData.key_id,
-        amount: orderData.amount,
-        currency: orderData.currency,
-        name: "Aazad Rental",
-        description: `Booking for ${seatId}`,
-        order_id: orderData.order_id,
-        handler: async function (response) {
-          // 3. Verify Payment Signature on Backend
-          try {
-            const verifyResponse = await apiFetch(
-              `${API_URL}/api/bookings/verify-razorpay-payment/`,
-              {
-                method: "POST",
-                headers: {
-                  "Content-Type": "application/json",
-                  Authorization: `Bearer ${token}`,
-                },
-                body: JSON.stringify({
-                  razorpay_order_id: response.razorpay_order_id,
-                  razorpay_payment_id: response.razorpay_payment_id,
-                  razorpay_signature: response.razorpay_signature,
-                  seat_id: seatId,
-                  plan_type: planType,
-                  months: months,
-                }),
-              },
-            );
-
-            if (verifyResponse.ok) {
-              const verifyData = await verifyResponse.json();
-              setSuccessfulBookingId(verifyData.booking.id);
-              setPaymentStatus("success");
-            } else {
-              const errorData = await verifyResponse.json();
-              setError(errorData.error || "Payment verification failed");
-            }
-          } catch (err) {
-            setError("Network error occurred during verification");
-          } finally {
-            setIsProcessing(false);
-          }
-        },
-        prefill: {
-          name: "User",
-          email: "user@example.com",
-          contact: "9999999999",
-        },
-        theme: {
-          color: "#4f46e5", // Use your primary color here
-        },
-        modal: {
-          ondismiss: function () {
-            setIsProcessing(false);
-          },
-        },
-      };
-
-      const paymentObject = new window.Razorpay(options);
-      paymentObject.open();
+      setSuccessfulBookingId(orderData.booking_id);
+      setPaymentStatus("success");
     } catch (err) {
-      setError("Network error occurred during payment initialization");
+      setError("Network error occurred during payment submission");
       setIsProcessing(false);
     }
   };
@@ -219,27 +143,27 @@ export default function PaymentPage() {
           animate={{ scale: 1, opacity: 1 }}
           className="max-w-md w-full"
         >
-          <Card className="text-center border-success/20 shadow-xl shadow-success/10">
+          <Card className="text-center border-primary/20 shadow-xl shadow-primary/10">
             <CardContent className="pt-12 pb-8">
               <motion.div
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
                 transition={{ type: "spring", delay: 0.2 }}
-                className="w-20 h-20 bg-success/10 rounded-full flex items-center justify-center mx-auto mb-6"
+                className="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-6"
               >
-                <CheckCircle2 className="w-10 h-10 text-success" />
+                <CheckCircle2 className="w-10 h-10 text-primary" />
               </motion.div>
-              <h2 className="text-3xl font-bold mb-2">Payment Successful!</h2>
+              <h2 className="text-3xl font-bold mb-2">Payment Submitted</h2>
               <p className="text-text-main/70 mb-8">
-                Your workspace at Aazad Rental is confirmed. Your booking is now
-                active.
+                Your payment details have been sent for verification. Once
+                approved by the admin, your seat ({seatId}) will be allocated.
               </p>
               <Button
                 size="lg"
                 className="w-full"
-                onClick={() => navigate(`/receipt/${successfulBookingId}`)}
+                onClick={() => navigate(`/dashboard`)}
               >
-                View Receipt
+                Go to Dashboard
               </Button>
             </CardContent>
           </Card>
@@ -247,6 +171,8 @@ export default function PaymentPage() {
       </div>
     );
   }
+
+  const upiLink = `upi://pay?pa=nadimkgn@ybl&pn=Aazad%20Rental&am=${total.toFixed(2)}&cu=INR`;
 
   return (
     <div className="min-h-screen bg-background py-12 px-4 sm:px-6 lg:px-8">
@@ -292,7 +218,7 @@ export default function PaymentPage() {
 
           {/* Payment Method */}
           <div className="space-y-6">
-            <h2 className="text-2xl font-bold">Secure Checkout</h2>
+            <h2 className="text-2xl font-bold">Secure Checkout (UPI)</h2>
             {error && (
               <div className="p-3 bg-red-500/10 border border-red-500/50 rounded text-red-500 text-sm">
                 {error}
@@ -302,19 +228,72 @@ export default function PaymentPage() {
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <CardTitle className="text-lg flex items-center gap-2">
-                    <CreditCard className="w-5 h-5 text-primary" /> Razorpay
+                    <QrCode className="w-5 h-5 text-primary" /> Scan to Pay
                   </CardTitle>
                 </div>
               </CardHeader>
-              <CardContent className="space-y-4 text-sm text-text-main/70">
-                <p>
-                  You will be redirected to the secure Razorpay payment gateway
-                  to complete your transaction safely.
-                </p>
-                <p>
-                  We support Credit Cards, Debit Cards, Netbanking, UPI, and
-                  various Wallets.
-                </p>
+              <CardContent className="space-y-6 text-sm text-text-main/70">
+                <div className="flex flex-col items-center justify-center p-4 bg-white rounded-xl border border-border-main/50">
+                  {/* Dynamic QR Code */}
+                  <div className="bg-white p-2 rounded-lg mb-4">
+                    <QRCode value={upiLink} size={192} />
+                  </div>
+                  
+                  <p className="font-semibold text-black mb-1">
+                    Scan using any UPI App
+                  </p>
+                  <p className="text-black/60 text-xs font-mono bg-gray-100 px-3 py-1 rounded mb-4">
+                    nadimkgn@ybl
+                  </p>
+                  
+                  {/* Deep link for mobile users */}
+                  <a 
+                    href={upiLink}
+                    className="w-full md:hidden mb-4 flex items-center justify-center gap-2 bg-primary text-white py-2.5 px-4 rounded-md font-semibold hover:bg-primary/90 transition-colors"
+                  >
+                    Pay ₹{total.toFixed(2)} via UPI App
+                  </a>
+
+                  {/* UPI App Logos */}
+                  <div className="flex items-center justify-center gap-4 border-t border-gray-100 w-full pt-4">
+                    <img
+                      src="https://upload.wikimedia.org/wikipedia/commons/e/e1/UPI-Logo-vector.svg"
+                      alt="BHIM UPI"
+                      className="h-4 object-contain"
+                    />
+                    <img
+                      src="https://upload.wikimedia.org/wikipedia/commons/f/f2/Google_Pay_Logo.svg"
+                      alt="Google Pay"
+                      className="h-4 object-contain"
+                    />
+                    <img
+                      src="https://upload.wikimedia.org/wikipedia/commons/7/71/PhonePe_Logo.svg"
+                      alt="PhonePe"
+                      className="h-5 object-contain"
+                    />
+                    <img
+                      src="https://upload.wikimedia.org/wikipedia/commons/2/24/Paytm_Logo_%28standalone%29.svg"
+                      alt="Paytm"
+                      className="h-3 object-contain"
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-3">
+                  <label className="block text-sm font-medium text-text-main">
+                    Enter UTR / Transaction ID
+                  </label>
+                  <Input
+                    placeholder="e.g. 312345678901"
+                    value={transactionId}
+                    onChange={(e) => setTransactionId(e.target.value)}
+                    className="w-full"
+                  />
+                  <p className="text-xs text-text-main/50">
+                    After making the payment, please enter the 12-digit UTR or
+                    Transaction ID to confirm your booking.
+                  </p>
+                </div>
               </CardContent>
               <CardFooter className="flex-col pt-6 border-t border-border-main/50 gap-4">
                 <Button
@@ -322,13 +301,11 @@ export default function PaymentPage() {
                   onClick={handlePayment}
                   isLoading={isProcessing}
                 >
-                  {isProcessing
-                    ? "Initializing..."
-                    : `Pay ₹${total.toFixed(2)}`}
+                  {isProcessing ? "Submitting..." : `Submit for Approval`}
                 </Button>
                 <p className="flex items-center justify-center text-xs text-text-main/50">
-                  <ShieldCheck className="w-4 h-4 mr-1.5 text-success" />
-                  Secured by Razorpay
+                  <ShieldCheck className="w-4 h-4 mr-1.5 text-primary" />
+                  Manual Verification Process
                 </p>
               </CardFooter>
             </Card>

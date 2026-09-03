@@ -76,9 +76,9 @@ export default function PublicLayout() {
           </Link>
 
           <nav className="hidden md:flex items-center gap-8 font-medium">
-            <Link to="/" className={desktopClass("/")}>
+            {/* <Link to="/" className={desktopClass("/")}>
               Services
-            </Link>
+            </Link> */}
             <Link to="/library" className={desktopClass("/library")}>
               Library
             </Link>

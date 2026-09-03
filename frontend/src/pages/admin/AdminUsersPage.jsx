@@ -94,6 +94,36 @@ export default function AdminUsersPage({ category = "library" }) {
     }
   };
 
+  const handleApproveBooking = async (bookingId, userId) => {
+    try {
+      const token = localStorage.getItem("access");
+      const res = await apiFetch(
+        `${API_URL}/api/bookings/admin/approve-booking/${bookingId}/`,
+        {
+          method: "POST",
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      
+      if (res.ok) {
+        alert("Booking approved successfully!");
+        // We should ideally re-fetch all users to get the updated status, active subscriptions, etc.
+        const usersRes = await apiFetch(`${API_URL}/api/bookings/admin/detailed-users/`, {
+            headers: { Authorization: `Bearer ${token}` },
+        });
+        if (usersRes.ok) {
+            setUsers(await usersRes.json());
+        }
+      } else {
+        const data = await res.json();
+        alert(data.error || "Failed to approve booking.");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("An error occurred while approving the booking.");
+    }
+  };
+
   const getPlanName = (workspaceType) => {
     const types = {
       library: "Library Pass",
@@ -158,11 +188,35 @@ export default function AdminUsersPage({ category = "library" }) {
 
   const activeSubscribers = filteredUsers.filter((u) => u.active_subscription);
   const inactiveUsers = filteredUsers.filter((u) => !u.active_subscription);
+  const pendingUsers = filteredUsers.filter((u) => u.pending_subscriptions && u.pending_subscriptions.length > 0);
 
   const ExpandedUserDetails = ({ user }) => (
     <div className="border-t border-border-main p-6 bg-black/5 dark:bg-white/[0.01] grid grid-cols-1 xl:grid-cols-2 gap-8 animate-in fade-in zoom-in-95 duration-200">
       {/* Left Column: Subscriptions */}
       <div className="space-y-6">
+        {/* Pending Approvals (If Any) */}
+        {user.pending_subscriptions && user.pending_subscriptions.length > 0 && (
+          <div>
+            <h4 className="flex items-center text-sm font-semibold text-text-main/80 mb-3 uppercase tracking-wider text-orange-500">
+              <Clock size={14} className="mr-2" /> Pending Approvals
+            </h4>
+            <div className="space-y-3">
+              {user.pending_subscriptions.map((sub) => (
+                <div key={sub.id} className="p-4 rounded-lg border border-orange-500/30 bg-orange-500/5 flex justify-between items-center">
+                  <div>
+                    <p className="font-semibold">{sub.workspace.name} <span className="text-xs font-normal">({sub.plan_name})</span></p>
+                    <p className="text-xs text-text-main/60">UTR/Txn: {sub.transaction_id || 'N/A'}</p>
+                    <p className="text-xs font-medium text-orange-500 mt-1">Amount: ₹{sub.amount_paid}</p>
+                  </div>
+                  <Button size="sm" onClick={() => handleApproveBooking(sub.id, user.id)}>
+                    Approve
+                  </Button>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* Active Sub (If Any) */}
         {user.active_subscription && (
           <div>
@@ -179,110 +233,100 @@ export default function AdminUsersPage({ category = "library" }) {
                     {user.active_subscription.workspace.workspace_type} Zone
                   </p>
                 </div>
-                <Badge variant="success">Active</Badge>
+                <Badge variant="success" className="text-[10px] px-1.5 py-0">
+                  Active
+                </Badge>
               </div>
-              <div className="space-y-1 mt-4 text-xs text-text-main/70">
-                <p>
-                  Started:{" "}
-                  <span className="font-medium text-text-main">
+              <div className="grid grid-cols-2 gap-4 mt-4 pt-4 border-t border-border-main/50">
+                <div>
+                  <p className="text-[10px] uppercase font-bold text-text-main/40">
+                    Started
+                  </p>
+                  <p className="text-sm">
                     {new Date(
                       user.active_subscription.start_time,
                     ).toLocaleDateString()}
-                  </span>
-                </p>
-                <p>
-                  Expires:{" "}
-                  <span className="font-medium text-text-main">
+                  </p>
+                </div>
+                <div>
+                  <p className="text-[10px] uppercase font-bold text-text-main/40">
+                    Expires
+                  </p>
+                  <p className="text-sm text-red-500/90 font-medium">
                     {new Date(
                       user.active_subscription.end_time,
                     ).toLocaleDateString()}
-                  </span>
-                </p>
+                  </p>
+                </div>
               </div>
             </div>
           </div>
         )}
 
         {/* Upcoming Subs */}
-        {user.upcoming_subscriptions &&
-          user.upcoming_subscriptions.length > 0 && (
-            <div>
-              <h4 className="flex items-center text-sm font-semibold text-text-main/80 mb-3 uppercase tracking-wider">
-                <Clock size={14} className="mr-2" /> Upcoming Subscription(s)
-              </h4>
-              <div className="space-y-3">
-                {user.upcoming_subscriptions.map((sub) => (
-                  <div
-                    key={sub.id}
-                    className="p-3 rounded-lg border border-warning/30 bg-warning/5"
-                  >
-                    <div className="flex justify-between items-center mb-1">
-                      <p className="font-medium text-sm">
-                        Seat: {sub.workspace.name}
-                      </p>
-                      <Badge variant="warning" className="text-[10px]">
-                        Upcoming
-                      </Badge>
-                    </div>
-                    <div className="text-xs text-text-main/70 space-y-0.5 mt-2">
-                      <p>
-                        Purchased:{" "}
-                        {new Date(sub.created_at).toLocaleDateString()}
-                      </p>
-                      <p>
-                        Starts on:{" "}
-                        <span className="font-medium text-text-main">
-                          {new Date(sub.start_time).toLocaleDateString()}
-                        </span>
-                      </p>
-                      <p>
-                        Expires on:{" "}
-                        {new Date(sub.end_time).toLocaleDateString()}
-                      </p>
-                    </div>
+        {user.upcoming_subscriptions?.length > 0 && (
+          <div>
+            <h4 className="flex items-center text-sm font-semibold text-text-main/80 mb-3 uppercase tracking-wider">
+              <Calendar size={14} className="mr-2" /> Upcoming
+            </h4>
+            <div className="space-y-3">
+              {user.upcoming_subscriptions.map((sub) => (
+                <div
+                  key={sub.id}
+                  className="p-3 rounded-lg border border-border-main bg-surface flex justify-between items-center"
+                >
+                  <div>
+                    <p className="font-medium text-sm">
+                      {sub.workspace.name}{" "}
+                      <span className="text-xs text-text-main/60 capitalize">
+                        ({sub.workspace.workspace_type})
+                      </span>
+                    </p>
+                    <p className="text-xs text-text-main/60">
+                      Starts: {new Date(sub.start_time).toLocaleDateString()}
+                    </p>
                   </div>
-                ))}
-              </div>
+                  <Badge variant="outline" className="text-[10px] px-1.5 py-0">
+                    Upcoming
+                  </Badge>
+                </div>
+              ))}
             </div>
-          )}
+          </div>
+        )}
       </div>
 
-      {/* Right Column: Payments & Actions */}
+      {/* Right Column: Account & Payment */}
       <div className="space-y-6">
-        {/* Actions */}
         <div>
           <h4 className="flex items-center text-sm font-semibold text-text-main/80 mb-3 uppercase tracking-wider">
-            Quick Actions
+            <ShieldBan size={14} className="mr-2" /> Account Actions
           </h4>
-          <div className="flex flex-wrap gap-2">
-            <Button variant="outline" size="sm" className="h-8 text-xs">
-              <Edit size={12} className="mr-1.5" /> Edit User
-            </Button>
+          <div className="flex flex-wrap gap-3">
             <Button
               variant="outline"
               size="sm"
-              className="h-8 text-xs text-error hover:bg-error/10 border-error/20 hover:border-error"
+              className="text-text-main/70 border-border-main hover:bg-black/5 dark:hover:bg-white/5"
             >
-              <ShieldBan size={12} className="mr-1.5" /> Suspend
+              <Edit size={14} className="mr-2" /> Edit Details
             </Button>
             <Button
               variant="outline"
               size="sm"
+              className="text-red-500 border-red-500/20 hover:bg-red-500/10 hover:text-red-600"
               onClick={() => handleDeleteUser(user.id)}
-              className="h-8 text-xs text-red-500 hover:bg-red-500/10 border-red-500/20 hover:border-red-500"
             >
-              <Trash2 size={12} className="mr-1.5" /> Delete
+              <Trash2 size={14} className="mr-2" /> Delete Account
             </Button>
           </div>
         </div>
 
-        {/* Payment History */}
         <div>
           <h4 className="flex items-center text-sm font-semibold text-text-main/80 mb-3 uppercase tracking-wider">
-            <CreditCard size={14} className="mr-2" /> Payment Details
+            <CreditCard size={14} className="mr-2" /> Payment History
           </h4>
-          {user.payment_history && user.payment_history.length > 0 ? (
-            <div className="space-y-2 max-h-60 overflow-y-auto pr-2 custom-scrollbar">
+          {user.payment_history?.length > 0 ? (
+            <div className="space-y-3 max-h-48 overflow-y-auto pr-2 custom-scrollbar">
               {user.payment_history.map((payment) => (
                 <div
                   key={payment.id}
@@ -290,10 +334,9 @@ export default function AdminUsersPage({ category = "library" }) {
                 >
                   <div>
                     <p className="font-medium text-sm">
-                      INV-{1000 + payment.id}
+                      {payment.workspace.name}
                     </p>
-                    <p className="text-[11px] text-text-main/50 flex items-center mt-0.5">
-                      <Calendar size={10} className="mr-1" />{" "}
+                    <p className="text-xs text-text-main/50">
                       {new Date(payment.created_at).toLocaleDateString()}
                     </p>
                   </div>
@@ -301,12 +344,7 @@ export default function AdminUsersPage({ category = "library" }) {
                     <p className="font-semibold text-sm">
                       ₹{(payment.workspace.price_per_hour * 8 * 30).toFixed(0)}
                     </p>
-                    <Badge
-                      variant="success"
-                      className="text-[10px] px-1.5 py-0 mt-0.5"
-                    >
-                      Paid
-                    </Badge>
+                    <Badge variant="success" className="text-[10px] px-1.5 py-0 mt-0.5">Paid</Badge>
                   </div>
                 </div>
               ))}
@@ -341,6 +379,64 @@ export default function AdminUsersPage({ category = "library" }) {
         </div>
       ) : (
         <>
+          {/* Pending Approvals Section */}
+          {pendingUsers.length > 0 && (
+            <Card className="bg-surface shadow-md border-orange-500/30 mb-8">
+              <CardHeader className="border-b border-orange-500/20 bg-orange-500/5 pb-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle className="text-xl flex items-center gap-2 text-orange-500">
+                      <Clock size={24} className="text-orange-500" /> Pending Approvals
+                    </CardTitle>
+                    <p className="text-sm text-text-main/60 mt-1">
+                      Users awaiting payment verification.
+                    </p>
+                  </div>
+                  <Badge variant="outline" className="text-base px-3 py-1 shadow-sm border-orange-500/50 text-orange-500 bg-orange-500/10">
+                    {pendingUsers.length} Pending
+                  </Badge>
+                </div>
+              </CardHeader>
+              <CardContent className="p-0">
+                <div className="divide-y divide-border-main">
+                  {pendingUsers.map((user) => {
+                    return (
+                      <div
+                        key={user.id}
+                        className="transition-colors hover:bg-black/5 dark:hover:bg-white/[0.02]"
+                      >
+                        <div
+                          className="p-4 lg:p-6 cursor-pointer flex flex-col md:flex-row gap-6 md:items-center justify-between"
+                          onClick={() => toggleUser(user.id)}
+                        >
+                          <div className="flex items-center gap-4 flex-1">
+                            <div className="w-12 h-12 rounded-full bg-orange-500/10 flex items-center justify-center text-orange-500 font-bold text-lg shrink-0">
+                              {user.first_name?.[0]?.toUpperCase() || user.email?.[0]?.toUpperCase()}
+                            </div>
+                            <div className="space-y-1">
+                              <p className="font-bold text-base">
+                                {user.first_name} {user.last_name}
+                              </p>
+                              <div className="flex flex-wrap items-center gap-3 text-xs text-text-main/60">
+                                <span className="flex items-center gap-1.5"><Mail size={12} /> {user.email}</span>
+                                <span className="flex items-center gap-1.5"><Phone size={12} /> {user.phone_number || "N/A"}</span>
+                              </div>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-4">
+                             <Badge variant="outline" className="border-orange-500 text-orange-500 bg-orange-500/10">Needs Review</Badge>
+                             {expandedUser === user.id ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
+                          </div>
+                        </div>
+                        {expandedUser === user.id && <ExpandedUserDetails user={user} />}
+                      </div>
+                    );
+                  })}
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
           {/* Active Subscribers Section */}
           <Card className="bg-surface shadow-md border-border-main/50">
             <CardHeader className="border-b border-border-main bg-primary/5 pb-4">

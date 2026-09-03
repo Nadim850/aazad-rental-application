@@ -113,7 +113,7 @@ const getAmenityIcon = (name) => {
 
 const DURATION_OPTIONS = [
   { value: 1, label: "Monthly" },
-  { value: 3, label: "Quarterly" },
+  { value: 3, label: "3-Months" },
   { value: 6, label: "Half-Yearly" },
   { value: 12, label: "Yearly" },
 ];
@@ -170,12 +170,16 @@ export default function PricingPage() {
   if (planParam) {
     if (planParam === "library") {
       displayedFacilities = FACILITIES.filter((f) => f.apiType === "library");
-    } else if (planParam === "dedicated" || planParam === "coworking") {
-      displayedFacilities = FACILITIES.filter(
-        (f) => f.apiType === "dedicated" || f.apiType === "cabin",
-      );
+    } else if (planParam === "coworking") {
+      displayedFacilities = FACILITIES.filter((f) => f.apiType === "dedicated" || f.apiType === "cabin");
     } else if (planParam === "conference" || planParam === "startup") {
       displayedFacilities = FACILITIES.filter((f) => f.apiType === "startup");
+    } else {
+      // Exact match for specific plans like "dedicated" or "cabin"
+      const exactMatch = FACILITIES.filter((f) => f.apiType === planParam || f.id === planParam);
+      if (exactMatch.length > 0) {
+        displayedFacilities = exactMatch;
+      }
     }
   }
 
@@ -371,7 +375,7 @@ export default function PricingPage() {
           className="mt-12 text-[12.5px] text-text-main/70 text-center font-sans"
           style={{ fontFamily: "'Manrope', sans-serif" }}
         >
-          Quarterly and yearly plans are billed upfront. Prices exclude
+          3-Months and yearly plans are billed upfront. Prices exclude
           applicable taxes.
         </p>
       </div>

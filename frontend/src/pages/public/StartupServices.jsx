@@ -20,7 +20,7 @@ export default function StartupServices() {
   return (
     <div className="flex flex-col min-h-screen">
       {/* Hero Section */}
-      <section className="relative pt-24 pb-24 md:pt-32 md:pb-32 overflow-hidden bg-background">
+      <section className="relative pt-24 pb-24 md:pt-21 md:pb-21 overflow-hidden bg-background">
         <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-success/20 dark:bg-success/10 rounded-full blur-[120px] opacity-60 z-0 translate-x-1/4"></div>
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
@@ -43,7 +43,7 @@ export default function StartupServices() {
                   size="lg"
                   className="w-full sm:w-auto h-14 px-8 rounded-2xl shadow-lg hover:-translate-y-1 bg-secondary hover:bg-secondary/90 text-white border-none"
                 >
-                  Request a Tour <ChevronRight className="ml-2 w-5 h-5" />
+                  Contact Us <ChevronRight className="ml-2 w-5 h-5" />
                 </Button>
               </Link>
               <Link to="/pricing/startup">

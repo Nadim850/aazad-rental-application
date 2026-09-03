@@ -28,7 +28,7 @@ export default function AdminPlansPage({ category = "library" }) {
     try {
       const token = localStorage.getItem("access");
       const res = await apiFetch(
-        "http://localhost:8000/api/bookings/admin-plans/",
+        `${import.meta.env.VITE_API_URL}/api/bookings/admin-plans/`,
         {
           headers: { Authorization: `Bearer ${token}` },
         },
@@ -74,7 +74,7 @@ export default function AdminPlansPage({ category = "library" }) {
     try {
       const token = localStorage.getItem("access");
       const res = await apiFetch(
-        `http://localhost:8000/api/bookings/admin-plans/${id}/`,
+        `${import.meta.env.VITE_API_URL}/api/bookings/admin-plans/${id}/`,
         {
           method: "PATCH",
           headers: {
