@@ -10,4 +10,4 @@ COPY . .
 
 EXPOSE 8000
 
-CMD bash -c "python manage.py migrate && gunicorn core.wsgi:application --bind 0.0.0.0:8000"
+CMD bash -c "python manage.py migrate && gunicorn core.wsgi:application --bind 0.0.0.0:8000 --reload"

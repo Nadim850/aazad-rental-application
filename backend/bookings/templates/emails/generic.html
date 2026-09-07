@@ -1,0 +1,81 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <style>
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background-color: #f4f4f5;
+        margin: 0;
+        padding: 0;
+      }
+      .container {
+        max-width: 600px;
+        margin: 40px auto;
+        background: #ffffff;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        border: 1px solid #e4e4e7;
+      }
+      .header {
+        background-color: #09090b;
+        padding: 24px;
+        text-align: center;
+      }
+      .header h1 {
+        color: #ffffff;
+        margin: 0;
+        font-size: 24px;
+        letter-spacing: 0.5px;
+      }
+      .content {
+        padding: 32px;
+        color: #3f3f46;
+        line-height: 1.6;
+      }
+      .content p {
+        margin-top: 0;
+        font-size: 16px;
+        margin-bottom: 20px;
+      }
+      .footer {
+        background-color: #fafafa;
+        padding: 20px;
+        text-align: center;
+        border-top: 1px solid #e4e4e7;
+        color: #a1a1aa;
+        font-size: 13px;
+      }
+      .btn {
+        display: inline-block;
+        padding: 12px 24px;
+        background-color: #2563eb;
+        color: #ffffff;
+        text-decoration: none;
+        border-radius: 6px;
+        font-weight: 600;
+        margin-top: 10px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h1>Aazad Rental</h1>
+      </div>
+      <div class="content">
+        <p>Hi {{ user.first_name|default:"there" }},</p>
+
+        <!-- This {{ message }} variable is automatically replaced by your Python view text (Approval or Rejection) -->
+        <p>{{ message }}</p>
+
+        <div style="text-align: center; margin-top: 30px">
+          <!-- The frontend URL is already passed from your notifications.py file -->
+          <a href="{{ frontend_url }}" class="btn">Go to Dashboard</a>
+        </div>
+      </div>
+      <div class="footer">&copy; 2024 Aazad Rental. All rights reserved.</div>
+    </div>
+  </body>
+</html>

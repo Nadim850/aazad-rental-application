@@ -102,17 +102,20 @@ export default function AdminUsersPage({ category = "library" }) {
         {
           method: "POST",
           headers: { Authorization: `Bearer ${token}` },
-        }
+        },
       );
-      
+
       if (res.ok) {
         alert("Booking approved successfully!");
         // We should ideally re-fetch all users to get the updated status, active subscriptions, etc.
-        const usersRes = await apiFetch(`${API_URL}/api/bookings/admin/detailed-users/`, {
+        const usersRes = await apiFetch(
+          `${API_URL}/api/bookings/admin/detailed-users/`,
+          {
             headers: { Authorization: `Bearer ${token}` },
-        });
+          },
+        );
         if (usersRes.ok) {
-            setUsers(await usersRes.json());
+          setUsers(await usersRes.json());
         }
       } else {
         const data = await res.json();
@@ -123,7 +126,42 @@ export default function AdminUsersPage({ category = "library" }) {
       alert("An error occurred while approving the booking.");
     }
   };
+  const handleRejectBooking = async (bookingId) => {
+    if (!window.confirm("Are you sure you want to reject this booking?"))
+      return;
 
+    try {
+      const token = localStorage.getItem("access");
+      const res = await apiFetch(
+        `${API_URL}/api/bookings/admin/reject-booking/${bookingId}/`,
+        {
+          method: "POST",
+          headers: { Authorization: `Bearer ${token}` },
+        },
+      );
+
+      if (res.ok) {
+        alert("Booking rejected successfully!");
+        // Refresh users
+        const usersRes = await apiFetch(
+          `${API_URL}/api/bookings/admin/detailed-users/`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          },
+        );
+        if (usersRes.ok) {
+          setUsers(await usersRes.json());
+        }
+      } else {
+        const data = await res.json();
+        alert(data.error || "Failed to reject booking.");
+      }
+    } catch (err) {
+      console.error(err);
+      //console.error(JSON.stringify(err));
+      alert("An error occurred while rejecting the booking.");
+    }
+  };
   const getPlanName = (workspaceType) => {
     const types = {
       library: "Library Pass",
@@ -188,34 +226,62 @@ export default function AdminUsersPage({ category = "library" }) {
 
   const activeSubscribers = filteredUsers.filter((u) => u.active_subscription);
   const inactiveUsers = filteredUsers.filter((u) => !u.active_subscription);
-  const pendingUsers = filteredUsers.filter((u) => u.pending_subscriptions && u.pending_subscriptions.length > 0);
+  const pendingUsers = filteredUsers.filter(
+    (u) => u.pending_subscriptions && u.pending_subscriptions.length > 0,
+  );
 
   const ExpandedUserDetails = ({ user }) => (
     <div className="border-t border-border-main p-6 bg-black/5 dark:bg-white/[0.01] grid grid-cols-1 xl:grid-cols-2 gap-8 animate-in fade-in zoom-in-95 duration-200">
       {/* Left Column: Subscriptions */}
       <div className="space-y-6">
         {/* Pending Approvals (If Any) */}
-        {user.pending_subscriptions && user.pending_subscriptions.length > 0 && (
-          <div>
-            <h4 className="flex items-center text-sm font-semibold text-text-main/80 mb-3 uppercase tracking-wider text-orange-500">
-              <Clock size={14} className="mr-2" /> Pending Approvals
-            </h4>
-            <div className="space-y-3">
-              {user.pending_subscriptions.map((sub) => (
-                <div key={sub.id} className="p-4 rounded-lg border border-orange-500/30 bg-orange-500/5 flex justify-between items-center">
-                  <div>
-                    <p className="font-semibold">{sub.workspace.name} <span className="text-xs font-normal">({sub.plan_name})</span></p>
-                    <p className="text-xs text-text-main/60">UTR/Txn: {sub.transaction_id || 'N/A'}</p>
-                    <p className="text-xs font-medium text-orange-500 mt-1">Amount: ₹{sub.amount_paid}</p>
+        {user.pending_subscriptions &&
+          user.pending_subscriptions.length > 0 && (
+            <div>
+              <h4 className="flex items-center text-sm font-semibold text-text-main/80 mb-3 uppercase tracking-wider text-orange-500">
+                <Clock size={14} className="mr-2" /> Pending Approvals
+              </h4>
+              <div className="space-y-3">
+                {user.pending_subscriptions.map((sub) => (
+                  <div
+                    key={sub.id}
+                    className="p-4 rounded-lg border border-orange-500/30 bg-orange-500/5 flex justify-between items-center"
+                  >
+                    <div>
+                      <p className="font-semibold">
+                        {sub.workspace.name}{" "}
+                        <span className="text-xs font-normal">
+                          ({sub.plan_name})
+                        </span>
+                      </p>
+                      <p className="text-xs text-text-main/60">
+                        UTR/Txn: {sub.transaction_id || "N/A"}
+                      </p>
+                      <p className="text-xs font-medium text-orange-500 mt-1">
+                        Amount: ₹{sub.amount_paid}
+                      </p>
+                    </div>
+                    <div className="flex gap-2">
+                      <Button
+                        size="sm"
+                        onClick={() => handleApproveBooking(sub.id, user.id)}
+                      >
+                        Approve
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="text-red-500 border-red-500/30 hover:bg-red-500/10"
+                        onClick={() => handleRejectBooking(sub.id)}
+                      >
+                        Reject
+                      </Button>
+                    </div>
                   </div>
-                  <Button size="sm" onClick={() => handleApproveBooking(sub.id, user.id)}>
-                    Approve
-                  </Button>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
-          </div>
-        )}
+          )}
 
         {/* Active Sub (If Any) */}
         {user.active_subscription && (
@@ -344,7 +410,12 @@ export default function AdminUsersPage({ category = "library" }) {
                     <p className="font-semibold text-sm">
                       ₹{(payment.workspace.price_per_hour * 8 * 30).toFixed(0)}
                     </p>
-                    <Badge variant="success" className="text-[10px] px-1.5 py-0 mt-0.5">Paid</Badge>
+                    <Badge
+                      variant="success"
+                      className="text-[10px] px-1.5 py-0 mt-0.5"
+                    >
+                      Paid
+                    </Badge>
                   </div>
                 </div>
               ))}
@@ -386,13 +457,17 @@ export default function AdminUsersPage({ category = "library" }) {
                 <div className="flex items-center justify-between">
                   <div>
                     <CardTitle className="text-xl flex items-center gap-2 text-orange-500">
-                      <Clock size={24} className="text-orange-500" /> Pending Approvals
+                      <Clock size={24} className="text-orange-500" /> Pending
+                      Approvals
                     </CardTitle>
                     <p className="text-sm text-text-main/60 mt-1">
                       Users awaiting payment verification.
                     </p>
                   </div>
-                  <Badge variant="outline" className="text-base px-3 py-1 shadow-sm border-orange-500/50 text-orange-500 bg-orange-500/10">
+                  <Badge
+                    variant="outline"
+                    className="text-base px-3 py-1 shadow-sm border-orange-500/50 text-orange-500 bg-orange-500/10"
+                  >
                     {pendingUsers.length} Pending
                   </Badge>
                 </div>
@@ -411,24 +486,41 @@ export default function AdminUsersPage({ category = "library" }) {
                         >
                           <div className="flex items-center gap-4 flex-1">
                             <div className="w-12 h-12 rounded-full bg-orange-500/10 flex items-center justify-center text-orange-500 font-bold text-lg shrink-0">
-                              {user.first_name?.[0]?.toUpperCase() || user.email?.[0]?.toUpperCase()}
+                              {user.first_name?.[0]?.toUpperCase() ||
+                                user.email?.[0]?.toUpperCase()}
                             </div>
                             <div className="space-y-1">
                               <p className="font-bold text-base">
                                 {user.first_name} {user.last_name}
                               </p>
                               <div className="flex flex-wrap items-center gap-3 text-xs text-text-main/60">
-                                <span className="flex items-center gap-1.5"><Mail size={12} /> {user.email}</span>
-                                <span className="flex items-center gap-1.5"><Phone size={12} /> {user.phone_number || "N/A"}</span>
+                                <span className="flex items-center gap-1.5">
+                                  <Mail size={12} /> {user.email}
+                                </span>
+                                <span className="flex items-center gap-1.5">
+                                  <Phone size={12} />{" "}
+                                  {user.phone_number || "N/A"}
+                                </span>
                               </div>
                             </div>
                           </div>
                           <div className="flex items-center gap-4">
-                             <Badge variant="outline" className="border-orange-500 text-orange-500 bg-orange-500/10">Needs Review</Badge>
-                             {expandedUser === user.id ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
+                            <Badge
+                              variant="outline"
+                              className="border-orange-500 text-orange-500 bg-orange-500/10"
+                            >
+                              Needs Review
+                            </Badge>
+                            {expandedUser === user.id ? (
+                              <ChevronUp size={20} />
+                            ) : (
+                              <ChevronDown size={20} />
+                            )}
                           </div>
                         </div>
-                        {expandedUser === user.id && <ExpandedUserDetails user={user} />}
+                        {expandedUser === user.id && (
+                          <ExpandedUserDetails user={user} />
+                        )}
                       </div>
                     );
                   })}

@@ -18,11 +18,11 @@ class BookingSerializer(serializers.ModelSerializer):
     user_email = serializers.CharField(source='user.email', read_only=True)
     
     class Meta:
-        model = Booking
+        model = Booking 
         fields = [
             'id', 'workspace', 'start_time', 'end_time', 'is_paid', 
             'status', 'created_at', 'updated_at', 'amount_paid', 'plan_name', 
-            'razorpay_payment_id', 'user_first_name', 'user_last_name', 'user_email'
+            'razorpay_payment_id', 'user_first_name', 'user_last_name', 'user_email','transaction_id'
         ]
 
 class ContactMessageSerializer(serializers.ModelSerializer):

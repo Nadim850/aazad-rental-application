@@ -1,3 +1,4 @@
+from rest_framework import response
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
@@ -232,7 +233,29 @@ class ApproveBookingView(APIView):
         )
 
         return Response({'message': 'Booking approved successfully.'})
+class RejectBookingView(APIView):
+    permission_classes = (IsAdminUser,)
 
+    def post(self, request, pk):
+        try:
+            booking = Booking.objects.get(pk=pk, status='PENDING')
+        except Booking.DoesNotExist:
+            return 
+        Response({'error': 'Pending booking not found.'}, status=status.HTTP_404_NOT_FOUND)
+        # FREE UP THE WORKSPACE AGAIN
+        booking.workspace.is_available = True
+        booking.workspace.save()
+        #MARK BOOKING AS CANCELLED
+        booking.status = 'CANCELLED'
+        booking.save()
+        # Send notification to user
+        send_notification(
+            user=booking.user,
+            title="Payment Rejected",
+            message=f"Your payment for {booking.workspace.name} has been rejected. Please contact support for further assistance.",
+            notification_type="payment",
+            email_template="generic")
+        return Response({'message': 'Booking rejected successfully.'})
 from .serializers import ContactMessageSerializer
 from .models import ContactMessage
 

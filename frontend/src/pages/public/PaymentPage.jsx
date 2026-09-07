@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { CheckCircle2, ShieldCheck, ArrowLeft, QrCode } from "lucide-react";
 import { Button } from "../../components/ui/Button";
 import { Input } from "../../components/ui/Input";
+import { toast } from "react-hot-toast";
 import {
   Card,
   CardHeader,
@@ -22,7 +23,7 @@ export default function PaymentPage() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [paymentStatus, setPaymentStatus] = useState("pending"); // pending, success
   const [successfulBookingId, setSuccessfulBookingId] = useState(null);
-  const [error, setError] = useState("");
+  //const [error, setError] = useState("");
   const [transactionId, setTransactionId] = useState("");
 
   const planType = searchParams.get("plan") || "Premium Plan";
@@ -63,7 +64,7 @@ export default function PaymentPage() {
                   if (availableSeats.length > 0) {
                     setSeatId(availableSeats[0].name);
                   } else {
-                    setError("No seats available for this plan.");
+                    toast.error("No seats available for this plan.");
                   }
                 }
               } catch (wsErr) {
@@ -84,16 +85,21 @@ export default function PaymentPage() {
 
   const handlePayment = async () => {
     if (!seatId) {
-      setError("Please select a seat or wait for one to be auto-assigned.");
+      toast.error("Please select a seat or wait for one to be auto-assigned.");
       return;
     }
+
     if (!transactionId.trim()) {
-      setError("Please enter the UTR/Transaction ID.");
+      toast.error("Please enter the UTR/Transaction ID.");
+      return;
+    }
+    if (transactionId.length !== 12) {
+      toast.error("Please enter a valid 12-digit UTR/Transaction ID.");
       return;
     }
 
     setIsProcessing(true);
-    setError("");
+    // setError("");
 
     try {
       const token = localStorage.getItem("access");
@@ -121,7 +127,7 @@ export default function PaymentPage() {
 
       if (!orderResponse.ok) {
         const data = await orderResponse.json();
-        setError(data.error || "Failed to submit payment");
+        toast.error(data.error || "Failed to submit payment");
         setIsProcessing(false);
         return;
       }
@@ -130,7 +136,7 @@ export default function PaymentPage() {
       setSuccessfulBookingId(orderData.booking_id);
       setPaymentStatus("success");
     } catch (err) {
-      setError("Network error occurred during payment submission");
+      toast.error("Network error occurred during payment submission");
       setIsProcessing(false);
     }
   };
@@ -219,11 +225,7 @@ export default function PaymentPage() {
           {/* Payment Method */}
           <div className="space-y-6">
             <h2 className="text-2xl font-bold">Secure Checkout (UPI)</h2>
-            {error && (
-              <div className="p-3 bg-red-500/10 border border-red-500/50 rounded text-red-500 text-sm">
-                {error}
-              </div>
-            )}
+
             <Card>
               <CardHeader>
                 <div className="flex items-center justify-between">
@@ -238,16 +240,16 @@ export default function PaymentPage() {
                   <div className="bg-white p-2 rounded-lg mb-4">
                     <QRCode value={upiLink} size={192} />
                   </div>
-                  
+
                   <p className="font-semibold text-black mb-1">
                     Scan using any UPI App
                   </p>
                   <p className="text-black/60 text-xs font-mono bg-gray-100 px-3 py-1 rounded mb-4">
                     nadimkgn@ybl
                   </p>
-                  
+
                   {/* Deep link for mobile users */}
-                  <a 
+                  <a
                     href={upiLink}
                     className="w-full md:hidden mb-4 flex items-center justify-center gap-2 bg-primary text-white py-2.5 px-4 rounded-md font-semibold hover:bg-primary/90 transition-colors"
                   >
@@ -286,9 +288,15 @@ export default function PaymentPage() {
                   <Input
                     placeholder="e.g. 312345678901"
                     value={transactionId}
-                    onChange={(e) => setTransactionId(e.target.value)}
+                    onChange={(e) => {
+                      // only allow numbers by removing non-digit characters
+                      const onlyNumbers = e.target.value.replace(/\D/g, "");
+                      setTransactionId(onlyNumbers);
+                    }}
+                    maxLength={12}
                     className="w-full"
                   />
+
                   <p className="text-xs text-text-main/50">
                     After making the payment, please enter the 12-digit UTR or
                     Transaction ID to confirm your booking.

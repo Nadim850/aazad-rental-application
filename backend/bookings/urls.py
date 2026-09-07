@@ -1,6 +1,6 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from .views import DashboardView, BookSeatView, AdminWorkspaceViewSet, AdminPlanViewSet, PublicPlanListView, PublicWorkspaceListView, AdminDetailedUserListView, AdminUserDetailView, ContactMessageCreateView, CreateManualBookingView, BookingDetailView, AdminContactMessageViewSet, ApproveBookingView
+from .views import DashboardView, BookSeatView, AdminWorkspaceViewSet, AdminPlanViewSet, PublicPlanListView, PublicWorkspaceListView, AdminDetailedUserListView, AdminUserDetailView, ContactMessageCreateView, CreateManualBookingView, BookingDetailView, AdminContactMessageViewSet, ApproveBookingView, RejectBookingView
 
 router = DefaultRouter()
 router.register(r'admin-workspaces', AdminWorkspaceViewSet, basename='admin-workspace')
@@ -18,5 +18,6 @@ urlpatterns = [
     path('contact/', ContactMessageCreateView.as_view(), name='contact-message'),
     path('create-manual-booking/', CreateManualBookingView.as_view(), name='create-manual-booking'),
     path('admin/approve-booking/<int:pk>/', ApproveBookingView.as_view(), name='admin-approve-booking'),
+    path('admin/reject-booking/<int:pk>/', RejectBookingView.as_view(), name='admin-reject-booking'),
     path('<int:pk>/', BookingDetailView.as_view(), name='booking-detail'),
 ]

@@ -146,10 +146,8 @@ export default function LoginPage() {
   const googleLogin = useGoogleLogin({
     flow: "auth-code",
     onSuccess: (tokenResponse) => {
-      // get id_token or access_token depending on the flow (standard implicit flow returns access_token)
-      // Usually social logins prefer id_token. If useGoogleLogin is used, we might need to get user info or use the access_token.
-      // Since our backend expects an id_token or standard token, we'll send the access_token.
-      handleSocialLogin("google", tokenResponse.access_token);
+      // Backend expects the authorization code for 'auth-code' flow
+      handleSocialLogin("google", tokenResponse.code);
     },
     onError: () => setGlobalError("Google Login Failed"),
   });
