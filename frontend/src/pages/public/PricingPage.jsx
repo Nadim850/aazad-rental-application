@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { API_URL } from "../../config";
+import { Badge } from "../../components/ui/Badge";
+
 import { getDurationPrice, getSavingsPercentage } from "../../lib/pricingUtils";
 import {
   Wifi,
@@ -130,12 +132,6 @@ export default function PricingPage() {
 
   useEffect(() => {
     window.scrollTo(0, 0);
-    const link = document.createElement("link");
-    link.href =
-      "https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Manrope:wght@400;500;600;700&display=swap";
-    link.rel = "stylesheet";
-    document.head.appendChild(link);
-    return () => document.head.removeChild(link);
   }, []);
 
   useEffect(() => {
@@ -171,12 +167,16 @@ export default function PricingPage() {
     if (planParam === "library") {
       displayedFacilities = FACILITIES.filter((f) => f.apiType === "library");
     } else if (planParam === "coworking") {
-      displayedFacilities = FACILITIES.filter((f) => f.apiType === "dedicated" || f.apiType === "cabin");
+      displayedFacilities = FACILITIES.filter(
+        (f) => f.apiType === "dedicated" || f.apiType === "cabin",
+      );
     } else if (planParam === "conference" || planParam === "startup") {
       displayedFacilities = FACILITIES.filter((f) => f.apiType === "startup");
     } else {
       // Exact match for specific plans like "dedicated" or "cabin"
-      const exactMatch = FACILITIES.filter((f) => f.apiType === planParam || f.id === planParam);
+      const exactMatch = FACILITIES.filter(
+        (f) => f.apiType === planParam || f.id === planParam,
+      );
       if (exactMatch.length > 0) {
         displayedFacilities = exactMatch;
       }
@@ -184,27 +184,20 @@ export default function PricingPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background text-text-main pt-16 pb-24">
+    <div className="min-h-screen bg-background text-text-main relative pt-24 pb-24 md:pt-21 md:pb-32 overflow-hidden ">
       <div className="max-w-[1080px] mx-auto px-6 md:px-8">
         {/* Top Header Section */}
         <div className="flex flex-col md:flex-row md:justify-between md:items-end gap-6 mb-12 border-b border-border-main pb-8">
           <div>
-            <div
-              className="text-[15px] tracking-wide text-primary mb-3 font-serif"
-              style={{ fontFamily: "'Fraunces', serif" }}
-            >
+            <Badge className="mb-6 bg-secondary/20 text-secondary dark:bg-secondary/30">
               Aazad Rental
-            </div>
-            <h1
-              className="font-medium text-[32px] md:text-[44px] leading-[1.12] mt-0 mb-3.5 max-w-[560px] tracking-tight font-serif"
-              style={{ fontFamily: "'Fraunces', serif" }}
-            >
-              Space, by the hour, the month, or the year.
+            </Badge>
+            <h1 className="text-4xl md:text-6xl font-extrabold text-text-main tracking-tight mb-6 leading-tight max-w-4xl mx-auto">
+              Space by the <span className="text-secondary">Hour </span>
+              the <span className="text-secondary">Month</span> or the{" "}
+              <span className="text-secondary">Year</span>
             </h1>
-            <p
-              className="text-[16px] text-text-main/70 max-w-[440px] leading-[1.6] m-0 font-sans"
-              style={{ fontFamily: "'Manrope', sans-serif" }}
-            >
+            <p className="text-lg md:text-xl text-text-main/70 mb-10 leading-relaxed max-w-2xl ">
               Library seats, coworking desks and cabins, conference rooms — pick
               a term that matches how you actually work.
             </p>
@@ -212,10 +205,7 @@ export default function PricingPage() {
         </div>
 
         {isBookingMode && (
-          <div
-            className="mb-10 p-4 border border-success/30 bg-success/5 rounded text-success font-medium flex items-center justify-center font-sans"
-            style={{ fontFamily: "'Manrope', sans-serif" }}
-          >
+          <div className="mb-10 p-4 border border-success/30 bg-success/5 rounded text-success font-medium flex items-center justify-center font-sans">
             Booking Seat {seatParam} — Select a plan below to continue.
           </div>
         )}
@@ -237,7 +227,6 @@ export default function PricingPage() {
                 <div
                   key={facility.id}
                   className="bg-surface border border-border-main overflow-hidden rounded-md flex flex-col"
-                  style={{ fontFamily: "'Manrope', sans-serif" }}
                 >
                   {/* TOP SIDE: Image */}
                   <div className="w-full h-[250px] lg:h-[350px] relative border-b border-border-main">
@@ -252,10 +241,7 @@ export default function PricingPage() {
                   <div className="flex flex-col lg:flex-row p-6 md:p-10 gap-10">
                     {/* LEFT COLUMN: Details & Amenities */}
                     <div className="lg:w-5/12 flex flex-col">
-                      <h2
-                        className="text-[28px] font-medium mb-3 font-serif tracking-tight"
-                        style={{ fontFamily: "'Fraunces', serif" }}
-                      >
+                      <h2 className="text-[28px] font-medium mb-3 font-serif tracking-tight">
                         {facility.name}
                       </h2>
                       <p className="text-[15px] text-text-main/70 mb-8 leading-relaxed">
@@ -287,10 +273,7 @@ export default function PricingPage() {
 
                     {/* RIGHT COLUMN: Available Plans (Durations) Nested Boxes */}
                     <div className="lg:w-7/12">
-                      <h3
-                        className="text-[16px] font-bold mb-6 font-serif tracking-tight"
-                        style={{ fontFamily: "'Fraunces', serif" }}
-                      >
+                      <h3 className="text-[16px] font-bold mb-6 font-serif tracking-tight">
                         Available Plans
                       </h3>
 
@@ -326,10 +309,7 @@ export default function PricingPage() {
                                 </div>
 
                                 <div className="flex items-baseline gap-2 mb-2">
-                                  <span
-                                    className="text-[22px] font-medium font-serif"
-                                    style={{ fontFamily: "'Fraunces', serif" }}
-                                  >
+                                  <span className="text-[22px] font-medium font-serif">
                                     ₹{totalPrice.toLocaleString("en-IN")}
                                   </span>
                                   {savingsPct > 0 && (
@@ -371,10 +351,7 @@ export default function PricingPage() {
           </div>
         )}
 
-        <p
-          className="mt-12 text-[12.5px] text-text-main/70 text-center font-sans"
-          style={{ fontFamily: "'Manrope', sans-serif" }}
-        >
+        <p className="mt-12 text-[12.5px] text-text-main/70 text-center font-sans">
           3-Months and yearly plans are billed upfront. Prices exclude
           applicable taxes.
         </p>

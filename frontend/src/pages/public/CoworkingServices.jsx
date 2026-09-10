@@ -24,7 +24,7 @@ export default function CoworkingServices() {
   return (
     <div className="flex flex-col min-h-screen">
       {/* Hero Section */}
-      <section className="relative pt-24 pb-24 md:pt-32 md:pb-32 overflow-hidden bg-background">
+      <section className="relative pt-24 pb-24 md:pt-21 md:pb-32 overflow-hidden bg-background">
         <div className="absolute top-0 left-0 w-[600px] h-[600px] bg-secondary/20 dark:bg-secondary/10 rounded-full blur-[120px] opacity-60 z-0 -translate-x-1/2"></div>
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
@@ -54,7 +54,7 @@ export default function CoworkingServices() {
               size="lg"
               variant="outline"
               className="w-full sm:w-auto h-14 px-8 rounded-2xl shadow-sm hover:-translate-y-1"
-              onClick={() => navigate('/pricing')}
+              onClick={() => navigate("/pricing?plan=coworking")}
             >
               View Memberships
             </Button>
@@ -62,20 +62,23 @@ export default function CoworkingServices() {
         </div>
       </section>
 
-
-
       {/* Solutions Grid */}
       <section className="py-24 bg-surface border-t border-border-main/50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid md:grid-cols-2 gap-16 items-center mb-24">
-            <Link to="/pricing?plan=dedicated" className="order-2 md:order-1 relative rounded-3xl overflow-hidden shadow-lg border border-border-main aspect-[4/3] group block cursor-pointer">
+            <Link
+              to="/pricing?plan=dedicated"
+              className="order-2 md:order-1 relative rounded-3xl overflow-hidden shadow-lg border border-border-main aspect-[4/3] group block cursor-pointer"
+            >
               <img
                 src="https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&q=80&w=1200"
                 alt="Dedicated Desk"
                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
               />
               <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors flex items-center justify-center">
-                <span className="opacity-0 group-hover:opacity-100 bg-white/90 text-black px-4 py-2 rounded-full font-medium shadow-sm transform translate-y-4 group-hover:translate-y-0 transition-all">View Pricing</span>
+                <span className="opacity-0 group-hover:opacity-100 bg-white/90 text-black px-4 py-2 rounded-full font-medium shadow-sm transform translate-y-4 group-hover:translate-y-0 transition-all">
+                  View Pricing
+                </span>
               </div>
             </Link>
             <div className="order-1 md:order-2">
@@ -126,18 +129,22 @@ export default function CoworkingServices() {
                 </li>
               </ul>
             </div>
-            <Link to="/pricing?plan=cabin" className="relative rounded-3xl overflow-hidden shadow-lg border border-border-main aspect-[4/3] group block cursor-pointer">
+            <Link
+              to="/pricing?plan=cabin"
+              className="relative rounded-3xl overflow-hidden shadow-lg border border-border-main aspect-[4/3] group block cursor-pointer"
+            >
               <img
                 src="https://images.unsplash.com/photo-1577412647305-991150c7d163?auto=format&fit=crop&q=80&w=1200"
                 alt="Private Cabin"
                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
               />
               <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors flex items-center justify-center">
-                <span className="opacity-0 group-hover:opacity-100 bg-white/90 text-black px-4 py-2 rounded-full font-medium shadow-sm transform translate-y-4 group-hover:translate-y-0 transition-all">View Pricing</span>
+                <span className="opacity-0 group-hover:opacity-100 bg-white/90 text-black px-4 py-2 rounded-full font-medium shadow-sm transform translate-y-4 group-hover:translate-y-0 transition-all">
+                  View Pricing
+                </span>
               </div>
             </Link>
           </div>
-
         </div>
       </section>
 
@@ -155,7 +162,7 @@ export default function CoworkingServices() {
             <Button
               size="lg"
               className="h-14 px-8 text-lg rounded-2xl shadow-lg hover:-translate-y-1"
-              onClick={() => navigate('/pricing')}
+              onClick={() => navigate("/pricing")}
             >
               Compare Plans
             </Button>

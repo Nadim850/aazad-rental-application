@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import { cn } from "../lib/utils";
 import { Button } from "../components/ui/Button";
+import NotificationBell from "../components/layout/NotificationBell";
 
 import { apiFetch } from "../lib/api";
 import { SearchProvider, useSearch } from "../contexts/SearchContext";
@@ -206,9 +207,7 @@ function AdminDashboardLayoutContent() {
             >
               {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
             </button>
-            <button className="hover:text-text-main transition-colors p-1.5 rounded-md hover:bg-black/5 dark:hover:bg-white/5">
-              <Bell size={18} />
-            </button>
+            <NotificationBell />
           </div>
         </header>
 

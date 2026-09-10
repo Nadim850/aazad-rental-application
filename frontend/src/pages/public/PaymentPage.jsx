@@ -1,7 +1,13 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
-import { CheckCircle2, ShieldCheck, ArrowLeft, QrCode } from "lucide-react";
+import {
+  CheckCircle2,
+  ShieldCheck,
+  ArrowLeft,
+  QrCode,
+  AlertCircle,
+} from "lucide-react";
 import { Button } from "../../components/ui/Button";
 import { Input } from "../../components/ui/Input";
 import { toast } from "react-hot-toast";
@@ -182,6 +188,18 @@ export default function PaymentPage() {
 
   return (
     <div className="min-h-screen bg-background py-12 px-4 sm:px-6 lg:px-8">
+      {/* sticky banner */}
+      <div className="sticky top-0 z-50 bg-amber-50 border-b border-amber-200 px-4 py-3 sm:px-6 lg:px-8 shadow-sm">
+        <div className="max-w-4xl mx-auto flex items-start sm:items-center gap-3">
+          <AlertCircle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5 sm:mt-0" />
+          <p className="text-sm font-medium text-amber-800">
+            <strong className="font-bold">Required Step:</strong> After paying
+            via your UPI App, please scroll down and enter your 12-digit UTR /
+            Reference ID to successfully confirm your booking.
+          </p>
+        </div>
+      </div>
+
       <div className="max-w-4xl mx-auto">
         <button
           onClick={() => navigate(-1)}
@@ -237,12 +255,13 @@ export default function PaymentPage() {
               <CardContent className="space-y-6 text-sm text-text-main/70">
                 <div className="flex flex-col items-center justify-center p-4 bg-white rounded-xl border border-border-main/50">
                   {/* Dynamic QR Code */}
+
                   <div className="bg-white p-2 rounded-lg mb-4">
                     <QRCode value={upiLink} size={192} />
                   </div>
 
                   <p className="font-semibold text-black mb-1">
-                    Scan using any UPI App
+                    Scan the QR code and complete the payment on your UPI app.
                   </p>
                   <p className="text-black/60 text-xs font-mono bg-gray-100 px-3 py-1 rounded mb-4">
                     nadimkgn@ybl

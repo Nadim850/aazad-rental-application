@@ -20,7 +20,7 @@ export default function LibraryServices() {
   return (
     <div className="flex flex-col min-h-screen">
       {/* Hero Section */}
-      <section className="relative pt-24 pb-24 md:pt-32 md:pb-32 overflow-hidden bg-background">
+      <section className="relative pt-24 pb-24 md:pt-12 md:pb-32 overflow-hidden bg-background">
         <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-primary/20 dark:bg-primary/10 rounded-full blur-[120px] opacity-60 z-0"></div>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="grid md:grid-cols-2 gap-16 items-center">
@@ -63,7 +63,7 @@ export default function LibraryServices() {
                     <MapPin className="w-6 h-6 text-primary" />
                   </div>
                   <div>
-                    <p className="font-bold text-text-main">Downtown Hub</p>
+                    <p className="font-bold text-text-main">Khargone</p>
                     <p className="text-sm text-success font-medium">
                       Seats Available
                     </p>
