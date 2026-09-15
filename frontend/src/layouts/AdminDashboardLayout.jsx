@@ -100,7 +100,7 @@ function AdminDashboardLayoutContent() {
   ];
 
   return (
-    <div className="min-h-screen bg-background text-text-main flex font-sans antialiased selection:bg-primary/30">
+    <div className="h-screen overflow-hidden bg-background text-text-main flex font-sans antialiased selection:bg-primary/30">
       {/* Sidebar */}
       <aside className="w-64 border-r border-border-main flex flex-col bg-surface">
         {/* Workspace selector */}
@@ -155,7 +155,7 @@ function AdminDashboardLayoutContent() {
         </div>
 
         {/* User profile */}
-        <div className="p-4 border-t border-border-main">
+        <div className="p-4 border-t border-border-main sticky bottom-0 bg-surface z-10">
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center text-white font-bold text-xs">
               {user?.first_name?.[0]?.toUpperCase() ||
