@@ -197,7 +197,11 @@ export default function OverviewPage() {
               )}
             </div>
             {payment_history && payment_history.length > 0 && (
-              <Button variant="ghost" className="w-full mt-4 text-sm text-primary">
+              <Button 
+                variant="ghost" 
+                className="w-full mt-4 text-sm text-primary"
+                onClick={() => navigate('/dashboard/invoices')}
+              >
                 View All Invoices <ArrowRight className="w-4 h-4 ml-1" />
               </Button>
             )}

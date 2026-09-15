@@ -91,6 +91,7 @@ export default function UserDashboardLayout() {
 
   const navigation = [
     { name: "Overview", to: "/dashboard", icon: LayoutDashboard },
+    { name: "Invoices", to: "/dashboard/invoices", icon: CreditCard },
     { name: "Settings", to: "/dashboard/settings", icon: Settings },
   ];
 

@@ -8,6 +8,7 @@ import ContactPage from "./pages/public/ContactPage";
 import UserDashboardLayout from "./layouts/UserDashboardLayout";
 import OverviewPage from "./pages/dashboard/OverviewPage";
 import AdminDashboardLayout from "./layouts/AdminDashboardLayout";
+import InvoicesPage from "./pages/dashboard/InvoicesPage";
 import AdminUsersPage from "./pages/admin/AdminUsersPage";
 import AdminWorkspacesPage from "./pages/admin/AdminWorkspacesPage";
 import AdminPlansPage from "./pages/admin/AdminPlansPage";
@@ -63,6 +64,7 @@ function App() {
             {/* Dashboard Routes */}
             <Route path="/dashboard/*" element={<UserDashboardLayout />}>
               <Route index element={<OverviewPage />} />
+              <Route path="invoices" element={<InvoicesPage />} />
               <Route path="settings" element={<UserSettingsPage />} />
             </Route>
 
