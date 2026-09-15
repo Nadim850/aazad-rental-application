@@ -16,7 +16,7 @@ import {
   Printer,
   Car,
   Users,
-  Check
+  Check,
 } from "lucide-react";
 
 const FACILITIES = [
@@ -25,36 +25,76 @@ const FACILITIES = [
     apiType: "library",
     name: "Library Zones",
     tabLabel: "Library",
-    description: "Quiet reading and study seats with locker access. A pin-drop silence zone designed for deep focus, research, and uninterrupted study.",
-    image: "https://images.unsplash.com/photo-1521587760476-6c12a4b040da?auto=format&fit=crop&q=80",
-    amenities: ["High-Speed Wi-Fi", "Air Conditioning", "Power Backup", "CCTV Security", "RO Water", "Locker Facility"],
+    description:
+      "Quiet reading and study seats with locker access. A pin-drop silence zone designed for deep focus, research, and uninterrupted study.",
+    image:
+      "https://images.unsplash.com/photo-1521587760476-6c12a4b040da?auto=format&fit=crop&q=80",
+    amenities: [
+      "High-Speed Wi-Fi",
+      "Air Conditioning",
+      "Power Backup",
+      "CCTV Security",
+      "RO Water",
+      "Locker Facility",
+    ],
   },
   {
     id: "dedicated",
     apiType: "dedicated",
     name: "Dedicated Desk",
     tabLabel: "Coworking",
-    description: "Your own personal desk in a vibrant coworking environment. Leave your monitors and gear securely overnight.",
-    image: "https://images.unsplash.com/photo-1527192491265-7e15c55b1ed2?auto=format&fit=crop&q=80",
-    amenities: ["High-Speed Wi-Fi", "Air Conditioning", "Power Backup", "Printer & Scanner", "Tea/Coffee", "Housekeeping", "Meeting Room Access"],
+    description:
+      "Your own personal desk in a vibrant coworking environment. Leave your monitors and gear securely overnight.",
+    image:
+      "https://images.unsplash.com/photo-1527192491265-7e15c55b1ed2?auto=format&fit=crop&q=80",
+    amenities: [
+      "High-Speed Wi-Fi",
+      "Air Conditioning",
+      "Power Backup",
+      "Printer & Scanner",
+      "Tea/Coffee",
+      "Housekeeping",
+      "Meeting Room Access",
+    ],
   },
   {
     id: "cabin",
     apiType: "cabin",
     name: "Private Cabin",
     tabLabel: "Private Cabin",
-    description: "A fully furnished, lockable private office for you and your small team. Focus without distractions away from the open floor.",
-    image: "https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&q=80",
-    amenities: ["High-Speed Wi-Fi", "Air Conditioning", "Power Backup", "Soundproof", "Reception Support", "Mail Handling", "Parking"],
+    description:
+      "A fully furnished, lockable private office for you and your small team. Focus without distractions away from the open floor.",
+    image:
+      "https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&q=80",
+    amenities: [
+      "High-Speed Wi-Fi",
+      "Air Conditioning",
+      "Power Backup",
+      "Soundproof",
+      "Reception Support",
+      "Mail Handling",
+      "Parking",
+    ],
   },
   {
     id: "conference",
     apiType: "startup",
     name: "Conference Room",
     tabLabel: "Conference",
-    description: "Prepaid hour blocks for client meetings, interviews, and team collaborations. Book the conference room from your prepaid balance.",
-    image: "https://images.unsplash.com/photo-1497215728101-856f4ea42174?auto=format&fit=crop&q=80",
-    amenities: ["6 Seats Capacity", "High-Speed Wi-Fi", "Projector & Screen", "Air Conditioning", "Power Backup", "Whiteboard", "Reception Support", "Housekeeping"],
+    description:
+      "Prepaid hour blocks for client meetings, interviews, and team collaborations. Book the conference room from your prepaid balance.",
+    image:
+      "https://images.unsplash.com/photo-1497215728101-856f4ea42174?auto=format&fit=crop&q=80",
+    amenities: [
+      "6 Seats Capacity",
+      "High-Speed Wi-Fi",
+      "Projector & Screen",
+      "Air Conditioning",
+      "Power Backup",
+      "Whiteboard",
+      "Reception Support",
+      "Housekeeping",
+    ],
   },
 ];
 
@@ -63,13 +103,18 @@ const getAmenityIcon = (name) => {
   if (n.includes("wi-fi")) return <Wifi className="w-4 h-4" />;
   if (n.includes("air")) return <Wind className="w-4 h-4" />;
   if (n.includes("power")) return <BatteryCharging className="w-4 h-4" />;
-  if (n.includes("cctv") || n.includes("security")) return <ShieldCheck className="w-4 h-4" />;
+  if (n.includes("cctv") || n.includes("security"))
+    return <ShieldCheck className="w-4 h-4" />;
   if (n.includes("water")) return <Droplet className="w-4 h-4" />;
-  if (n.includes("coffee") || n.includes("tea")) return <Coffee className="w-4 h-4" />;
-  if (n.includes("print") || n.includes("projector")) return <Printer className="w-4 h-4" />;
+  if (n.includes("coffee") || n.includes("tea"))
+    return <Coffee className="w-4 h-4" />;
+  if (n.includes("print") || n.includes("projector"))
+    return <Printer className="w-4 h-4" />;
   if (n.includes("park")) return <Car className="w-4 h-4" />;
-  if (n.includes("reception") || n.includes("seat") || n.includes("board")) return <Users className="w-4 h-4" />;
-  if (n.includes("locker") || n.includes("soundproof")) return <Lock className="w-4 h-4" />;
+  if (n.includes("reception") || n.includes("seat") || n.includes("board"))
+    return <Users className="w-4 h-4" />;
+  if (n.includes("locker") || n.includes("soundproof"))
+    return <Lock className="w-4 h-4" />;
   return <Sparkles className="w-4 h-4" />;
 };
 
@@ -85,18 +130,22 @@ export default function PricingPage() {
   const navigate = useNavigate();
   const [plans, setPlans] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-  
+
   const seatParam = searchParams.get("seat");
   const planParam = searchParams.get("plan");
   const isBookingMode = !!seatParam;
 
   // Determine initial tab based on URL param
-  const initialTab = planParam 
-    ? (planParam === "coworking" ? "dedicated" : planParam === "startup" ? "conference" : planParam) 
+  const initialTab = planParam
+    ? planParam === "coworking"
+      ? "dedicated"
+      : planParam === "startup"
+        ? "conference"
+        : planParam
     : "library";
-    
+
   const [activeTab, setActiveTab] = useState(
-    FACILITIES.some(f => f.id === initialTab) ? initialTab : "library"
+    FACILITIES.some((f) => f.id === initialTab) ? initialTab : "library",
   );
 
   useEffect(() => {
@@ -128,27 +177,34 @@ export default function PricingPage() {
     } else {
       // Trigger modal via custom event or navigate to signup if modal logic isn't wired perfectly here
       // Since we added AuthModalContext, let's use the event dispatch as fallback if we don't want to import hook
-      window.dispatchEvent(new CustomEvent('open-auth-modal', { detail: { mode: 'signup', redirect: targetUrl } }));
+      window.dispatchEvent(
+        new CustomEvent("open-auth-modal", {
+          detail: { mode: "signup", redirect: targetUrl },
+        }),
+      );
     }
   };
 
   const activeFacility = FACILITIES.find((f) => f.id === activeTab);
-  const activePlan = plans.find((p) => p.workspace_type === activeFacility?.apiType);
+  const activePlan = plans.find(
+    (p) => p.workspace_type === activeFacility?.apiType,
+  );
 
   return (
-    <div className="min-h-screen bg-background text-text-main relative pt-20 pb-24 md:pt-28 md:pb-32 overflow-hidden font-sans">
+    <div className="min-h-screen bg-background text-text-main relative pt-20 pb-24 md:pt-10 md:pb-32 overflow-hidden font-sans">
       <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8">
-        
         {/* Header Section */}
         <div className="text-center mb-12">
-          <Badge className="mb-6 bg-secondary/10 text-secondary border-secondary/20 hover:bg-secondary/20 transition-colors">
+          <Badge className="mb-6 bg-primary/10 text-primary border-primary/20 hover:bg-primary/20 transition-colors">
             Pricing Plans
           </Badge>
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-text-main tracking-tight mb-6 leading-tight max-w-4xl mx-auto">
-            Choose the perfect space <br className="hidden md:block" /> for your needs
+            Flexible <br className="hidden md:block" />{" "}
+            <span className="text-secondary"> Membership Plans</span>
           </h1>
           <p className="text-lg md:text-xl text-text-main/60 max-w-2xl mx-auto">
-            Simple, transparent pricing. No hidden fees. <br className="hidden sm:block"/> Switch plans or cancel anytime.
+            Simple, transparent pricing. No hidden fees.{" "}
+            <br className="hidden sm:block" /> Switch plans or cancel anytime.
           </p>
         </div>
 
@@ -168,13 +224,13 @@ export default function PricingPage() {
                   key={facility.id}
                   onClick={() => setActiveTab(facility.id)}
                   className={`relative px-5 py-2.5 text-sm md:text-base font-semibold rounded-full transition-colors whitespace-nowrap outline-none ${
-                    isActive ? "text-background" : "text-text-main/70 hover:text-text-main"
+                    isActive ? "text-primary-foreground" : "text-text-main/70 hover:text-text-main"
                   }`}
                 >
                   {isActive && (
                     <motion.div
                       layoutId="activeTabIndicator"
-                      className="absolute inset-0 bg-text-main rounded-full"
+                      className="absolute inset-0 bg-primary rounded-full shadow-sm"
                       initial={false}
                       transition={{ type: "spring", stiffness: 400, damping: 30 }}
                     />
@@ -191,7 +247,7 @@ export default function PricingPage() {
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
           </div>
         ) : activeFacility && activePlan ? (
-          <motion.div 
+          <motion.div
             key={activeTab}
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -200,13 +256,22 @@ export default function PricingPage() {
           >
             {/* Facility Details Minimalist Block */}
             <div className="max-w-4xl mx-auto text-center space-y-6 mb-12">
-              <h2 className="text-2xl md:text-3xl font-bold">{activeFacility.name}</h2>
-              <p className="text-text-main/70 text-lg">{activeFacility.description}</p>
-              
+              <h2 className="text-2xl md:text-3xl font-bold">
+                {activeFacility.name}
+              </h2>
+              <p className="text-text-main/70 text-lg">
+                {activeFacility.description}
+              </p>
+
               <div className="flex flex-wrap justify-center gap-3 pt-4">
                 {activeFacility.amenities.map((amenity, idx) => (
-                  <div key={idx} className="flex items-center gap-1.5 bg-surface border border-border-main/50 px-3 py-1.5 rounded-full text-sm text-text-main/80">
-                    <div className="text-primary">{getAmenityIcon(amenity)}</div>
+                  <div
+                    key={idx}
+                    className="flex items-center gap-1.5 bg-surface border border-border-main/50 px-3 py-1.5 rounded-full text-sm text-text-main/80"
+                  >
+                    <div className="text-primary">
+                      {getAmenityIcon(amenity)}
+                    </div>
                     <span>{amenity}</span>
                   </div>
                 ))}
@@ -221,24 +286,28 @@ export default function PricingPage() {
                 const savingsPct = getSavingsPercentage(activePlan, duration);
                 const isPopular = opt.badge === "Popular";
                 const monthlyEquiv = Math.round(totalPrice / duration);
-                
+
                 return (
-                  <div 
-                    key={duration} 
+                  <div
+                    key={duration}
                     className={`relative flex flex-col bg-surface rounded-2xl p-6 transition-all duration-200 hover:-translate-y-1 hover:shadow-xl ${
-                      isPopular 
-                        ? "border-2 border-primary shadow-lg shadow-primary/10" 
+                      isPopular
+                        ? "border-2 border-primary shadow-lg shadow-primary/10"
                         : "border border-border-main hover:border-primary/50"
                     }`}
                   >
                     {/* Top Badges */}
                     <div className="flex justify-between items-start mb-4 h-6">
                       {opt.badge ? (
-                        <span className={`text-[11px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full ${isPopular ? "bg-primary text-primary-foreground" : "bg-secondary/10 text-secondary"}`}>
+                        <span
+                          className={`text-[11px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full ${isPopular ? "bg-primary text-primary-foreground" : "bg-secondary/10 text-secondary"}`}
+                        >
                           {opt.badge}
                         </span>
-                      ) : <div/>}
-                      
+                      ) : (
+                        <div />
+                      )}
+
                       {savingsPct > 0 && (
                         <span className="text-[12px] font-bold text-success bg-success/10 px-2 py-0.5 rounded-full">
                           Save {savingsPct}%
@@ -247,10 +316,18 @@ export default function PricingPage() {
                     </div>
 
                     <div className="mb-6">
-                      <h3 className="text-lg font-bold text-text-main/80 mb-2">{opt.label}</h3>
+                      <h3 className="text-lg font-bold text-text-main/80 mb-2">
+                        {opt.label}
+                      </h3>
                       <div className="flex items-baseline gap-1">
-                        <span className="text-3xl font-extrabold tracking-tight">₹{totalPrice.toLocaleString("en-IN")}</span>
-                        {duration > 1 && <span className="text-text-main/50 text-sm font-medium">/total</span>}
+                        <span className="text-3xl font-extrabold tracking-tight">
+                          ₹{totalPrice.toLocaleString("en-IN")}
+                        </span>
+                        {duration > 1 && (
+                          <span className="text-text-main/50 text-sm font-medium">
+                            /total
+                          </span>
+                        )}
                       </div>
                       {duration > 1 && (
                         <p className="text-sm text-text-main/50 mt-2 font-medium">
@@ -261,31 +338,41 @@ export default function PricingPage() {
 
                     <div className="flex-grow">
                       <ul className="space-y-3 mb-8">
-                         {/* We assume activePlan features exist, or we can use generic ones */}
-                         {(activePlan.features || ["Access to all amenities", "24/7 Support", "Free event access"]).map((feature, i) => (
-                           <li key={i} className="flex items-start gap-3 text-sm text-text-main/70">
-                             <Check className="w-4 h-4 text-primary shrink-0 mt-0.5" />
-                             <span>{feature}</span>
-                           </li>
-                         ))}
+                        {/* We assume activePlan features exist, or we can use generic ones */}
+                        {(
+                          activePlan.features || [
+                            "Access to all amenities",
+                            "24/7 Support",
+                            "Free event access",
+                          ]
+                        ).map((feature, i) => (
+                          <li
+                            key={i}
+                            className="flex items-start gap-3 text-sm text-text-main/70"
+                          >
+                            <Check className="w-4 h-4 text-primary shrink-0 mt-0.5" />
+                            <span>{feature}</span>
+                          </li>
+                        ))}
                       </ul>
                     </div>
 
                     <button
                       onClick={() => handleBookNow(activePlan.name, duration)}
                       className={`w-full py-3 px-4 rounded-xl font-bold text-sm transition-colors ${
-                        isPopular 
-                          ? "bg-primary text-primary-foreground hover:bg-primary/90 shadow-md shadow-primary/20" 
+                        isPopular
+                          ? "bg-primary text-primary-foreground hover:bg-primary/90 shadow-md shadow-primary/20"
                           : "bg-background border border-border-main hover:border-primary/50 hover:bg-surface text-text-main"
                       }`}
                     >
-                      {isBookingMode && seatParam ? "Confirm & Pay" : "Choose Plan"}
+                      {isBookingMode && seatParam
+                        ? "Confirm & Pay"
+                        : "Choose Plan"}
                     </button>
                   </div>
                 );
               })}
             </div>
-            
           </motion.div>
         ) : (
           <div className="text-center py-20 text-text-main/50">
@@ -294,8 +381,9 @@ export default function PricingPage() {
         )}
 
         <p className="mt-16 text-[13px] text-text-main/50 text-center max-w-2xl mx-auto">
-          3-Months, Half-Yearly, and Yearly plans are billed upfront. Prices exclude applicable taxes. 
-          For custom enterprise requirements or larger team setups, please contact our sales team.
+          3-Months, Half-Yearly, and Yearly plans are billed upfront. Prices
+          exclude applicable taxes. For custom enterprise requirements or larger
+          team setups, please contact our sales team.
         </p>
       </div>
     </div>

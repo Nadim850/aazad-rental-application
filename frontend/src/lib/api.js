@@ -85,7 +85,7 @@ export async function apiFetch(url, options = {}) {
             isRefreshing = false;
             clearTokens();
             onRrefreshed(null); // Notify failure
-            window.location.href = "/auth/login";
+            window.dispatchEvent(new CustomEvent('open-auth-modal', { detail: { mode: 'login' } }));
             return response;
           }
         } catch (err) {
@@ -93,7 +93,7 @@ export async function apiFetch(url, options = {}) {
           isRefreshing = false;
           clearTokens();
           onRrefreshed(null); // Notify failure
-          window.location.href = "/auth/login";
+          window.dispatchEvent(new CustomEvent('open-auth-modal', { detail: { mode: 'login' } }));
           return response;
         }
       } else {
@@ -113,7 +113,7 @@ export async function apiFetch(url, options = {}) {
     } else {
       // No refresh token available, must log in
       clearTokens();
-      window.location.href = "/auth/login";
+      window.dispatchEvent(new CustomEvent('open-auth-modal', { detail: { mode: 'login' } }));
     }
   }
 

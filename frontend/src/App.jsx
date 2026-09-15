@@ -1,13 +1,10 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { ThemeProvider } from "./contexts/ThemeContext";
+import { AuthModalProvider } from "./contexts/AuthModalContext";
 import PublicLayout from "./layouts/PublicLayout";
 import LandingPage from "./pages/public/LandingPage";
-import SeatSelectionMap from "./pages/public/SeatSelectionMap";
 import PricingPage from "./pages/public/PricingPage";
 import ContactPage from "./pages/public/ContactPage";
-import AuthLayout from "./layouts/AuthLayout";
-import LoginPage from "./pages/auth/LoginPage";
-import SignupPage from "./pages/auth/SignupPage";
 import UserDashboardLayout from "./layouts/UserDashboardLayout";
 import OverviewPage from "./pages/dashboard/OverviewPage";
 import AdminDashboardLayout from "./layouts/AdminDashboardLayout";
@@ -23,97 +20,93 @@ import StartupFacilityDetails from "./pages/public/StartupFacilityDetails";
 import PaymentPage from "./pages/public/PaymentPage";
 import ReceiptPage from "./pages/public/ReceiptPage";
 import AdminContactQueriesPage from "./pages/admin/AdminContactQueriesPage";
-
 import UserSettingsPage from "./pages/dashboard/UserSettingsPage";
-
+import AuthModal from "./components/auth/AuthModal";
 import { Toaster } from "react-hot-toast";
 
 function App() {
   return (
     <ThemeProvider>
-      <Toaster position="top-right" />
-      <BrowserRouter>
-        <Routes>
-          {/* Public Routes */}
-          <Route element={<PublicLayout />}>
-            <Route path="/" element={<LandingPage />} />
-            <Route path="/pricing" element={<PricingPage />} />
-            <Route path="/contact" element={<ContactPage />} />
-            <Route path="/library" element={<LibraryServices />} />
-            <Route path="/coworking" element={<CoworkingServices />} />
-            <Route
-              path="/coworking/details"
-              element={<CoworkingFacilityDetails />}
-            />
-            <Route path="/startup" element={<StartupServices />} />
-            <Route
-              path="/pricing/library"
-              element={<Navigate to="/pricing?plan=library" replace />}
-            />
-            <Route
-              path="/pricing/coworking"
-              element={<Navigate to="/pricing?plan=dedicated" replace />}
-            />
-            <Route
-              path="/pricing/startup"
-              element={<Navigate to="/pricing?plan=conference" replace />}
-            />
-            <Route path="/payment" element={<PaymentPage />} />
-            <Route path="/receipt/:id" element={<ReceiptPage />} />
-          </Route>
+      <AuthModalProvider>
+        <Toaster position="top-right" />
+        <BrowserRouter>
+          <AuthModal />
+          <Routes>
+            {/* Public Routes */}
+            <Route element={<PublicLayout />}>
+              <Route path="/" element={<LandingPage />} />
+              <Route path="/pricing" element={<PricingPage />} />
+              <Route path="/contact" element={<ContactPage />} />
+              <Route path="/library" element={<LibraryServices />} />
+              <Route path="/coworking" element={<CoworkingServices />} />
+              <Route
+                path="/coworking/details"
+                element={<CoworkingFacilityDetails />}
+              />
+              <Route path="/startup" element={<StartupServices />} />
+              <Route
+                path="/pricing/library"
+                element={<Navigate to="/pricing?plan=library" replace />}
+              />
+              <Route
+                path="/pricing/coworking"
+                element={<Navigate to="/pricing?plan=dedicated" replace />}
+              />
+              <Route
+                path="/pricing/startup"
+                element={<Navigate to="/pricing?plan=conference" replace />}
+              />
+              <Route path="/payment" element={<PaymentPage />} />
+              <Route path="/receipt/:id" element={<ReceiptPage />} />
+            </Route>
 
-          {/* Auth Routes */}
-          <Route path="/auth" element={<AuthLayout />}>
-            <Route path="login" element={<LoginPage />} />
-            <Route path="signup" element={<SignupPage />} />
-          </Route>
+            {/* Dashboard Routes */}
+            <Route path="/dashboard/*" element={<UserDashboardLayout />}>
+              <Route index element={<OverviewPage />} />
+              <Route path="settings" element={<UserSettingsPage />} />
+            </Route>
 
-          {/* Dashboard Routes */}
-          <Route path="/dashboard/*" element={<UserDashboardLayout />}>
-            <Route index element={<OverviewPage />} />
-            <Route path="settings" element={<UserSettingsPage />} />
-          </Route>
+            {/* Admin Routes */}
+            <Route path="/admin" element={<AdminDashboardLayout />}>
+              <Route index element={<Navigate to="library/users" replace />} />
 
-          {/* Admin Routes */}
-          <Route path="/admin" element={<AdminDashboardLayout />}>
-            <Route index element={<Navigate to="library/users" replace />} />
+              {/* Library Management */}
+              <Route
+                path="library/users"
+                element={<AdminUsersPage category="library" />}
+              />
+              <Route
+                path="library/plans"
+                element={<AdminPlansPage category="library" />}
+              />
+              <Route
+                path="library/workspaces"
+                element={<AdminWorkspacesPage category="library" />}
+              />
 
-            {/* Library Management */}
-            <Route
-              path="library/users"
-              element={<AdminUsersPage category="library" />}
-            />
-            <Route
-              path="library/plans"
-              element={<AdminPlansPage category="library" />}
-            />
-            <Route
-              path="library/workspaces"
-              element={<AdminWorkspacesPage category="library" />}
-            />
+              {/* Coworking Management */}
+              <Route
+                path="coworking/users"
+                element={<AdminUsersPage category="coworking" />}
+              />
+              <Route
+                path="coworking/plans"
+                element={<AdminPlansPage category="coworking" />}
+              />
+              <Route
+                path="coworking/workspaces"
+                element={<AdminWorkspacesPage category="coworking" />}
+              />
 
-            {/* Coworking Management */}
-            <Route
-              path="coworking/users"
-              element={<AdminUsersPage category="coworking" />}
-            />
-            <Route
-              path="coworking/plans"
-              element={<AdminPlansPage category="coworking" />}
-            />
-            <Route
-              path="coworking/workspaces"
-              element={<AdminWorkspacesPage category="coworking" />}
-            />
-
-            {/* System */}
-            <Route
-              path="contact-queries"
-              element={<AdminContactQueriesPage />}
-            />
-          </Route>
-        </Routes>
-      </BrowserRouter>
+              {/* System */}
+              <Route
+                path="contact-queries"
+                element={<AdminContactQueriesPage />}
+              />
+            </Route>
+          </Routes>
+        </BrowserRouter>
+      </AuthModalProvider>
     </ThemeProvider>
   );
 }

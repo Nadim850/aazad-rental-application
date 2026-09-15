@@ -4,12 +4,14 @@ import { useTheme } from "../contexts/ThemeContext";
 import { Moon, Sun, BookOpen, Menu, X } from "lucide-react";
 import { Button } from "../components/ui/Button";
 import NotificationBell from "../components/layout/NotificationBell";
+import { useAuthModal } from "../contexts/AuthModalContext";
 
 import { apiFetch } from "../lib/api";
 import { API_URL } from "../config";
 
 export default function PublicLayout() {
   const { theme, toggleTheme } = useTheme();
+  const { openModal } = useAuthModal();
   const navigate = useNavigate();
   const location = useLocation();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -188,9 +190,7 @@ export default function PublicLayout() {
                           <button
                             onClick={() => {
                               setIsDropdownOpen(false);
-                              navigate(
-                                `/auth/login?redirect=${encodeURIComponent(location.pathname + location.search)}`,
-                              );
+                              openModal('login');
                             }}
                             className="block w-full text-left px-4 py-2 text-sm text-text-main hover:bg-border-main/50 transition-colors font-medium"
                           >
@@ -199,9 +199,7 @@ export default function PublicLayout() {
                           <button
                             onClick={() => {
                               setIsDropdownOpen(false);
-                              navigate(
-                                `/auth/signup?redirect=${encodeURIComponent(location.pathname + location.search)}`,
-                              );
+                              openModal('signup');
                             }}
                             className="block w-full text-left px-4 py-2 text-sm text-text-main hover:bg-border-main/50 transition-colors font-medium"
                           >
@@ -280,22 +278,20 @@ export default function PublicLayout() {
                     <Button
                       variant="outline"
                       className="w-full justify-center"
-                      onClick={() =>
-                        navigate(
-                          `/auth/login?redirect=${encodeURIComponent(location.pathname + location.search)}`,
-                        )
-                      }
+                      onClick={() => {
+                        setIsMobileMenuOpen(false);
+                        openModal('login');
+                      }}
                     >
                       Log In
                     </Button>
                     <Button
                       variant="primary"
                       className="w-full justify-center"
-                      onClick={() =>
-                        navigate(
-                          `/auth/signup?redirect=${encodeURIComponent(location.pathname + location.search)}`,
-                        )
-                      }
+                      onClick={() => {
+                        setIsMobileMenuOpen(false);
+                        openModal('signup');
+                      }}
                     >
                       Sign Up
                     </Button>

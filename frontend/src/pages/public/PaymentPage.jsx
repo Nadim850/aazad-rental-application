@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams, useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
   CheckCircle2,
@@ -23,8 +23,12 @@ import QRCode from "react-qr-code";
 import { apiFetch } from "../../lib/api";
 import { getDurationPrice } from "../../lib/pricingUtils";
 import { API_URL } from "../../config";
+import { useAuthModal } from "../../contexts/AuthModalContext";
+
 export default function PaymentPage() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const { openModal } = useAuthModal();
   const [searchParams] = useSearchParams();
   const [isProcessing, setIsProcessing] = useState(false);
   const [paymentStatus, setPaymentStatus] = useState("pending"); // pending, success
@@ -81,7 +85,7 @@ export default function PaymentPage() {
     try {
       const token = localStorage.getItem("access");
       if (!token) {
-        navigate("/auth/login");
+        openModal("login", location.pathname + location.search);
         return;
       }
 
