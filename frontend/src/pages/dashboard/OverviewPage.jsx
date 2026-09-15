@@ -94,7 +94,7 @@ export default function OverviewPage() {
               <div className="text-center py-12 px-4 rounded-2xl bg-surface border border-border-main border-dashed">
                 <h3 className="text-lg font-medium text-text-main mb-2">No Active Subscription</h3>
                 <p className="text-text-main/70 mb-6">You don't have an active workspace booking yet.</p>
-                <Button onClick={() => navigate('/book')}>Book a Seat</Button>
+                <Button onClick={() => navigate('/pricing')}>Book a Seat</Button>
               </div>
             )}
 

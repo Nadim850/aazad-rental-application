@@ -69,19 +69,18 @@ class BookSeatView(APIView):
     permission_classes = (IsAuthenticated,)
     
     def post(self, request):
-        seat_id = request.data.get('seat_id')
+        workspace_type = request.data.get('workspace_type')
         plan_type = request.data.get('plan_type', 'Premium Plan')
         months = int(request.data.get('months', 1))
         
-        if not seat_id:
-            return Response({'error': 'seat_id is required'}, status=status.HTTP_400_BAD_REQUEST)
+        if not workspace_type:
+            return Response({'error': 'workspace_type is required'}, status=status.HTTP_400_BAD_REQUEST)
             
         # 1. Get Workspace
-        # Ensure the seat exists
-        try:
-            workspace = Workspace.objects.get(name=seat_id)
-        except Workspace.DoesNotExist:
-            return Response({'error': f'Seat {seat_id} does not exist.'}, status=status.HTTP_404_NOT_FOUND)
+        # Ensure a seat is available
+        workspace = Workspace.objects.filter(workspace_type=workspace_type, is_available=True).first()
+        if not workspace:
+            return Response({'error': f'No seats available for {workspace_type}.'}, status=status.HTTP_404_NOT_FOUND)
             
         if not workspace.is_available:
             # Check if this user holds any active/upcoming booking for this workspace
@@ -310,20 +309,22 @@ class CreateManualBookingView(APIView):
     permission_classes = (IsAuthenticated,)
 
     def post(self, request):
-        seat_id = request.data.get('seat_id')
+        workspace_type = request.data.get('workspace_type')
         plan_type = request.data.get('plan_type', 'Premium Plan')
         months = int(request.data.get('months', 1))
         transaction_id = request.data.get('transaction_id')
 
-        if not seat_id:
-            return Response({'error': 'seat_id is required'}, status=status.HTTP_400_BAD_REQUEST)
+        if not workspace_type:
+            return Response({'error': 'workspace_type is required'}, status=status.HTTP_400_BAD_REQUEST)
         if not transaction_id:
             return Response({'error': 'transaction_id is required'}, status=status.HTTP_400_BAD_REQUEST)
 
-        try:
-            workspace = Workspace.objects.get(name=seat_id)
-        except Workspace.DoesNotExist:
-            return Response({'error': f'Seat {seat_id} does not exist.'}, status=status.HTTP_404_NOT_FOUND)
+        # AUTOMATIC SEAT ALLOCATION: Find the first available seat of this type
+        workspace = Workspace.objects.filter(workspace_type=workspace_type, is_available=True).first()
+        
+        if not workspace:
+            return Response({'error': f'Sorry, no seats are currently available for {workspace_type}.'}, status=status.HTTP_404_NOT_FOUND)
+
 
         # Get Plan price
         try:

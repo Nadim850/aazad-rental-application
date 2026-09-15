@@ -1,5 +1,5 @@
 import { Outlet, Link } from 'react-router-dom';
-import { BookOpen } from 'lucide-react';
+import { BookOpen, ArrowLeft } from 'lucide-react';
 
 export default function AuthLayout() {
   return (
@@ -24,7 +24,18 @@ export default function AuthLayout() {
 
       {/* Right side - Auth Form */}
       <div className="flex-1 flex flex-col justify-center px-4 sm:px-6 lg:flex-none lg:w-1/2 lg:px-20 xl:px-32 bg-background">
-        <div className="mx-auto w-full max-w-sm lg:w-96">
+        <div className="mx-auto w-full max-w-sm lg:w-96 relative">
+          
+          {/* Back to Home Link (Desktop & Mobile aligned with form) */}
+          <div className="mb-8">
+            <Link 
+              to="/" 
+              className="inline-flex items-center text-sm font-medium text-text-main/60 hover:text-primary transition-colors bg-surface px-4 py-2 rounded-full border border-border-main/50 hover:border-primary/50 shadow-sm"
+            >
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Back to Home
+            </Link>
+          </div>
           <div className="lg:hidden flex justify-center mb-8">
             <Link to="/" className="flex items-center gap-2">
               <div className="bg-primary p-2 rounded-xl text-white">

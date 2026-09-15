@@ -49,34 +49,6 @@ export default function PaymentPage() {
           if (selectedPlan) {
             setPlanObj(selectedPlan);
             setBasePrice(parseFloat(selectedPlan.monthly_price));
-
-            // If no seat was provided in the URL, auto-select the first available one for this plan type
-            const initialSeatId = searchParams.get("seat");
-            if (!initialSeatId) {
-              try {
-                const wsRes = await fetch(
-                  `${API_URL}/api/bookings/public-workspaces/`,
-                );
-                if (wsRes.ok) {
-                  const wsData = await wsRes.json();
-                  const availableSeats = wsData
-                    .filter(
-                      (ws) =>
-                        ws.workspace_type === selectedPlan.workspace_type &&
-                        ws.is_available,
-                    )
-                    .sort((a, b) => a.name.localeCompare(b.name));
-
-                  if (availableSeats.length > 0) {
-                    setSeatId(availableSeats[0].name);
-                  } else {
-                    toast.error("No seats available for this plan.");
-                  }
-                }
-              } catch (wsErr) {
-                console.error("Failed to fetch workspaces", wsErr);
-              }
-            }
           }
         }
       } catch (err) {
@@ -84,17 +56,12 @@ export default function PaymentPage() {
       }
     };
     fetchPlans();
-  }, [planType, searchParams]);
+  }, [planType]);
 
   const price = getDurationPrice(planObj, months);
   const total = price;
 
   const handlePayment = async () => {
-    if (!seatId) {
-      toast.error("Please select a seat or wait for one to be auto-assigned.");
-      return;
-    }
-
     if (!transactionId.trim()) {
       toast.error("Please enter the UTR/Transaction ID.");
       return;
@@ -103,9 +70,13 @@ export default function PaymentPage() {
       toast.error("Please enter a valid 12-digit UTR/Transaction ID.");
       return;
     }
+    
+    if (!planObj) {
+      toast.error("Plan details not loaded yet.");
+      return;
+    }
 
     setIsProcessing(true);
-    // setError("");
 
     try {
       const token = localStorage.getItem("access");
@@ -123,7 +94,7 @@ export default function PaymentPage() {
             Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify({
-            seat_id: seatId,
+            workspace_type: planObj.workspace_type,
             plan_type: planType,
             months: months,
             transaction_id: transactionId,
@@ -168,7 +139,7 @@ export default function PaymentPage() {
               <h2 className="text-3xl font-bold mb-2">Payment Submitted</h2>
               <p className="text-text-main/70 mb-8">
                 Your payment details have been sent for verification. Once
-                approved by the admin, your seat ({seatId}) will be allocated.
+                approved by the admin, your seat will be automatically allocated.
               </p>
               <Button
                 size="lg"
@@ -218,7 +189,7 @@ export default function PaymentPage() {
                   <div>
                     <h3 className="font-bold text-lg">{planType}</h3>
                     <p className="text-sm text-text-main/70">
-                      Seat: {seatId || "Assigning..."} &bull; {months}{" "}
+                      Auto-allocated Seat &bull; {months}{" "}
                       {months === 1 ? "Month" : "Months"}
                     </p>
                   </div>

@@ -13,9 +13,11 @@ import {
   X,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import AvailabilityModal from "../../components/AvailabilityModal";
 
 export default function CoworkingServices() {
   const navigate = useNavigate();
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -23,6 +25,12 @@ export default function CoworkingServices() {
 
   return (
     <div className="flex flex-col min-h-screen">
+      <AvailabilityModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        type="dedicated"
+        title="Dedicated Desk Availability"
+      />
       {/* Hero Section */}
       <section className="relative pt-24 pb-24 md:pt-21 md:pb-32 overflow-hidden bg-background">
         <div className="absolute top-0 left-0 w-[600px] h-[600px] bg-secondary/20 dark:bg-secondary/10 rounded-full blur-[120px] opacity-60 z-0 -translate-x-1/2"></div>
@@ -41,15 +49,14 @@ export default function CoworkingServices() {
             need to scale.
           </p>
           <div className="flex flex-col sm:flex-row justify-center gap-4">
-            <Link to="/book?type=dedicated">
-              <Button
-                size="lg"
-                variant="secondary"
-                className="w-full sm:w-auto h-14 px-8 rounded-2xl shadow-lg hover:-translate-y-1"
-              >
-                Book a Desk <ChevronRight className="ml-2 w-5 h-5" />
-              </Button>
-            </Link>
+            <Button
+              size="lg"
+              variant="secondary"
+              className="w-full sm:w-auto h-14 px-8 rounded-2xl shadow-lg hover:-translate-y-1"
+              onClick={() => setIsModalOpen(true)}
+            >
+              Book a Desk <ChevronRight className="ml-2 w-5 h-5" />
+            </Button>
             <Button
               size="lg"
               variant="outline"

@@ -19,10 +19,10 @@ User = get_user_model()
 import os
 
 # Replace with your actual Client IDs in production
-GOOGLE_CLIENT_ID = settings.GOOGLE_CLIENT_ID
-GOOGLE_CLIENT_SECRET=settings.GOOGLE_CLIENT_SECRET
-GITHUB_CLIENT_ID = os.environ.get("GITHUB_CLIENT_ID", "YOUR_GITHUB_CLIENT_ID")
-GITHUB_CLIENT_SECRET = os.environ.get("GITHUB_CLIENT_SECRET", "YOUR_GITHUB_CLIENT_SECRET")
+GOOGLE_CLIENT_ID = settings.VITE_GOOGLE_CLIENT_ID
+GOOGLE_CLIENT_SECRET=settings.VITE_GOOGLE_CLIENT_SECRET
+GITHUB_CLIENT_ID = os.environ.get("VITE_GITHUB_CLIENT_ID", "YOUR_GITHUB_CLIENT_ID")
+GITHUB_CLIENT_SECRET = os.environ.get("VITE_GITHUB_CLIENT_SECRET", "YOUR_GITHUB_CLIENT_SECRET")
 
 def get_tokens_for_user(user):
     refresh = RefreshToken.for_user(user)
@@ -63,8 +63,8 @@ class SocialLoginView(APIView):
                     'https://oauth2.googleapis.com/token',
                     data={
                     'code':token,
-                    'client_id': GOOGLE_CLIENT_ID,
-                    'client_secret': GOOGLE_CLIENT_SECRET,
+                    'client_id': VITE_GOOGLE_CLIENT_ID,
+                    'client_secret': VITE_GOOGLE_CLIENT_SECRET,
                     'redirect_uri': 'postmessage',
                     'grant_type': 'authorization_code',
                      },
@@ -109,7 +109,9 @@ class SocialLoginView(APIView):
                         status=status.HTTP_400_BAD_REQUEST
                     )
 
-            except ValueError:
+            except ValueError as e:
+                print(f"Google Token Verification Error: {e}")
+                print(f"Client ID used in Backend: {GOOGLE_CLIENT_ID}")
                 return Response(
                     {'error': 'Invalid Google ID token'},
                     status=status.HTTP_400_BAD_REQUEST 
@@ -192,7 +194,7 @@ class SocialLoginView(APIView):
         # Issue JWT tokens
         tokens = get_tokens_for_user(user)
         return Response(tokens, status=status.HTTP_200_OK)
-class SocialLoginView(APIView):
+
     permission_classes = (AllowAny,)
 
     def post(self, request):

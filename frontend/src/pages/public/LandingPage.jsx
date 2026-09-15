@@ -49,7 +49,7 @@ export default function LandingPage() {
                   size="lg"
                   variant="secondary"
                   className="w-full sm:w-auto text-lg px-8 rounded-full"
-                  onClick={() => navigate("/book")}
+                  onClick={() => navigate("/pricing")}
                 >
                   Book a Seat <ArrowRight className="ml-2 w-5 h-5" />
                 </Button>

@@ -1,5 +1,5 @@
-import React, { useEffect } from "react";
-import { Link } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "../../components/ui/Button";
 import { Card, CardContent } from "../../components/ui/Card";
 import { Badge } from "../../components/ui/Badge";
@@ -11,14 +11,23 @@ import {
   ChevronRight,
   CheckCircle2,
 } from "lucide-react";
+import AvailabilityModal from "../../components/AvailabilityModal";
 
 export default function LibraryServices() {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
 
   return (
     <div className="flex flex-col min-h-screen">
+      <AvailabilityModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        type="library"
+        title="Library Seat Availability"
+      />
       {/* Hero Section */}
       <section className="relative pt-24 pb-24 md:pt-12 md:pb-32 overflow-hidden bg-background">
         <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-primary/20 dark:bg-primary/10 rounded-full blur-[120px] opacity-60 z-0"></div>
@@ -37,15 +46,14 @@ export default function LibraryServices() {
                 keep you productive.
               </p>
               <div className="flex gap-4">
-                <Link to="/book?type=library">
                   <Button
                     size="lg"
                     variant="secondary"
                     className="w-full sm:w-auto h-14 px-8 rounded-2xl shadow-lg hover:-translate-y-1"
+                    onClick={() => setIsModalOpen(true)}
                   >
                     Get a Library Pass <ChevronRight className="ml-2 w-5 h-5" />
                   </Button>
-                </Link>
               </div>
             </div>
 
@@ -117,37 +125,6 @@ export default function LibraryServices() {
           </div>
         </div>
       </section>
-      {/* CTA */}
-      {/* <section className="text-center">
-        <h2 className="text-4xl font-bold mb-6 mt-6 ">
-          Secure your <span className="text-text-main">seat</span> today.
-        </h2>
-        <p className="text-black/80 text-lg mb-10 max-w-xl mx-auto font-bold">
-          Our library zones have limited capacity to ensure the best possible
-          environment for our members.
-        </p>
-      </section>
-
-      <section className="text-white text-center">
-        <div className=" py-16 px-4">
-          <div className="max-w-3xl mx-auto">
-            <Button
-              asChild
-              size="lg"
-              className="h-14 px-8 text-lg rounded-2xl bg-surface text-secondary hover:bg-surface/90 shadow-xl"
-            >
-              <Link to="/book?type=library">Reserve a Seat</Link>
-            </Button>
-          </div>
-        </div>
-
-        <img
-          src="https://images.unsplash.com/photo-1521587760476-6c12a4b040da?auto=format&fit=crop&q=80"
-          alt="Library bookshelves"
-          className="w-full h-80 object-cover"
-        />
-      </section> */}
-      /
       <section className="text-center py-6">
         <h2 className="text-4xl font-bold mb-6">
           Secure your <span className="text-text-main">seat</span> today.
@@ -157,11 +134,11 @@ export default function LibraryServices() {
           environment for our members.
         </p>
         <Button
-          asChild
           size="lg"
           className="h-14 px-8 text-lg rounded-2xl bg-surface text-secondary hover:bg-surface/90 shadow-xl"
+          onClick={() => setIsModalOpen(true)}
         >
-          <Link to="/book?type=library">Reserve a Seat</Link>
+          Reserve a Seat
         </Button>
 
         <img

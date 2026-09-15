@@ -79,7 +79,7 @@ export default function LoginPage() {
         if (isAdmin) {
           navigate("/admin");
         } else {
-          navigate(redirectUrl ? redirectUrl : "/");
+          navigate(redirectUrl ? redirectUrl : "/dashboard");
         }
       } else {
         setGlobalError("Invalid email or password.");
@@ -122,7 +122,7 @@ export default function LoginPage() {
         if (isAdmin) {
           navigate("/admin");
         } else {
-          navigate(redirectUrl ? redirectUrl : "/");
+          navigate(redirectUrl ? redirectUrl : "/dashboard");
         }
       } else {
         const data = await response.json();
