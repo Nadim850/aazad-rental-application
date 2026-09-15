@@ -137,9 +137,13 @@ export default function AdminPlansPage({ category = "library" }) {
               {filteredPlans.map((plan) => (
                 <div
                   key={plan.id}
-                  className="p-4 border border-border-main rounded-lg bg-black/5 dark:bg-white/[0.02] flex items-center justify-between"
+                  className={`p-5 border border-border-main rounded-lg bg-black/5 dark:bg-white/[0.02] flex transition-all ${
+                    editingPlan === plan.id
+                      ? "flex-col items-stretch gap-4 shadow-sm"
+                      : "items-center justify-between"
+                  }`}
                 >
-                  <div className="flex-1">
+                  <div className={editingPlan === plan.id ? "w-full" : "flex-1"}>
                     <div className="flex items-center gap-2 mb-1">
                       <h3 className="font-semibold text-text-main">
                         {plan.name}
@@ -161,105 +165,117 @@ export default function AdminPlansPage({ category = "library" }) {
                     </p>
                   </div>
 
-                  <div className="flex items-center gap-4">
-                    {editingPlan === plan.id ? (
-                      <div className="flex flex-col items-end gap-2">
-                        {error && (
-                          <p className="text-xs text-red-500 mr-2">{error}</p>
-                        )}
-                        <div className="flex items-center gap-4">
-                          <div className="flex flex-col gap-1">
-                            <label className="text-[10px] text-text-main/50 uppercase tracking-wider">
-                              Price (₹)
-                            </label>
+                  {editingPlan === plan.id ? (
+                    <div className="flex flex-col gap-4 w-full pt-4 border-t border-border-main/20">
+                      {error && (
+                        <p className="text-sm font-medium text-red-500 bg-red-500/10 p-2 rounded-md border border-red-500/20">{error}</p>
+                      )}
+                      
+                      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+                        <div className="flex flex-col gap-1.5">
+                          <label className="text-[11px] font-bold text-text-main/50 uppercase tracking-wider">
+                            Monthly Price
+                          </label>
+                          <div className="relative">
+                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-text-main/50 text-sm">₹</span>
                             <Input
                               type="number"
                               value={editPrice}
                               onChange={(e) => setEditPrice(e.target.value)}
-                              className="w-24 h-9 bg-black/5 dark:bg-black/20 border-border-main"
+                              className="pl-7 bg-black/5 dark:bg-black/20 border-border-main"
                             />
-                          </div>
-                          <div className="flex flex-col gap-1">
-                            <label className="text-[10px] text-text-main/50 uppercase tracking-wider">
-                              Total Seats
-                            </label>
-                            <Input
-                              type="number"
-                              value={editSeats}
-                              onChange={(e) => setEditSeats(e.target.value)}
-                              className="w-20 h-9 bg-black/5 dark:bg-black/20 border-border-main"
-                            />
-                          </div>
-                          <div className="flex items-center gap-4 flex-wrap mt-2">
-                            <div className="flex flex-col gap-1">
-                              <label className="text-[10px] text-text-main/50 uppercase tracking-wider">
-                                3-Mo Price
-                              </label>
-                              <Input
-                                type="number"
-                                value={editPrice3M || ""}
-                                onChange={(e) => setEditPrice3M(e.target.value)}
-                                placeholder="Auto"
-                                className="w-24 h-9 bg-black/5 dark:bg-black/20 border-border-main"
-                              />
-                            </div>
-                            <div className="flex flex-col gap-1">
-                              <label className="text-[10px] text-text-main/50 uppercase tracking-wider">
-                                6-Mo Price
-                              </label>
-                              <Input
-                                type="number"
-                                value={editPrice6M || ""}
-                                onChange={(e) => setEditPrice6M(e.target.value)}
-                                placeholder="Auto"
-                                className="w-24 h-9 bg-black/5 dark:bg-black/20 border-border-main"
-                              />
-                            </div>
-                            <div className="flex flex-col gap-1">
-                              <label className="text-[10px] text-text-main/50 uppercase tracking-wider">
-                                1-Yr Price
-                              </label>
-                              <Input
-                                type="number"
-                                value={editPrice1Y || ""}
-                                onChange={(e) => setEditPrice1Y(e.target.value)}
-                                placeholder="Auto"
-                                className="w-24 h-9 bg-black/5 dark:bg-black/20 border-border-main"
-                              />
-                            </div>
-                            <div className="flex flex-col gap-1 w-full mt-1">
-                              <label className="text-[10px] text-text-main/50 uppercase tracking-wider">
-                                Seating Timings (Access Hours)
-                              </label>
-                              <Input
-                                type="text"
-                                value={editTimings}
-                                onChange={(e) => setEditTimings(e.target.value)}
-                                placeholder="e.g. 9 AM - 9 PM"
-                                className="h-9 bg-black/5 dark:bg-black/20 border-border-main w-full max-w-[200px]"
-                              />
-                            </div>
-                          </div>
-                          <div className="flex items-center gap-2 mt-4">
-                            <Button
-                              size="sm"
-                              onClick={() => handleSavePrice(plan.id)}
-                            >
-                              Save
-                            </Button>
-                            <Button
-                              size="sm"
-                              variant="ghost"
-                              onClick={() => {
-                                setEditingPlan(null);
-                                setError(null);
-                              }}
-                            >
-                              Cancel
-                            </Button>
                           </div>
                         </div>
+
+                        <div className="flex flex-col gap-1.5">
+                          <label className="text-[11px] font-bold text-text-main/50 uppercase tracking-wider">
+                            3-Mo Price
+                          </label>
+                          <div className="relative">
+                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-text-main/50 text-sm">₹</span>
+                            <Input
+                              type="number"
+                              value={editPrice3M || ""}
+                              onChange={(e) => setEditPrice3M(e.target.value)}
+                              placeholder="Auto"
+                              className="pl-7 bg-black/5 dark:bg-black/20 border-border-main"
+                            />
+                          </div>
+                        </div>
+
+                        <div className="flex flex-col gap-1.5">
+                          <label className="text-[11px] font-bold text-text-main/50 uppercase tracking-wider">
+                            6-Mo Price
+                          </label>
+                          <div className="relative">
+                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-text-main/50 text-sm">₹</span>
+                            <Input
+                              type="number"
+                              value={editPrice6M || ""}
+                              onChange={(e) => setEditPrice6M(e.target.value)}
+                              placeholder="Auto"
+                              className="pl-7 bg-black/5 dark:bg-black/20 border-border-main"
+                            />
+                          </div>
+                        </div>
+
+                        <div className="flex flex-col gap-1.5">
+                          <label className="text-[11px] font-bold text-text-main/50 uppercase tracking-wider">
+                            1-Yr Price
+                          </label>
+                          <div className="relative">
+                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-text-main/50 text-sm">₹</span>
+                            <Input
+                              type="number"
+                              value={editPrice1Y || ""}
+                              onChange={(e) => setEditPrice1Y(e.target.value)}
+                              placeholder="Auto"
+                              className="pl-7 bg-black/5 dark:bg-black/20 border-border-main"
+                            />
+                          </div>
+                        </div>
+
+                        <div className="flex flex-col gap-1.5">
+                          <label className="text-[11px] font-bold text-text-main/50 uppercase tracking-wider">
+                            Total Seats
+                          </label>
+                          <Input
+                            type="number"
+                            value={editSeats}
+                            onChange={(e) => setEditSeats(e.target.value)}
+                            className="bg-black/5 dark:bg-black/20 border-border-main"
+                          />
+                        </div>
+
+                        <div className="flex flex-col gap-1.5">
+                          <label className="text-[11px] font-bold text-text-main/50 uppercase tracking-wider">
+                            Access Hours
+                          </label>
+                          <Input
+                            type="text"
+                            value={editTimings}
+                            onChange={(e) => setEditTimings(e.target.value)}
+                            placeholder="e.g. 9 AM - 9 PM"
+                            className="bg-black/5 dark:bg-black/20 border-border-main"
+                          />
+                        </div>
                       </div>
+
+                      <div className="flex items-center justify-end gap-3 mt-4 pt-4 border-t border-border-main/20">
+                        <Button
+                          variant="ghost"
+                          onClick={() => {
+                            setEditingPlan(null);
+                            setError(null);
+                          }}
+                        >
+                          Cancel
+                        </Button>
+                        <Button onClick={() => handleSavePrice(plan.id)}>
+                          Save Changes
+                        </Button>
+                      </div>
+                    </div>
                     ) : (
                       <div className="flex items-center gap-4">
                         <div className="text-right">
