@@ -224,7 +224,9 @@ export default function PricingPage() {
                   key={facility.id}
                   onClick={() => setActiveTab(facility.id)}
                   className={`relative px-5 py-2.5 text-sm md:text-base font-semibold rounded-full transition-colors whitespace-nowrap outline-none ${
-                    isActive ? "text-primary-foreground" : "text-text-main/70 hover:text-text-main"
+                    isActive
+                      ? "text-secondary-foreground"
+                      : "text-text-main/70 hover:text-text-main"
                   }`}
                 >
                   {isActive && (
@@ -232,7 +234,11 @@ export default function PricingPage() {
                       layoutId="activeTabIndicator"
                       className="absolute inset-0 bg-primary rounded-full shadow-sm"
                       initial={false}
-                      transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                      transition={{
+                        type: "spring",
+                        stiffness: 400,
+                        damping: 30,
+                      }}
                     />
                   )}
                   <span className="relative z-10">{facility.tabLabel}</span>
