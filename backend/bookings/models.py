@@ -18,6 +18,7 @@ class SubscriptionPlan(models.Model):
     price_3_months = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     price_6_months = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     price_1_year = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    access_hours = models.CharField(max_length=255, default='9 AM - 9 PM')
     features = models.JSONField(default=list, blank=True)
     total_seats = models.IntegerField(default=0)
     seat_prefix = models.CharField(max_length=10, default='')

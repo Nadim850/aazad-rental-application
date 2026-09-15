@@ -16,14 +16,22 @@ class BookingSerializer(serializers.ModelSerializer):
     user_first_name = serializers.CharField(source='user.first_name', read_only=True)
     user_last_name = serializers.CharField(source='user.last_name', read_only=True)
     user_email = serializers.CharField(source='user.email', read_only=True)
+    access_hours = serializers.SerializerMethodField()
     
     class Meta:
         model = Booking 
         fields = [
             'id', 'workspace', 'start_time', 'end_time', 'is_paid', 
             'status', 'created_at', 'updated_at', 'amount_paid', 'plan_name', 
-            'razorpay_payment_id', 'user_first_name', 'user_last_name', 'user_email','transaction_id'
+            'razorpay_payment_id', 'user_first_name', 'user_last_name', 'user_email','transaction_id', 'access_hours'
         ]
+
+    def get_access_hours(self, obj):
+        if obj.plan_name:
+            plan = SubscriptionPlan.objects.filter(name=obj.plan_name).first()
+            if plan:
+                return plan.access_hours
+        return "9 AM - 9 PM"
 
 class ContactMessageSerializer(serializers.ModelSerializer):
     class Meta:

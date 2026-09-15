@@ -22,6 +22,7 @@ export default function AdminPlansPage({ category = "library" }) {
   const [editPrice6M, setEditPrice6M] = useState("");
   const [editPrice1Y, setEditPrice1Y] = useState("");
   const [editSeats, setEditSeats] = useState("");
+  const [editTimings, setEditTimings] = useState("");
   const [error, setError] = useState(null);
 
   const fetchPlans = async () => {
@@ -87,6 +88,7 @@ export default function AdminPlansPage({ category = "library" }) {
             price_6_months: editPrice6M || null,
             price_1_year: editPrice1Y || null,
             total_seats: editSeats,
+            access_hours: editTimings || '9 AM - 9 PM',
           }),
         },
       );
@@ -225,6 +227,18 @@ export default function AdminPlansPage({ category = "library" }) {
                                 className="w-24 h-9 bg-black/5 dark:bg-black/20 border-border-main"
                               />
                             </div>
+                            <div className="flex flex-col gap-1 w-full mt-1">
+                              <label className="text-[10px] text-text-main/50 uppercase tracking-wider">
+                                Seating Timings (Access Hours)
+                              </label>
+                              <Input
+                                type="text"
+                                value={editTimings}
+                                onChange={(e) => setEditTimings(e.target.value)}
+                                placeholder="e.g. 9 AM - 9 PM"
+                                className="h-9 bg-black/5 dark:bg-black/20 border-border-main w-full max-w-[200px]"
+                              />
+                            </div>
                           </div>
                           <div className="flex items-center gap-2 mt-4">
                             <Button
@@ -277,6 +291,7 @@ export default function AdminPlansPage({ category = "library" }) {
                             setEditPrice6M(plan.price_6_months || "");
                             setEditPrice1Y(plan.price_1_year || "");
                             setEditSeats(plan.total_seats);
+                            setEditTimings(plan.access_hours || "");
                             setError(null);
                           }}
                         >

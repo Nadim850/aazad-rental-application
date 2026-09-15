@@ -81,7 +81,7 @@ export default function OverviewPage() {
                   </div>
                   <div className="grid grid-cols-2 gap-y-3 mb-4 text-sm text-text-main/70 mt-4">
                      <div className="flex items-center"><MapPin className="w-4 h-4 mr-2" /> Floor 1, Main Wing</div>
-                     <div className="flex items-center"><Clock className="w-4 h-4 mr-2" /> 9 AM - 9 PM Access</div>
+                     <div className="flex items-center"><Clock className="w-4 h-4 mr-2" /> {active_subscription.access_hours || "9 AM - 9 PM"} Access</div>
                      <div className="flex items-center"><Calendar className="w-4 h-4 mr-2" /> Purchased: {new Date(active_subscription.start_time).toLocaleDateString()}</div>
                      <div className={cn("flex items-center", isNearExpire ? "text-error font-medium" : "")}>
                        <Calendar className={cn("w-4 h-4 mr-2", isNearExpire ? "text-error animate-pulse" : "text-warning")} />
