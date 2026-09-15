@@ -20,7 +20,8 @@ export default function ReceiptPage() {
       try {
         const token = localStorage.getItem("access");
         if (!token) {
-          navigate("/auth/login");
+          navigate("/");
+          window.dispatchEvent(new CustomEvent('open-auth-modal'));
           return;
         }
 

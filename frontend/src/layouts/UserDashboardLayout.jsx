@@ -35,7 +35,8 @@ export default function UserDashboardLayout() {
       try {
         const token = localStorage.getItem("access");
         if (!token) {
-          navigate("/auth/login");
+          navigate("/");
+          window.dispatchEvent(new CustomEvent('open-auth-modal'));
           return;
         }
 
@@ -59,7 +60,8 @@ export default function UserDashboardLayout() {
             const dashboard = await dashboardRes.json();
             setDashboardData(dashboard);
           } else if (dashboardRes.status === 401) {
-            navigate("/auth/login");
+            navigate("/");
+            window.dispatchEvent(new CustomEvent('open-auth-modal'));
             return;
           } else {
             console.error(
@@ -72,11 +74,13 @@ export default function UserDashboardLayout() {
             });
           }
         } else if (userRes.status === 401) {
-          navigate("/auth/login");
+          navigate("/");
+          window.dispatchEvent(new CustomEvent('open-auth-modal'));
           return;
         } else {
           console.error("Failed to verify user session:", userRes.status);
-          navigate("/auth/login");
+          navigate("/");
+          window.dispatchEvent(new CustomEvent('open-auth-modal'));
           return;
         }
       } catch (error) {
@@ -279,7 +283,7 @@ export default function UserDashboardLayout() {
                     onClick={() => {
                       localStorage.removeItem("access");
                       localStorage.removeItem("refresh");
-                      navigate("/auth/login");
+                      navigate("/");
                     }}
                     className="w-full flex items-center px-3 py-2 text-sm rounded-lg hover:bg-error/10 hover:text-error transition-colors text-left"
                   >

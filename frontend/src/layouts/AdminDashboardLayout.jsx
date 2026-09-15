@@ -34,7 +34,8 @@ function AdminDashboardLayoutContent() {
   useEffect(() => {
     const token = localStorage.getItem("access");
     if (!token) {
-      navigate("/auth/login");
+      navigate("/");
+      window.dispatchEvent(new CustomEvent('open-auth-modal'));
       return;
     }
     apiFetch(`${API_URL}/api/accounts/me/`, {
@@ -50,10 +51,14 @@ function AdminDashboardLayoutContent() {
             setIsVerifying(false);
           }
         } else {
-          navigate("/auth/login");
+          navigate("/");
+          window.dispatchEvent(new CustomEvent('open-auth-modal'));
         }
       })
-      .catch(() => navigate("/auth/login"));
+      .catch(() => {
+        navigate("/");
+        window.dispatchEvent(new CustomEvent('open-auth-modal'));
+      });
   }, [navigate]);
 
   if (isVerifying) {
