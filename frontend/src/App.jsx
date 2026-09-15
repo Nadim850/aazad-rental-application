@@ -23,6 +23,7 @@ import ReceiptPage from "./pages/public/ReceiptPage";
 import AdminContactQueriesPage from "./pages/admin/AdminContactQueriesPage";
 import UserSettingsPage from "./pages/dashboard/UserSettingsPage";
 import AuthModal from "./components/auth/AuthModal";
+import ScrollToTop from "./components/ScrollToTop";
 import { Toaster } from "react-hot-toast";
 
 function App() {
@@ -31,6 +32,7 @@ function App() {
       <AuthModalProvider>
         <Toaster position="top-right" />
         <BrowserRouter>
+          <ScrollToTop />
           <AuthModal />
           <Routes>
             {/* Public Routes */}
