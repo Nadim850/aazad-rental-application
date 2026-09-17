@@ -25,6 +25,12 @@ import UserSettingsPage from "./pages/dashboard/UserSettingsPage";
 import AuthModal from "./components/auth/AuthModal";
 import ScrollToTop from "./components/ScrollToTop";
 import { Toaster } from "react-hot-toast";
+import { useLocation } from "react-router-dom";
+
+const AuthRedirect = () => {
+  const location = useLocation();
+  return <Navigate to={`/${location.search}`} replace />;
+};
 
 function App() {
   return (
@@ -62,6 +68,9 @@ function App() {
               <Route path="/payment" element={<PaymentPage />} />
               <Route path="/receipt/:id" element={<ReceiptPage />} />
             </Route>
+
+            {/* Legacy Auth Routes for OAuth Callbacks */}
+            <Route path="/auth/*" element={<AuthRedirect />} />
 
             {/* Dashboard Routes */}
             <Route path="/dashboard/*" element={<UserDashboardLayout />}>
