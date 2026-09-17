@@ -1,10 +1,9 @@
 import { useState, useEffect } from "react";
 import { Card } from "../../components/ui/Card";
 import { Badge } from "../../components/ui/Badge";
-import { ChevronDown, ChevronUp, Plus } from "lucide-react";
+import { ChevronDown, ChevronUp, Plus, Minus } from "lucide-react";
 import { useSearch } from "../../contexts/SearchContext";
 import { Button } from "../../components/ui/Button";
-import { Input } from "../../components/ui/Input";
 
 import { apiFetch } from "../../lib/api";
 import { API_URL } from "../../config";
@@ -21,15 +20,6 @@ export default function AdminWorkspacesPage({ category = "library" }) {
     startup: true,
     cabin: true,
   });
-
-  // New Workspace Form State
-  const [isAdding, setIsAdding] = useState(false);
-  const [newWorkspace, setNewWorkspace] = useState({
-    name: "",
-    workspace_type: category === "library" ? "library" : "dedicated",
-    price_per_hour: "",
-  });
-  const [addError, setAddError] = useState(null);
 
   const fetchWorkspaces = async () => {
     try {
@@ -50,57 +40,21 @@ export default function AdminWorkspacesPage({ category = "library" }) {
 
   useEffect(() => {
     fetchWorkspaces();
-    setNewWorkspace({
-      name: "",
-      workspace_type: category === "library" ? "library" : "dedicated",
-      price_per_hour: "",
-    });
   }, [category]);
-
-  const toggleAvailability = async (id, currentStatus) => {
-    const loadingToast = toast.loading("Updating availability...");
-    try {
-      const token = localStorage.getItem("access");
-      const res = await apiFetch(
-        `${API_URL}/api/bookings/admin-workspaces/${id}/`,
-        {
-          method: "PATCH",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ is_available: !currentStatus }),
-        },
-      );
-      if (res.ok) {
-        toast.success("Availability updated!", { id: loadingToast });
-        fetchWorkspaces();
-      } else {
-        toast.error("Failed to update availability", { id: loadingToast });
-      }
-    } catch (err) {
-      console.error(err);
-      toast.error("An error occurred", { id: loadingToast });
-    }
-  };
 
   const toggleSection = (type) => {
     setExpandedSections((prev) => ({ ...prev, [type]: !prev[type] }));
   };
 
-  const handleAddWorkspace = async (e) => {
-    e.preventDefault();
-    setAddError(null);
-    if (!newWorkspace.name || !newWorkspace.price_per_hour) {
-      setAddError("Please provide a name and price.");
-      toast.error("Please provide a name and price");
-      return;
-    }
-
-    const loadingToast = toast.loading("Adding workspace...");
-
+  // Helper functions for counters
+  const addSeat = async (type) => {
+    const loadingToast = toast.loading("Adding seat...");
     try {
       const token = localStorage.getItem("access");
+      const groupSpaces = grouped[type] || [];
+      const total = groupSpaces.length;
+      const name = `${typeDisplayNames[type]} Seat ${total + 1}`;
+
       const res = await apiFetch(`${API_URL}/api/bookings/admin-workspaces/`, {
         method: "POST",
         headers: {
@@ -108,30 +62,124 @@ export default function AdminWorkspacesPage({ category = "library" }) {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          ...newWorkspace,
+          name,
+          workspace_type: type,
+          price_per_hour: 0,
           is_available: true,
         }),
       });
 
       if (res.ok) {
-        setNewWorkspace({
-          name: "",
-          workspace_type: category === "library" ? "library" : "dedicated",
-          price_per_hour: "",
-        });
-        setIsAdding(false);
-        toast.success("Workspace added successfully!", { id: loadingToast });
+        toast.success("Seat added", { id: loadingToast });
         fetchWorkspaces();
       } else {
-        const data = await res.json();
-        setAddError(data.error || "Failed to create workspace.");
-        toast.error(data.error || "Failed to create workspace", {
-          id: loadingToast,
-        });
+        toast.error("Failed to add seat", { id: loadingToast });
       }
     } catch (err) {
-      setAddError("Network error occurred.");
-      toast.error("Network error occurred", { id: loadingToast });
+      toast.error("Network error", { id: loadingToast });
+    }
+  };
+
+  const removeSeat = async (type) => {
+    const groupSpaces = grouped[type] || [];
+    if (groupSpaces.length === 0) return;
+
+    const loadingToast = toast.loading("Removing seat...");
+    try {
+      const token = localStorage.getItem("access");
+      // Try to remove an available seat first
+      const availableSeats = groupSpaces.filter((s) => s.is_available);
+      let targetSeat = null;
+      if (availableSeats.length > 0) {
+        targetSeat = availableSeats[availableSeats.length - 1];
+      } else {
+        targetSeat = groupSpaces[groupSpaces.length - 1];
+      }
+
+      const res = await apiFetch(
+        `${API_URL}/api/bookings/admin-workspaces/${targetSeat.id}/`,
+        {
+          method: "DELETE",
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
+      if (res.ok) {
+        toast.success("Seat removed", { id: loadingToast });
+        fetchWorkspaces();
+      } else {
+        toast.error("Failed to remove seat", { id: loadingToast });
+      }
+    } catch (err) {
+      toast.error("Network error", { id: loadingToast });
+    }
+  };
+
+  const increaseOccupied = async (type) => {
+    const groupSpaces = grouped[type] || [];
+    const availableSeats = groupSpaces.filter((s) => s.is_available);
+    if (availableSeats.length === 0) {
+      toast.error("No available seats to mark as occupied");
+      return;
+    }
+
+    const loadingToast = toast.loading("Updating status...");
+    try {
+      const token = localStorage.getItem("access");
+      const targetSeat = availableSeats[0];
+      const res = await apiFetch(
+        `${API_URL}/api/bookings/admin-workspaces/${targetSeat.id}/`,
+        {
+          method: "PATCH",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ is_available: false }),
+        }
+      );
+      if (res.ok) {
+        toast.success("Marked as occupied", { id: loadingToast });
+        fetchWorkspaces();
+      } else {
+        toast.error("Failed to update status", { id: loadingToast });
+      }
+    } catch (err) {
+      toast.error("Network error", { id: loadingToast });
+    }
+  };
+
+  const decreaseOccupied = async (type) => {
+    const groupSpaces = grouped[type] || [];
+    const occupiedSeats = groupSpaces.filter((s) => !s.is_available);
+    if (occupiedSeats.length === 0) {
+      toast.error("No occupied seats to mark as available");
+      return;
+    }
+
+    const loadingToast = toast.loading("Updating status...");
+    try {
+      const token = localStorage.getItem("access");
+      const targetSeat = occupiedSeats[0];
+      const res = await apiFetch(
+        `${API_URL}/api/bookings/admin-workspaces/${targetSeat.id}/`,
+        {
+          method: "PATCH",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ is_available: true }),
+        }
+      );
+      if (res.ok) {
+        toast.success("Marked as available", { id: loadingToast });
+        fetchWorkspaces();
+      } else {
+        toast.error("Failed to update status", { id: loadingToast });
+      }
+    } catch (err) {
+      toast.error("Network error", { id: loadingToast });
     }
   };
 
@@ -185,253 +233,126 @@ export default function AdminWorkspacesPage({ category = "library" }) {
               : "Manage availability of dedicated desks, cabins, and startup spaces."}
           </p>
         </div>
-        <Button
-          onClick={() => setIsAdding(!isAdding)}
-          variant={isAdding ? "outline" : "primary"}
-        >
-          {isAdding ? (
-            "Cancel"
-          ) : (
-            <>
-              <Plus size={16} className="mr-2" /> Add New Seat
-            </>
-          )}
-        </Button>
       </div>
-
-      {isAdding && (
-        <Card className="bg-surface border-border-main p-6">
-          <h3 className="text-lg font-semibold mb-4">Create New Workspace</h3>
-          {addError && (
-            <div className="mb-4 p-3 bg-error/10 text-error border border-error/20 rounded text-sm">
-              {addError}
-            </div>
-          )}
-          <form
-            onSubmit={handleAddWorkspace}
-            className="flex flex-col md:flex-row gap-4 items-end"
-          >
-            <div className="flex-1 w-full">
-              <label className="block text-sm font-medium text-text-main/70 mb-1">
-                Seat Name / ID
-              </label>
-              <Input
-                placeholder="e.g. DD-12 or Cabin B"
-                value={newWorkspace.name}
-                onChange={(e) =>
-                  setNewWorkspace({ ...newWorkspace, name: e.target.value })
-                }
-                required
-              />
-            </div>
-            <div className="flex-1 w-full">
-              <label className="block text-sm font-medium text-text-main/70 mb-1">
-                Type
-              </label>
-              <select
-                className="w-full h-10 px-3 rounded-md bg-transparent border border-border-main text-sm text-text-main focus:outline-none focus:ring-2 focus:ring-primary/50 transition-shadow"
-                value={newWorkspace.workspace_type}
-                onChange={(e) =>
-                  setNewWorkspace({
-                    ...newWorkspace,
-                    workspace_type: e.target.value,
-                  })
-                }
-              >
-                {category === "library" ? (
-                  <option
-                    value="library"
-                    className="bg-background text-text-main"
-                  >
-                    Library
-                  </option>
-                ) : (
-                  <>
-                    <option
-                      value="dedicated"
-                      className="bg-background text-text-main"
-                    >
-                      Dedicated Desk
-                    </option>
-                    <option
-                      value="startup"
-                      className="bg-background text-text-main"
-                    >
-                      Startup Space
-                    </option>
-                    <option
-                      value="cabin"
-                      className="bg-background text-text-main"
-                    >
-                      Private Cabin
-                    </option>
-                  </>
-                )}
-              </select>
-            </div>
-            <div className="flex-1 w-full">
-              <label className="block text-sm font-medium text-text-main/70 mb-1">
-                Price (₹/hr)
-              </label>
-              <Input
-                type="number"
-                placeholder="0.00"
-                value={newWorkspace.price_per_hour}
-                onChange={(e) =>
-                  setNewWorkspace({
-                    ...newWorkspace,
-                    price_per_hour: e.target.value,
-                  })
-                }
-                required
-                min="0"
-                step="0.01"
-              />
-            </div>
-            <Button type="submit" className="w-full md:w-auto h-10 px-8">
-              Create
-            </Button>
-          </form>
-        </Card>
-      )}
 
       {isLoading ? (
         <div className="py-10 text-center">Loading...</div>
       ) : (
         <div className="space-y-6">
-          {filteredWorkspaces.length === 0 && !searchQuery ? (
-            <Card className="bg-surface border-border-main py-12">
-              <div className="text-center text-text-main/50">
-                No workspaces exist yet.
-              </div>
-            </Card>
-          ) : (
-            types.map((type) => {
-              const groupSpaces = grouped[type] || [];
-              // If user is searching and this group has no matches, hide it.
-              // Otherwise, always show the empty category container.
-              if (searchQuery && groupSpaces.length === 0) return null;
+          {types.map((type) => {
+            const groupSpaces = grouped[type] || [];
+            // If user is searching and this group has no matches, hide it.
+            if (searchQuery && groupSpaces.length === 0) return null;
 
-              const total = groupSpaces.length;
-              const available = groupSpaces.filter(
-                (s) => s.is_available,
-              ).length;
-              const occupied = total - available;
-              const isExpanded = expandedSections[type];
+            const total = groupSpaces.length;
+            const available = groupSpaces.filter((s) => s.is_available).length;
+            const occupied = total - available;
+            const isExpanded = expandedSections[type];
 
-              return (
-                <Card
-                  key={type}
-                  className="bg-surface border-border-main overflow-hidden shadow-sm"
+            return (
+              <Card
+                key={type}
+                className="bg-surface border-border-main overflow-hidden shadow-sm"
+              >
+                <div
+                  className="p-5 flex items-center justify-between cursor-pointer hover:bg-black/5 dark:hover:bg-white/[0.02] transition-colors"
+                  onClick={() => toggleSection(type)}
                 >
-                  <div
-                    className="p-5 flex items-center justify-between cursor-pointer hover:bg-black/5 dark:hover:bg-white/[0.02] transition-colors"
-                    onClick={() => toggleSection(type)}
-                  >
-                    <div>
-                      <h3 className="text-lg font-semibold text-text-main">
-                        {typeDisplayNames[type]}
-                      </h3>
-                      <div className="flex gap-4 mt-2 text-sm text-text-main/70">
-                        <span className="flex items-center gap-1">
-                          Total: <Badge variant="outline">{total}</Badge>
+                  <div>
+                    <h3 className="text-lg font-semibold text-text-main">
+                      {typeDisplayNames[type]}
+                    </h3>
+                  </div>
+                  <div className="text-text-main/50 bg-black/5 dark:bg-white/5 p-2 rounded-full">
+                    {isExpanded ? (
+                      <ChevronUp size={20} />
+                    ) : (
+                      <ChevronDown size={20} />
+                    )}
+                  </div>
+                </div>
+
+                {isExpanded && (
+                  <div className="border-t border-border-main bg-black/5 dark:bg-white/[0.01] p-6">
+                    <div className="max-w-sm space-y-6">
+                      {/* Total Seats Counter */}
+                      <div className="flex justify-between items-center">
+                        <span className="font-medium text-text-main">
+                          Total Seats
                         </span>
-                        <span className="flex items-center gap-1">
-                          Available:{" "}
-                          <Badge
-                            variant="success"
-                            className="bg-success/10 text-success border-success/20"
+                        <div className="flex items-center gap-4 bg-background border border-border-main rounded-lg p-1">
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              removeSeat(type);
+                            }}
+                            disabled={total === 0}
+                            className="p-1 text-text-main/70 hover:text-error disabled:opacity-50 transition-colors"
                           >
-                            {available}
-                          </Badge>
+                            <Minus size={18} />
+                          </button>
+                          <span className="w-8 text-center font-semibold text-text-main">
+                            {total}
+                          </span>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              addSeat(type);
+                            }}
+                            className="p-1 text-text-main/70 hover:text-success transition-colors"
+                          >
+                            <Plus size={18} />
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* Occupied Seats Counter */}
+                      <div className="flex justify-between items-center">
+                        <span className="font-medium text-text-main">
+                          Occupied Seats
                         </span>
-                        <span className="flex items-center gap-1">
-                          Occupied:{" "}
-                          <Badge
-                            variant="destructive"
-                            className="bg-error/10 text-error border-error/20"
+                        <div className="flex items-center gap-4 bg-background border border-border-main rounded-lg p-1">
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              decreaseOccupied(type);
+                            }}
+                            disabled={occupied === 0}
+                            className="p-1 text-text-main/70 hover:text-success disabled:opacity-50 transition-colors"
                           >
+                            <Minus size={18} />
+                          </button>
+                          <span className="w-8 text-center font-semibold text-text-main">
                             {occupied}
-                          </Badge>
+                          </span>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              increaseOccupied(type);
+                            }}
+                            disabled={available === 0}
+                            className="p-1 text-text-main/70 hover:text-error disabled:opacity-50 transition-colors"
+                          >
+                            <Plus size={18} />
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* Available Info */}
+                      <div className="flex justify-between items-center pt-4 border-t border-border-main/50">
+                        <span className="font-medium text-text-main/70">
+                          Available Seats
+                        </span>
+                        <span className="font-bold text-success text-lg">
+                          {available}
                         </span>
                       </div>
-                    </div>
-                    <div className="text-text-main/50 bg-black/5 dark:bg-white/5 p-2 rounded-full">
-                      {isExpanded ? (
-                        <ChevronUp size={20} />
-                      ) : (
-                        <ChevronDown size={20} />
-                      )}
                     </div>
                   </div>
-
-                  {isExpanded && groupSpaces.length > 0 && (
-                    <div className="border-t border-border-main bg-black/5 dark:bg-white/[0.01]">
-                      <div className="overflow-x-auto">
-                        <table className="w-full text-sm text-left">
-                          <thead className="text-xs text-text-main/50 uppercase border-b border-border-main">
-                            <tr>
-                              <th className="px-6 py-4 font-medium">Seat ID</th>
-                              <th className="px-6 py-4 font-medium">Status</th>
-                              <th className="px-6 py-4 font-medium text-right">
-                                Action
-                              </th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {groupSpaces.map((ws) => (
-                              <tr
-                                key={ws.id}
-                                className="border-b border-border-main/50 hover:bg-black/5 dark:hover:bg-white/[0.03] transition-colors last:border-0"
-                              >
-                                <td className="px-6 py-4 font-medium">
-                                  {ws.name}
-                                </td>
-                                <td className="px-6 py-4">
-                                  {ws.is_available ? (
-                                    <span className="flex items-center text-success text-xs font-medium">
-                                      <span className="w-2 h-2 rounded-full bg-success mr-2"></span>{" "}
-                                      Available
-                                    </span>
-                                  ) : (
-                                    <span className="flex items-center text-error text-xs font-medium">
-                                      <span className="w-2 h-2 rounded-full bg-error mr-2"></span>{" "}
-                                      Occupied
-                                    </span>
-                                  )}
-                                </td>
-                                <td className="px-6 py-4 text-right">
-                                  <button
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      toggleAvailability(
-                                        ws.id,
-                                        ws.is_available,
-                                      );
-                                    }}
-                                    className="text-xs font-medium text-primary hover:text-primary-dark transition-colors px-3 py-1.5 rounded-md hover:bg-primary/10"
-                                  >
-                                    Mark as{" "}
-                                    {ws.is_available ? "Occupied" : "Available"}
-                                  </button>
-                                </td>
-                              </tr>
-                            ))}
-                          </tbody>
-                        </table>
-                      </div>
-                    </div>
-                  )}
-                  {isExpanded && groupSpaces.length === 0 && (
-                    <div className="border-t border-border-main bg-black/5 dark:bg-white/[0.01] p-6 text-center text-sm text-text-main/50">
-                      No seats added for this category yet. Use the "Add New
-                      Seat" button above.
-                    </div>
-                  )}
-                </Card>
-              );
-            })
-          )}
+                )}
+              </Card>
+            );
+          })}
         </div>
       )}
     </div>
