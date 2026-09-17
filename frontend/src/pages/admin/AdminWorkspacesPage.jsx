@@ -297,80 +297,125 @@ export default function AdminWorkspacesPage({ category = "library" }) {
 
                 {isExpanded && (
                   <div className="border-t border-border-main bg-black/5 dark:bg-white/[0.01] p-6">
-                    <div className="max-w-sm space-y-6">
-                      {/* Total Seats Counter */}
-                      <div className="flex justify-between items-center">
-                        <span className="font-medium text-text-main">
-                          Total Seats
-                        </span>
-                        <div className="flex items-center gap-4 bg-background border border-border-main rounded-lg p-1">
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              removeSeat(type);
-                            }}
-                            disabled={total === 0}
-                            className="p-1 text-text-main/70 hover:text-error disabled:opacity-50 transition-colors"
-                          >
-                            <Minus size={18} />
-                          </button>
-                          <span className="w-8 text-center font-semibold text-text-main">
-                            {total}
+                    {type === "startup" ? (
+                      <div className="max-w-sm space-y-6">
+                        {total === 0 ? (
+                          <div className="text-center py-4 border border-border-main border-dashed rounded-lg">
+                            <p className="text-sm text-text-main/50 mb-3">No space initialized</p>
+                            <Button onClick={(e) => { e.stopPropagation(); addSeat(type); }} variant="outline">
+                              Initialize Space
+                            </Button>
+                          </div>
+                        ) : (
+                          <div className="flex justify-between items-center bg-background border border-border-main rounded-lg p-4">
+                            <span className="font-medium text-text-main">
+                              Status:{" "}
+                              <span
+                                className={
+                                  available > 0 ? "text-success" : "text-error"
+                                }
+                              >
+                                {available > 0 ? "Available" : "Occupied"}
+                              </span>
+                            </span>
+                            <Button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                if (available > 0) {
+                                  increaseOccupied(type);
+                                } else {
+                                  decreaseOccupied(type);
+                                }
+                              }}
+                              className={
+                                available > 0
+                                  ? "bg-error hover:bg-error/90 text-white"
+                                  : "bg-success hover:bg-success/90 text-white"
+                              }
+                            >
+                              {available > 0
+                                ? "Mark as Occupied"
+                                : "Mark as Available"}
+                            </Button>
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      <div className="max-w-sm space-y-6">
+                        {/* Total Capacity Counter */}
+                        <div className="flex justify-between items-center">
+                          <span className="font-medium text-text-main">
+                            Total {type === "cabin" ? "Cabins" : type === "dedicated" ? "Desks" : "Seats"}
                           </span>
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              addSeat(type);
-                            }}
-                            className="p-1 text-text-main/70 hover:text-success transition-colors"
-                          >
-                            <Plus size={18} />
-                          </button>
+                          <div className="flex items-center gap-4 bg-background border border-border-main rounded-lg p-1">
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                removeSeat(type);
+                              }}
+                              disabled={total === 0}
+                              className="p-1 text-text-main/70 hover:text-error disabled:opacity-50 transition-colors"
+                            >
+                              <Minus size={18} />
+                            </button>
+                            <span className="w-8 text-center font-semibold text-text-main">
+                              {total}
+                            </span>
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                addSeat(type);
+                              }}
+                              className="p-1 text-text-main/70 hover:text-success transition-colors"
+                            >
+                              <Plus size={18} />
+                            </button>
+                          </div>
+                        </div>
+
+                        {/* Occupied Counter */}
+                        <div className="flex justify-between items-center">
+                          <span className="font-medium text-text-main">
+                            Occupied {type === "cabin" ? "Cabins" : type === "dedicated" ? "Desks" : "Seats"}
+                          </span>
+                          <div className="flex items-center gap-4 bg-background border border-border-main rounded-lg p-1">
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                decreaseOccupied(type);
+                              }}
+                              disabled={occupied === 0}
+                              className="p-1 text-text-main/70 hover:text-success disabled:opacity-50 transition-colors"
+                            >
+                              <Minus size={18} />
+                            </button>
+                            <span className="w-8 text-center font-semibold text-text-main">
+                              {occupied}
+                            </span>
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                increaseOccupied(type);
+                              }}
+                              disabled={available === 0}
+                              className="p-1 text-text-main/70 hover:text-error disabled:opacity-50 transition-colors"
+                            >
+                              <Plus size={18} />
+                            </button>
+                          </div>
+                        </div>
+
+                        {/* Available Info */}
+                        <div className="flex justify-between items-center pt-4 border-t border-border-main/50">
+                          <span className="font-medium text-text-main/70">
+                            Available {type === "cabin" ? "Cabins" : type === "dedicated" ? "Desks" : "Seats"}
+                          </span>
+                          <span className="font-bold text-success text-lg">
+                            {available}
+                          </span>
                         </div>
                       </div>
-
-                      {/* Occupied Seats Counter */}
-                      <div className="flex justify-between items-center">
-                        <span className="font-medium text-text-main">
-                          Occupied Seats
-                        </span>
-                        <div className="flex items-center gap-4 bg-background border border-border-main rounded-lg p-1">
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              decreaseOccupied(type);
-                            }}
-                            disabled={occupied === 0}
-                            className="p-1 text-text-main/70 hover:text-success disabled:opacity-50 transition-colors"
-                          >
-                            <Minus size={18} />
-                          </button>
-                          <span className="w-8 text-center font-semibold text-text-main">
-                            {occupied}
-                          </span>
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              increaseOccupied(type);
-                            }}
-                            disabled={available === 0}
-                            className="p-1 text-text-main/70 hover:text-error disabled:opacity-50 transition-colors"
-                          >
-                            <Plus size={18} />
-                          </button>
-                        </div>
-                      </div>
-
-                      {/* Available Info */}
-                      <div className="flex justify-between items-center pt-4 border-t border-border-main/50">
-                        <span className="font-medium text-text-main/70">
-                          Available Seats
-                        </span>
-                        <span className="font-bold text-success text-lg">
-                          {available}
-                        </span>
-                      </div>
-                    </div>
+                    )}
                   </div>
                 )}
               </Card>
