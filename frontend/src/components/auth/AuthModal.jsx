@@ -127,10 +127,11 @@ export default function AuthModal() {
       } else if (redirectUrl) {
         navigate(redirectUrl);
       } else {
-        if (location.pathname === "/") {
+        const currentPath = window.location.pathname;
+        if (currentPath === "/" || currentPath.startsWith("/auth/")) {
             navigate("/dashboard");
         } else {
-            navigate(location.pathname, { replace: true });
+            navigate(currentPath, { replace: true });
             window.location.reload(); 
         }
       }
