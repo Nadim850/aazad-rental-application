@@ -195,7 +195,7 @@ export default function PricingPage() {
       <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header Section */}
         <div className="text-center mb-12">
-          <Badge className="mb-6 bg-primary/10 text-primary border-primary/20 hover:bg-primary/20 transition-colors">
+          <Badge className="mb-6 bg-secondary/10 text-secondary border-secondary/20 hover:bg-secondary/20 transition-colors">
             Pricing Plans
           </Badge>
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-text-main tracking-tight mb-6 leading-tight max-w-4xl mx-auto">
@@ -209,7 +209,7 @@ export default function PricingPage() {
         </div>
 
         {isBookingMode && (
-          <div className="mb-10 max-w-2xl mx-auto p-4 border border-primary/30 bg-primary/5 rounded-xl text-primary font-medium flex items-center justify-center text-center">
+          <div className="mb-10 max-w-2xl mx-auto p-4 border border-secondary/30 bg-secondary/5 rounded-xl text-secondary font-medium flex items-center justify-center text-center">
             Booking Seat {seatParam} — Select a plan below to continue.
           </div>
         )}
@@ -232,7 +232,7 @@ export default function PricingPage() {
                   {isActive && (
                     <motion.div
                       layoutId="activeTabIndicator"
-                      className="absolute inset-0 bg-primary rounded-full shadow-sm"
+                      className="absolute inset-0 bg-secondary rounded-full shadow-sm"
                       initial={false}
                       transition={{
                         type: "spring",
@@ -250,7 +250,7 @@ export default function PricingPage() {
 
         {isLoading ? (
           <div className="flex justify-center items-center py-20">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-secondary"></div>
           </div>
         ) : activeFacility && activePlan ? (
           <motion.div
@@ -261,7 +261,7 @@ export default function PricingPage() {
             className="space-y-12"
           >
             {/* Facility Details Minimalist Block */}
-            <div className="max-w-4xl mx-auto text-center space-y-6 mb-12">
+            {/* <div className="max-w-4xl mx-auto text-center space-y-6 mb-12">
               <h2 className="text-2xl md:text-3xl font-bold">
                 {activeFacility.name}
               </h2>
@@ -282,7 +282,7 @@ export default function PricingPage() {
                   </div>
                 ))}
               </div>
-            </div>
+            </div> */}
 
             {/* Pricing Cards Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -298,15 +298,15 @@ export default function PricingPage() {
                     key={duration}
                     className={`relative flex flex-col bg-surface rounded-2xl p-6 transition-all duration-200 hover:-translate-y-1 hover:shadow-xl ${
                       isPopular
-                        ? "border-2 border-primary shadow-lg shadow-primary/10"
-                        : "border border-border-main hover:border-primary/50"
+                        ? "border-2 border-secondary shadow-lg shadow-secondary/10"
+                        : "border border-border-main hover:border-secondary/50"
                     }`}
                   >
                     {/* Top Badges */}
                     <div className="flex justify-between items-start mb-4 h-6">
                       {opt.badge ? (
                         <span
-                          className={`text-[11px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full ${isPopular ? "bg-primary text-primary-foreground" : "bg-secondary/10 text-secondary"}`}
+                          className={`text-[11px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full ${isPopular ? "bg-secondary text-secondary-foreground" : "bg-secondary/10 text-secondary"}`}
                         >
                           {opt.badge}
                         </span>
@@ -356,7 +356,7 @@ export default function PricingPage() {
                             key={i}
                             className="flex items-start gap-3 text-sm text-text-main/70"
                           >
-                            <Check className="w-4 h-4 text-primary shrink-0 mt-0.5" />
+                            <Check className="w-4 h-4 text-secondary shrink-0 mt-0.5" />
                             <span>{feature}</span>
                           </li>
                         ))}
@@ -367,8 +367,8 @@ export default function PricingPage() {
                       onClick={() => handleBookNow(activePlan.name, duration)}
                       className={`w-full py-3 px-4 rounded-xl font-bold text-sm transition-colors ${
                         isPopular
-                          ? "bg-primary text-primary-foreground hover:bg-primary/90 shadow-md shadow-primary/20"
-                          : "bg-background border border-border-main hover:border-primary/50 hover:bg-surface text-text-main"
+                          ? "bg-secondary text-secondary-foreground hover:bg-secondary/90 shadow-md shadow-secondary/20"
+                          : "bg-background border border-border-main hover:border-secondary/50 hover:bg-surface text-text-main"
                       }`}
                     >
                       {isBookingMode && seatParam

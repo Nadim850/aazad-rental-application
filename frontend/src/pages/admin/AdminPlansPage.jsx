@@ -315,7 +315,6 @@ export default function AdminPlansPage({ category = "library" }) {
                         </Button>
                       </div>
                     )}
-                  </div>
                 </div>
               ))}
             </div>

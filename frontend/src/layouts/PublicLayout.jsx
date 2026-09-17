@@ -59,17 +59,17 @@ export default function PublicLayout() {
   };
 
   const desktopClass = (path) =>
-    `transition-colors font-medium ${isActive(path) ? "text-primary" : "text-text-main/70 hover:text-primary"}`;
+    `transition-colors font-medium ${isActive(path) ? "text-secondary" : "text-text-main/70 hover:text-secondary"}`;
 
   const mobileClass = (path) =>
-    `py-3 font-medium transition-colors block w-full ${isActive(path) ? "text-primary border-b-2 border-primary" : "border-b border-border-main/50 text-text-main hover:text-primary"}`;
+    `py-3 font-medium transition-colors block w-full ${isActive(path) ? "text-secondary border-b-2 border-secondary" : "border-b border-border-main/50 text-text-main hover:text-secondary"}`;
 
   return (
     <div className="min-h-screen flex flex-col bg-background text-text-main transition-colors duration-300">
       <header className="sticky top-0 z-50 w-full border-b border-border-main bg-background/80 backdrop-blur-md">
         <div className="container mx-auto px-4 h-16 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2">
-            <div className="bg-primary p-2 rounded-xl text-white">
+            <div className="bg-secondary p-2 rounded-xl text-white">
               <BookOpen size={20} />
             </div>
             <span className="text-xl font-bold tracking-tight">
@@ -123,7 +123,7 @@ export default function PublicLayout() {
                       onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                       className="flex items-center gap-2 hover:bg-border-main/50 p-1.5 pr-3 rounded-full transition-colors border border-border-main/50"
                     >
-                      <div className="w-8 h-8 rounded-full bg-primary/20 text-primary flex items-center justify-center font-bold text-sm">
+                      <div className="w-8 h-8 rounded-full bg-secondary/20 text-secondary flex items-center justify-center font-bold text-sm">
                         {user?.first_name?.[0]?.toUpperCase() ||
                           user?.email?.[0]?.toUpperCase() ||
                           "U"}
@@ -172,7 +172,7 @@ export default function PublicLayout() {
               ) : (
                 <div className="relative">
                   <Button
-                    variant="primary"
+                    variant="secondary"
                     size="sm"
                     onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                   >
@@ -190,7 +190,7 @@ export default function PublicLayout() {
                           <button
                             onClick={() => {
                               setIsDropdownOpen(false);
-                              openModal('login');
+                              openModal("login");
                             }}
                             className="block w-full text-left px-4 py-2 text-sm text-text-main hover:bg-border-main/50 transition-colors font-medium"
                           >
@@ -199,7 +199,7 @@ export default function PublicLayout() {
                           <button
                             onClick={() => {
                               setIsDropdownOpen(false);
-                              openModal('signup');
+                              openModal("signup");
                             }}
                             className="block w-full text-left px-4 py-2 text-sm text-text-main hover:bg-border-main/50 transition-colors font-medium"
                           >
@@ -242,7 +242,7 @@ export default function PublicLayout() {
                 {isLoggedIn ? (
                   <>
                     <div className="flex items-center gap-3 py-2">
-                      <div className="w-10 h-10 rounded-full bg-primary/20 text-primary flex items-center justify-center font-bold">
+                      <div className="w-10 h-10 rounded-full bg-secondary/20 text-secondary flex items-center justify-center font-bold">
                         {user?.first_name?.[0]?.toUpperCase() ||
                           user?.email?.[0]?.toUpperCase() ||
                           "U"}
@@ -280,17 +280,17 @@ export default function PublicLayout() {
                       className="w-full justify-center"
                       onClick={() => {
                         setIsMobileMenuOpen(false);
-                        openModal('login');
+                        openModal("login");
                       }}
                     >
                       Log In
                     </Button>
                     <Button
-                      variant="primary"
+                      variant="secondary"
                       className="w-full justify-center"
                       onClick={() => {
                         setIsMobileMenuOpen(false);
-                        openModal('signup');
+                        openModal("signup");
                       }}
                     >
                       Sign Up
