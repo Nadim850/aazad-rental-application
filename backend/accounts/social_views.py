@@ -21,8 +21,8 @@ import os
 # Replace with your actual Client IDs in production
 GOOGLE_CLIENT_ID = settings.GOOGLE_CLIENT_ID
 GOOGLE_CLIENT_SECRET=settings.GOOGLE_CLIENT_SECRET
-GITHUB_CLIENT_ID = os.environ.get("VITE_GITHUB_CLIENT_ID", "YOUR_GITHUB_CLIENT_ID")
-GITHUB_CLIENT_SECRET = os.environ.get("VITE_GITHUB_CLIENT_SECRET", "YOUR_GITHUB_CLIENT_SECRET")
+GITHUB_CLIENT_ID = os.environ.get("GITHUB_CLIENT_ID", "")
+GITHUB_CLIENT_SECRET = os.environ.get("GITHUB_CLIENT_SECRET", "")
 
 def get_tokens_for_user(user):
     refresh = RefreshToken.for_user(user)
@@ -78,6 +78,7 @@ class SocialLoginView(APIView):
                 token_json = token_res.json()
 
                 if not token_res.ok:
+                    print(f"Google Token Exchange Failed: {token_json}")
                     return Response(
                 {
                     'error': token_json.get(
@@ -91,6 +92,7 @@ class SocialLoginView(APIView):
                 google_id_token = token_json.get('id_token')
 
                 if not google_id_token:
+                    print("Google ID token missing in response")
                     return Response(
                 {'error': 'Google ID token not received'},
                 status=status.HTTP_400_BAD_REQUEST
@@ -101,7 +103,7 @@ class SocialLoginView(APIView):
                     google_id_token,
                     google_requests.Request(),
                     safe_client_id,
-                    clock_skew_in_seconds=10
+                    clock_skew_in_seconds=60
                 )
 
                 email = idinfo.get('email')
@@ -109,6 +111,7 @@ class SocialLoginView(APIView):
                 last_name = idinfo.get('family_name', '')
 
                 if not email:
+                    print("Google email not provided by idinfo")
                     return Response(
                         {'error': 'Google account email not available'},
                         status=status.HTTP_400_BAD_REQUEST
@@ -129,12 +132,16 @@ class SocialLoginView(APIView):
                 )
 
         elif provider == 'github':
+            # Strip potential carriage returns from .env
+            safe_github_client_id = GITHUB_CLIENT_ID.strip() if GITHUB_CLIENT_ID else ""
+            safe_github_client_secret = GITHUB_CLIENT_SECRET.strip() if GITHUB_CLIENT_SECRET else ""
+
             # Exchange code for access token
             token_res = requests.post(
                 'https://github.com/login/oauth/access_token',
                 data={
-                    'client_id': GITHUB_CLIENT_ID,
-                    'client_secret': GITHUB_CLIENT_SECRET,
+                    'client_id': safe_github_client_id,
+                    'client_secret': safe_github_client_secret,
                     'code': token
                 },
                 headers={'Accept': 'application/json'}
@@ -143,6 +150,7 @@ class SocialLoginView(APIView):
             access_token = token_json.get('access_token')
             
             if not access_token:
+                print(f"GitHub Token Exchange Failed: {token_json}")
                 return Response({'error': 'Invalid GitHub code'}, status=status.HTTP_400_BAD_REQUEST)
                 
             # Get user emails (GitHub sometimes keeps email private in user endpoint)
