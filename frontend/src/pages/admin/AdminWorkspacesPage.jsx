@@ -262,6 +262,29 @@ export default function AdminWorkspacesPage({ category = "library" }) {
                     <h3 className="text-lg font-semibold text-text-main">
                       {typeDisplayNames[type]}
                     </h3>
+                    <div className="flex gap-4 mt-2 text-sm text-text-main/70">
+                      <span className="flex items-center gap-1">
+                        Total: <Badge variant="outline">{total}</Badge>
+                      </span>
+                      <span className="flex items-center gap-1">
+                        Available:{" "}
+                        <Badge
+                          variant="success"
+                          className="bg-success/10 text-success border-success/20"
+                        >
+                          {available}
+                        </Badge>
+                      </span>
+                      <span className="flex items-center gap-1">
+                        Occupied:{" "}
+                        <Badge
+                          variant="destructive"
+                          className="bg-error/10 text-error border-error/20"
+                        >
+                          {occupied}
+                        </Badge>
+                      </span>
+                    </div>
                   </div>
                   <div className="text-text-main/50 bg-black/5 dark:bg-white/5 p-2 rounded-full">
                     {isExpanded ? (
