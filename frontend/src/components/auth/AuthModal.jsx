@@ -49,12 +49,17 @@ export default function AuthModal() {
     const code = urlParams.get("code");
     if (code && !githubCodeProcessed.current) {
       githubCodeProcessed.current = true;
+      
+      // Clear code from URL immediately to prevent Strict Mode double-firing
+      window.history.replaceState({}, document.title, location.pathname);
+      navigate(location.pathname, { replace: true });
+
       if (!isOpen) {
         openModal("login");
       }
       handleSocialLogin("github", code);
     }
-  }, [location, isOpen, openModal]);
+  }, [location, isOpen, openModal, navigate]);
 
   const validateField = (id, value) => {
     let errorMsg = null;
