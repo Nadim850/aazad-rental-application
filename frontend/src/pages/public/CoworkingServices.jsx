@@ -29,7 +29,10 @@ export default function CoworkingServices() {
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         type="dedicated"
-        title="Dedicated Desk Availability"
+        options={[
+          { label: "Dedicated Desk", value: "dedicated" },
+          { label: "Private Cabin", value: "cabin" }
+        ]}
       />
       {/* Hero Section */}
       <section className="relative pt-24 pb-24 md:pt-21 md:pb-32 overflow-hidden bg-background">

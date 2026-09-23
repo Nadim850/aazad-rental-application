@@ -150,9 +150,9 @@ export default function ReceiptPage() {
                   </h3>
                   <div className="space-y-1.5 text-sm">
                     <div className="flex justify-between">
-                      <span className="text-text-main/70">Payment ID:</span>
+                      <span className="text-text-main/70">Payment ID / UTR:</span>
                       <span className="font-medium">
-                        {booking.razorpay_payment_id || "N/A"}
+                        {booking.transaction_id || booking.razorpay_payment_id || "N/A"}
                       </span>
                     </div>
                     <div className="flex justify-between">
@@ -163,7 +163,7 @@ export default function ReceiptPage() {
                     </div>
                     <div className="flex justify-between">
                       <span className="text-text-main/70">Method:</span>
-                      <span className="font-medium">Razorpay Gateway</span>
+                      <span className="font-medium">Bank Transfer / UPI</span>
                     </div>
                   </div>
                 </div>
@@ -196,6 +196,9 @@ export default function ReceiptPage() {
                             {new Date(booking.start_time).toLocaleDateString()}{" "}
                             &mdash;{" "}
                             {new Date(booking.end_time).toLocaleDateString()}
+                          </p>
+                          <p className="text-xs text-text-main/50 mt-0.5">
+                            Timings: {booking.access_hours || "9 AM - 9 PM"}
                           </p>
                         </td>
                         <td className="py-4 font-medium">

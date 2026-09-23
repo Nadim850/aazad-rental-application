@@ -69,6 +69,9 @@ class BookSeatView(APIView):
     permission_classes = (IsAuthenticated,)
     
     def post(self, request):
+        if request.user.is_staff or request.user.is_superuser:
+            return Response({'error': 'Admins are not allowed to book seats.'}, status=status.HTTP_403_FORBIDDEN)
+            
         workspace_type = request.data.get('workspace_type')
         plan_type = request.data.get('plan_type', 'Premium Plan')
         months = int(request.data.get('months', 1))
@@ -309,6 +312,9 @@ class CreateManualBookingView(APIView):
     permission_classes = (IsAuthenticated,)
 
     def post(self, request):
+        if request.user.is_staff or request.user.is_superuser:
+            return Response({'error': 'Admins are not allowed to book seats.'}, status=status.HTTP_403_FORBIDDEN)
+            
         workspace_type = request.data.get('workspace_type')
         plan_type = request.data.get('plan_type', 'Premium Plan')
         months = int(request.data.get('months', 1))
@@ -346,9 +352,14 @@ class CreateManualBookingView(APIView):
         workspace.save()
 
         # Calculate dates
+        start_date_str = request.data.get('start_date')
+        
         latest_user_booking = Booking.objects.filter(user=request.user, workspace=workspace, status__in=['ACTIVE', 'UPCOMING']).order_by('-end_time').first()
         
-        if latest_user_booking:
+        if start_date_str:
+            from datetime import datetime
+            start_time = timezone.make_aware(datetime.strptime(start_date_str, '%Y-%m-%d'))
+        elif latest_user_booking:
             start_time = latest_user_booking.end_time
         else:
             start_time = timezone.now()

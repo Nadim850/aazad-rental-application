@@ -173,6 +173,9 @@ export default function AdminUsersPage({ category = "library" }) {
   };
 
   const filteredUsers = users.filter((u) => {
+    // Exclude admins and staff from the user list
+    if (u.is_superuser || u.is_staff) return false;
+
     const q = (searchQuery || "").toLowerCase();
     const fullName = `${u.first_name || ""} ${u.last_name || ""}`.toLowerCase();
     const email = (u.email || "").toLowerCase();
@@ -197,28 +200,19 @@ export default function AdminUsersPage({ category = "library" }) {
     const isCoworkingUser =
       activeSub && activeSub?.workspace?.workspace_type !== "library";
 
-    // An inactive user could be shown in both, or we can just show them if they have upcoming subs matching,
-    // or maybe just keep them visible in the "Inactive" section regardless, but to be strictly separated:
-    // We will show them if they have any upcoming matching the category, OR if they have no subs at all.
+    const hasUpcomingLibrary = (u.upcoming_subscriptions || []).some(sub => sub.workspace?.workspace_type === "library");
+    const hasUpcomingCoworking = (u.upcoming_subscriptions || []).some(sub => sub.workspace?.workspace_type !== "library");
+    
+    const hasPendingLibrary = (u.pending_subscriptions || []).some(sub => sub.workspace?.workspace_type === "library");
+    const hasPendingCoworking = (u.pending_subscriptions || []).some(sub => sub.workspace?.workspace_type !== "library");
+
+    const hasNoSubsAtAll = !activeSub && (u.upcoming_subscriptions?.length || 0) === 0 && (u.pending_subscriptions?.length || 0) === 0;
+
     let matchesCategory = false;
     if (category === "library") {
-      matchesCategory =
-        isLibraryUser ||
-        (!activeSub &&
-          (u.upcoming_subscriptions || []).some(
-            (sub) => sub.workspace?.workspace_type === "library",
-          )) ||
-        (!activeSub &&
-          (!u.upcoming_subscriptions || u.upcoming_subscriptions.length === 0));
+      matchesCategory = isLibraryUser || hasUpcomingLibrary || hasPendingLibrary || hasNoSubsAtAll;
     } else {
-      matchesCategory =
-        isCoworkingUser ||
-        (!activeSub &&
-          (u.upcoming_subscriptions || []).some(
-            (sub) => sub.workspace?.workspace_type !== "library",
-          )) ||
-        (!activeSub &&
-          (!u.upcoming_subscriptions || u.upcoming_subscriptions.length === 0));
+      matchesCategory = isCoworkingUser || hasUpcomingCoworking || hasPendingCoworking || hasNoSubsAtAll;
     }
 
     return matchesSearch && matchesCategory;

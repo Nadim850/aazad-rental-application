@@ -36,6 +36,9 @@ export default function PaymentPage() {
   //const [error, setError] = useState("");
   const [transactionId, setTransactionId] = useState("");
 
+  const todayDateStr = new Date().toISOString().split('T')[0];
+  const startDate = searchParams.get("startDate") || todayDateStr;
+
   const planType = searchParams.get("plan") || "Premium Plan";
   const [seatId, setSeatId] = useState(searchParams.get("seat") || "");
   const months = parseInt(searchParams.get("months") || "1", 10);
@@ -102,6 +105,7 @@ export default function PaymentPage() {
             plan_type: planType,
             months: months,
             transaction_id: transactionId,
+            start_date: startDate,
           }),
         },
       );
@@ -114,10 +118,15 @@ export default function PaymentPage() {
       }
 
       const orderData = await orderResponse.json();
+      
+      if (!orderResponse.ok) {
+        throw new Error(orderData.error || "Failed to create booking");
+      }
+
       setSuccessfulBookingId(orderData.booking_id);
       setPaymentStatus("success");
     } catch (err) {
-      toast.error("Network error occurred during payment submission");
+      toast.error(err.message || "Network error occurred during payment submission");
       setIsProcessing(false);
     }
   };

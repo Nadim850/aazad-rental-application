@@ -27,6 +27,8 @@ import ScrollToTop from "./components/ScrollToTop";
 import { Toaster } from "react-hot-toast";
 import { useLocation } from "react-router-dom";
 
+import ResetPasswordPage from "./pages/public/ResetPasswordPage";
+
 const AuthRedirect = () => {
   const location = useLocation();
   return <Navigate to={`/${location.search}`} replace />;
@@ -68,6 +70,8 @@ function App() {
               <Route path="/payment" element={<PaymentPage />} />
               <Route path="/receipt/:id" element={<ReceiptPage />} />
             </Route>
+
+            <Route path="/reset-password/:uid/:token" element={<ResetPasswordPage />} />
 
             {/* Legacy Auth Routes for OAuth Callbacks */}
             <Route path="/auth/*" element={<AuthRedirect />} />

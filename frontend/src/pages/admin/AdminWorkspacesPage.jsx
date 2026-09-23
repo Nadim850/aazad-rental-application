@@ -89,12 +89,13 @@ export default function AdminWorkspacesPage({ category = "library" }) {
       const token = localStorage.getItem("access");
       // Try to remove an available seat first
       const availableSeats = groupSpaces.filter((s) => s.is_available);
-      let targetSeat = null;
-      if (availableSeats.length > 0) {
-        targetSeat = availableSeats[availableSeats.length - 1];
-      } else {
-        targetSeat = groupSpaces[groupSpaces.length - 1];
+      
+      if (availableSeats.length === 0) {
+        toast.error("Cannot decrease capacity: all seats are currently occupied.", { id: loadingToast });
+        return;
       }
+      
+      const targetSeat = availableSeats[availableSeats.length - 1];
 
       const res = await apiFetch(
         `${API_URL}/api/bookings/admin-workspaces/${targetSeat.id}/`,
@@ -353,7 +354,8 @@ export default function AdminWorkspacesPage({ category = "library" }) {
                                 e.stopPropagation();
                                 removeSeat(type);
                               }}
-                              disabled={total === 0}
+                              disabled={total === 0 || available === 0}
+                              title={available === 0 ? "Cannot decrease capacity: all seats are occupied" : "Decrease capacity"}
                               className="p-1 text-text-main/70 hover:text-error disabled:opacity-50 transition-colors"
                             >
                               <Minus size={18} />

@@ -63,6 +63,12 @@ export default function InvoicesPage() {
                         <td className="py-4 px-4">
                           <p className="font-medium">{workspaceName}</p>
                           <p className="text-xs text-text-main/50 capitalize">{workspaceType}</p>
+                          <p className="text-[10px] text-text-main/40 mt-1">
+                            {new Date(invoice.start_time).toLocaleDateString()} - {new Date(invoice.end_time).toLocaleDateString()}
+                          </p>
+                          <p className="text-[10px] text-text-main/40 mt-0.5">
+                            Timings: {invoice.access_hours || "9 AM - 9 PM"}
+                          </p>
                         </td>
                         <td className="py-4 px-4 font-medium">₹{amount}</td>
                         <td className="py-4 px-4">

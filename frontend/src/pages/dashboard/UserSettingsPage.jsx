@@ -141,6 +141,84 @@ export default function UserSettingsPage() {
 
       <Card>
         <CardHeader>
+          <CardTitle>Change Password</CardTitle>
+          <CardDescription>Update your account password.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={async (e) => {
+            e.preventDefault();
+            const form = e.target;
+            const oldPassword = form.oldPassword.value;
+            const newPassword = form.newPassword.value;
+            const confirmPassword = form.confirmPassword.value;
+
+            if (newPassword !== confirmPassword) {
+              alert("New passwords do not match.");
+              return;
+            }
+
+            try {
+              const token = localStorage.getItem("access");
+              const res = await apiFetch(`${API_URL}/api/accounts/change-password/`, {
+                method: "PUT",
+                headers: { Authorization: `Bearer ${token}` },
+                body: JSON.stringify({ old_password: oldPassword, new_password: newPassword }),
+              });
+              alert("Password updated successfully!");
+              form.reset();
+            } catch (err) {
+              alert(err.message || "Failed to update password");
+            }
+          }} className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label className="block text-sm font-medium mb-1.5">
+                  Current Password
+                </label>
+                <Input
+                  name="oldPassword"
+                  type="password"
+                  placeholder="••••••••"
+                  required
+                />
+              </div>
+              <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-sm font-medium mb-1.5">
+                    New Password
+                  </label>
+                  <Input
+                    name="newPassword"
+                    type="password"
+                    placeholder="••••••••"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1.5">
+                    Confirm New Password
+                  </label>
+                  <Input
+                    name="confirmPassword"
+                    type="password"
+                    placeholder="••••••••"
+                    required
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-4">
+              <Button type="submit">
+                <Save className="w-4 h-4 mr-2" /> Update Password
+              </Button>
+            </div>
+          </form>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
           <CardTitle>Notification Preferences</CardTitle>
           <CardDescription>Choose how you want to be notified.</CardDescription>
         </CardHeader>

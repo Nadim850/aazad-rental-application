@@ -33,7 +33,13 @@ export default function PublicLayout() {
           if (res.ok) return res.json();
           throw new Error("Not authenticated");
         })
-        .then((data) => setUser(data))
+        .then((data) => {
+          if (data.is_staff) {
+            navigate("/admin", { replace: true });
+          } else {
+            setUser(data);
+          }
+        })
         .catch(() => {
           // Handle expired token or error
           localStorage.removeItem("access");

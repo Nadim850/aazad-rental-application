@@ -5,7 +5,8 @@ from rest_framework_simplejwt.views import (
 )
 from .views import (
     RegisterView, CurrentUserView, AdminUserListView,
-    NotificationListView, NotificationUpdateView, NotificationDeleteView, NotificationReadAllView, UpdatePreferencesView
+    NotificationListView, NotificationUpdateView, NotificationDeleteView, NotificationReadAllView, UpdatePreferencesView,
+    ChangePasswordView, ForgotPasswordView, ResetPasswordView
 )
 from .social_views import SocialLoginView
 
@@ -17,6 +18,11 @@ urlpatterns = [
     path('me/', CurrentUserView.as_view(), name='current_user'),
     path('users/', AdminUserListView.as_view(), name='admin_user_list'),
     
+    # Passwords
+    path('change-password/', ChangePasswordView.as_view(), name='change_password'),
+    path('forgot-password/', ForgotPasswordView.as_view(), name='forgot_password'),
+    path('reset-password/', ResetPasswordView.as_view(), name='reset_password'),
+
     # Notifications
     path('notifications/', NotificationListView.as_view(), name='notification_list'),
     path('notifications/<int:pk>/read/', NotificationUpdateView.as_view(), name='notification_read'),

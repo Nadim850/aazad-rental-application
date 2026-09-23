@@ -54,6 +54,10 @@ export default function UserDashboardLayout() {
 
         if (userRes.ok) {
           const user = await userRes.json();
+          if (user.is_staff) {
+            navigate("/admin", { replace: true });
+            return;
+          }
           setUserData(user);
 
           if (dashboardRes.ok) {

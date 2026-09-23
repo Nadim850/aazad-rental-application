@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { API_URL } from "../../config";
 import { Badge } from "../../components/ui/Badge";
 import { getDurationPrice, getSavingsPercentage } from "../../lib/pricingUtils";
@@ -17,6 +17,7 @@ import {
   Car,
   Users,
   Check,
+  X,
 } from "lucide-react";
 
 const FACILITIES = [
@@ -148,6 +149,12 @@ export default function PricingPage() {
     FACILITIES.some((f) => f.id === initialTab) ? initialTab : "library",
   );
 
+  const [startDate, setStartDate] = useState(
+    searchParams.get("startDate") || new Date().toISOString().split("T")[0]
+  );
+  const [showDateModal, setShowDateModal] = useState(false);
+  const [pendingBooking, setPendingBooking] = useState(null);
+
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
@@ -170,19 +177,28 @@ export default function PricingPage() {
   }, []);
 
   const handleBookNow = (planName, duration) => {
+    setPendingBooking({ planName, duration });
+    setShowDateModal(true);
+  };
+
+  const proceedToPayment = () => {
+    if (!pendingBooking) return;
+    
     const token = localStorage.getItem("access");
-    const targetUrl = `/payment?plan=${encodeURIComponent(planName)}&months=${duration}${seatParam ? `&seat=${seatParam}` : ""}`;
+    let targetUrl = `/payment?plan=${encodeURIComponent(pendingBooking.planName)}&months=${pendingBooking.duration}`;
+    if (seatParam) targetUrl += `&seat=${seatParam}`;
+    if (startDate) targetUrl += `&startDate=${startDate}`;
+
     if (token) {
       navigate(targetUrl);
     } else {
-      // Trigger modal via custom event or navigate to signup if modal logic isn't wired perfectly here
-      // Since we added AuthModalContext, let's use the event dispatch as fallback if we don't want to import hook
       window.dispatchEvent(
         new CustomEvent("open-auth-modal", {
           detail: { mode: "signup", redirect: targetUrl },
         }),
       );
     }
+    setShowDateModal(false);
   };
 
   const activeFacility = FACILITIES.find((f) => f.id === activeTab);
@@ -260,30 +276,6 @@ export default function PricingPage() {
             transition={{ duration: 0.3 }}
             className="space-y-12"
           >
-            {/* Facility Details Minimalist Block */}
-            {/* <div className="max-w-4xl mx-auto text-center space-y-6 mb-12">
-              <h2 className="text-2xl md:text-3xl font-bold">
-                {activeFacility.name}
-              </h2>
-              <p className="text-text-main/70 text-lg">
-                {activeFacility.description}
-              </p>
-
-              <div className="flex flex-wrap justify-center gap-3 pt-4">
-                {activeFacility.amenities.map((amenity, idx) => (
-                  <div
-                    key={idx}
-                    className="flex items-center gap-1.5 bg-surface border border-border-main/50 px-3 py-1.5 rounded-full text-sm text-text-main/80"
-                  >
-                    <div className="text-primary">
-                      {getAmenityIcon(amenity)}
-                    </div>
-                    <span>{amenity}</span>
-                  </div>
-                ))}
-              </div>
-            </div> */}
-
             {/* Pricing Cards Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               {DURATION_OPTIONS.map((opt) => {
@@ -344,6 +336,10 @@ export default function PricingPage() {
 
                     <div className="flex-grow">
                       <ul className="space-y-3 mb-8">
+                        <li className="flex items-start gap-3 text-sm font-medium text-text-main">
+                          <Check className="w-4 h-4 text-primary shrink-0 mt-0.5" />
+                          <span>Timings: {activePlan.access_hours || "9 AM - 9 PM"}</span>
+                        </li>
                         {/* We assume activePlan features exist, or we can use generic ones */}
                         {(
                           activePlan.features || [
@@ -392,6 +388,61 @@ export default function PricingPage() {
           team setups, please contact our sales team.
         </p>
       </div>
+
+      {/* Date Selection Modal */}
+      <AnimatePresence>
+        {showDateModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 10 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 10 }}
+              className="bg-surface border border-border-main rounded-2xl p-6 w-full max-w-sm relative shadow-2xl"
+            >
+              <button
+                onClick={() => setShowDateModal(false)}
+                className="absolute top-4 right-4 text-text-main/50 hover:text-text-main transition-colors"
+              >
+                <X size={20} />
+              </button>
+
+              <h3 className="text-xl font-bold text-text-main mb-2">
+                Select Start Date
+              </h3>
+              <p className="text-text-main/70 text-sm mb-6">
+                When would you like your subscription to start?
+              </p>
+
+              <div className="mb-8">
+                <input
+                  type="date"
+                  value={startDate}
+                  min={new Date().toISOString().split("T")[0]}
+                  onChange={(e) => setStartDate(e.target.value)}
+                  className="w-full bg-background border border-border-main rounded-xl px-4 py-2.5 text-text-main focus:outline-none focus:ring-2 focus:ring-secondary/50"
+                  required
+                />
+              </div>
+
+              <div className="flex gap-3">
+                <button 
+                  onClick={() => setShowDateModal(false)}
+                  className="flex-1 py-2.5 px-4 rounded-xl font-semibold text-sm border border-border-main hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={proceedToPayment}
+                  disabled={!startDate}
+                  className="flex-1 py-2.5 px-4 rounded-xl font-semibold text-sm bg-secondary text-secondary-foreground hover:bg-secondary/90 transition-colors disabled:opacity-50"
+                >
+                  Proceed
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
