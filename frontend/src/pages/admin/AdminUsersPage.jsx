@@ -200,19 +200,38 @@ export default function AdminUsersPage({ category = "library" }) {
     const isCoworkingUser =
       activeSub && activeSub?.workspace?.workspace_type !== "library";
 
-    const hasUpcomingLibrary = (u.upcoming_subscriptions || []).some(sub => sub.workspace?.workspace_type === "library");
-    const hasUpcomingCoworking = (u.upcoming_subscriptions || []).some(sub => sub.workspace?.workspace_type !== "library");
-    
-    const hasPendingLibrary = (u.pending_subscriptions || []).some(sub => sub.workspace?.workspace_type === "library");
-    const hasPendingCoworking = (u.pending_subscriptions || []).some(sub => sub.workspace?.workspace_type !== "library");
+    const hasUpcomingLibrary = (u.upcoming_subscriptions || []).some(
+      (sub) => sub.workspace?.workspace_type === "library",
+    );
+    const hasUpcomingCoworking = (u.upcoming_subscriptions || []).some(
+      (sub) => sub.workspace?.workspace_type !== "library",
+    );
 
-    const hasNoSubsAtAll = !activeSub && (u.upcoming_subscriptions?.length || 0) === 0 && (u.pending_subscriptions?.length || 0) === 0;
+    const hasPendingLibrary = (u.pending_subscriptions || []).some(
+      (sub) => sub.workspace?.workspace_type === "library",
+    );
+    const hasPendingCoworking = (u.pending_subscriptions || []).some(
+      (sub) => sub.workspace?.workspace_type !== "library",
+    );
+
+    const hasNoSubsAtAll =
+      !activeSub &&
+      (u.upcoming_subscriptions?.length || 0) === 0 &&
+      (u.pending_subscriptions?.length || 0) === 0;
 
     let matchesCategory = false;
     if (category === "library") {
-      matchesCategory = isLibraryUser || hasUpcomingLibrary || hasPendingLibrary || hasNoSubsAtAll;
+      matchesCategory =
+        isLibraryUser ||
+        hasUpcomingLibrary ||
+        hasPendingLibrary ||
+        hasNoSubsAtAll;
     } else {
-      matchesCategory = isCoworkingUser || hasUpcomingCoworking || hasPendingCoworking || hasNoSubsAtAll;
+      matchesCategory =
+        isCoworkingUser ||
+        hasUpcomingCoworking ||
+        hasPendingCoworking ||
+        hasNoSubsAtAll;
     }
 
     return matchesSearch && matchesCategory;

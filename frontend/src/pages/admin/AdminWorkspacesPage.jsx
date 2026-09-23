@@ -89,12 +89,15 @@ export default function AdminWorkspacesPage({ category = "library" }) {
       const token = localStorage.getItem("access");
       // Try to remove an available seat first
       const availableSeats = groupSpaces.filter((s) => s.is_available);
-      
+
       if (availableSeats.length === 0) {
-        toast.error("Cannot decrease capacity: all seats are currently occupied.", { id: loadingToast });
+        toast.error(
+          "Cannot decrease capacity: all seats are currently occupied.",
+          { id: loadingToast },
+        );
         return;
       }
-      
+
       const targetSeat = availableSeats[availableSeats.length - 1];
 
       const res = await apiFetch(
@@ -102,7 +105,7 @@ export default function AdminWorkspacesPage({ category = "library" }) {
         {
           method: "DELETE",
           headers: { Authorization: `Bearer ${token}` },
-        }
+        },
       );
 
       if (res.ok) {
@@ -137,7 +140,7 @@ export default function AdminWorkspacesPage({ category = "library" }) {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({ is_available: false }),
-        }
+        },
       );
       if (res.ok) {
         toast.success("Marked as occupied", { id: loadingToast });
@@ -171,7 +174,7 @@ export default function AdminWorkspacesPage({ category = "library" }) {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({ is_available: true }),
-        }
+        },
       );
       if (res.ok) {
         toast.success("Marked as available", { id: loadingToast });
@@ -213,7 +216,7 @@ export default function AdminWorkspacesPage({ category = "library" }) {
         }
       : {
           dedicated: "Dedicated Desk",
-          startup: "Startup Space",
+          startup: "Conference Room",
           cabin: "Private Cabin",
         };
 
@@ -231,7 +234,7 @@ export default function AdminWorkspacesPage({ category = "library" }) {
           <p className="text-sm text-text-main/50">
             {category === "library"
               ? "Manage availability of library seats and zones."
-              : "Manage availability of dedicated desks, cabins, and startup spaces."}
+              : "Manage availability of dedicated desks, cabins, and Conference Room."}
           </p>
         </div>
       </div>
@@ -302,8 +305,16 @@ export default function AdminWorkspacesPage({ category = "library" }) {
                       <div className="max-w-sm space-y-6">
                         {total === 0 ? (
                           <div className="text-center py-4 border border-border-main border-dashed rounded-lg">
-                            <p className="text-sm text-text-main/50 mb-3">No space initialized</p>
-                            <Button onClick={(e) => { e.stopPropagation(); addSeat(type); }} variant="outline">
+                            <p className="text-sm text-text-main/50 mb-3">
+                              No space initialized
+                            </p>
+                            <Button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                addSeat(type);
+                              }}
+                              variant="outline"
+                            >
                               Initialize Space
                             </Button>
                           </div>
@@ -319,25 +330,9 @@ export default function AdminWorkspacesPage({ category = "library" }) {
                                 {available > 0 ? "Available" : "Occupied"}
                               </span>
                             </span>
-                            <Button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                if (available > 0) {
-                                  increaseOccupied(type);
-                                } else {
-                                  decreaseOccupied(type);
-                                }
-                              }}
-                              className={
-                                available > 0
-                                  ? "bg-error hover:bg-error/90 text-white"
-                                  : "bg-success hover:bg-success/90 text-white"
-                              }
-                            >
-                              {available > 0
-                                ? "Mark as Occupied"
-                                : "Mark as Available"}
-                            </Button>
+                            <span className="text-sm text-text-main/50">
+                              (Managed via bookings)
+                            </span>
                           </div>
                         )}
                       </div>
@@ -346,7 +341,12 @@ export default function AdminWorkspacesPage({ category = "library" }) {
                         {/* Total Capacity Counter */}
                         <div className="flex justify-between items-center">
                           <span className="font-medium text-text-main">
-                            Total {type === "cabin" ? "Cabins" : type === "dedicated" ? "Desks" : "Seats"}
+                            Total{" "}
+                            {type === "cabin"
+                              ? "Cabins"
+                              : type === "dedicated"
+                                ? "Desks"
+                                : "Seats"}
                           </span>
                           <div className="flex items-center gap-4 bg-background border border-border-main rounded-lg p-1">
                             <button
@@ -355,7 +355,11 @@ export default function AdminWorkspacesPage({ category = "library" }) {
                                 removeSeat(type);
                               }}
                               disabled={total === 0 || available === 0}
-                              title={available === 0 ? "Cannot decrease capacity: all seats are occupied" : "Decrease capacity"}
+                              title={
+                                available === 0
+                                  ? "Cannot decrease capacity: all seats are occupied"
+                                  : "Decrease capacity"
+                              }
                               className="p-1 text-text-main/70 hover:text-error disabled:opacity-50 transition-colors"
                             >
                               <Minus size={18} />
@@ -375,42 +379,32 @@ export default function AdminWorkspacesPage({ category = "library" }) {
                           </div>
                         </div>
 
-                        {/* Occupied Counter */}
+                        {/* Occupied Counter (Read-only) */}
                         <div className="flex justify-between items-center">
                           <span className="font-medium text-text-main">
-                            Occupied {type === "cabin" ? "Cabins" : type === "dedicated" ? "Desks" : "Seats"}
+                            Occupied{" "}
+                            {type === "cabin"
+                              ? "Cabins"
+                              : type === "dedicated"
+                                ? "Desks"
+                                : "Seats"}
                           </span>
-                          <div className="flex items-center gap-4 bg-background border border-border-main rounded-lg p-1">
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                decreaseOccupied(type);
-                              }}
-                              disabled={occupied === 0}
-                              className="p-1 text-text-main/70 hover:text-success disabled:opacity-50 transition-colors"
-                            >
-                              <Minus size={18} />
-                            </button>
-                            <span className="w-8 text-center font-semibold text-text-main">
+                          <div className="flex items-center gap-4 bg-background border border-border-main rounded-lg p-2 px-4">
+                            <span className="font-semibold text-text-main">
                               {occupied}
                             </span>
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                increaseOccupied(type);
-                              }}
-                              disabled={available === 0}
-                              className="p-1 text-text-main/70 hover:text-error disabled:opacity-50 transition-colors"
-                            >
-                              <Plus size={18} />
-                            </button>
                           </div>
                         </div>
 
                         {/* Available Info */}
                         <div className="flex justify-between items-center pt-4 border-t border-border-main/50">
                           <span className="font-medium text-text-main/70">
-                            Available {type === "cabin" ? "Cabins" : type === "dedicated" ? "Desks" : "Seats"}
+                            Available{" "}
+                            {type === "cabin"
+                              ? "Cabins"
+                              : type === "dedicated"
+                                ? "Desks"
+                                : "Seats"}
                           </span>
                           <span className="font-bold text-success text-lg">
                             {available}
